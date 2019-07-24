@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e064a9c1_53b15379",
+        "filename": "INFO.yaml",
+        "patchSetId": 5
+      },
+      "lineNbr": 61,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-07-24T01:55:19Z",
+      "side": 1,
+      "message": "My timezone is Asia/Shanghai. I think as well as HuiFeng and TingJie",
+      "range": {
+        "startLine": 61,
+        "startChar": 17,
+        "endLine": 61,
+        "endChar": 31
+      },
+      "revId": "e8c5f8ed45677900df4047571690a5e056438f93",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
