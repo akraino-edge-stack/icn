@@ -1,0 +1,85 @@
+#locate
+d-i debian-installer/locale string en_US
+d-i console-tools/archs select true
+d-i debian-installer/language string en
+d-i debian-installer/country string us
+d-i localechooser/supported-locales multiselect en_US.UTF-8, zh_CN.UTF-8
+ 
+#keyboard
+d-i console-setup/ask_detect boolean false
+d-i console-configuration/layoutcode string us
+d-i keyboard-configuration/modelcode string SKIP
+ 
+#clock
+d-i clock-setup/utc boolean false
+d-i time/zone string Asia/Shanghai
+ 
+#network
+d-i netcfg/choose_interface select auto
+d-i netcfg/dhcp_failed note
+d-i netcfg/dhcp_options select Do not configure the network at this time
+d-i netcfg/get_hostname string intel
+d-i netcfg/get_domain string intel-domain
+d-i netcfg/wireless_wep string
+ 
+# Mirror
+ 
+d-i pkgsel/language-pack-patterns	string
+d-i pkgsel/install-language-support	boolean false
+d-i apt-setup/partner boolean true
+d-i debian-installer/splash	boolean false
+d-i oem-config-udeb/frontend	string debconf
+d-i mirror/http/proxy string
+ 
+# clock
+d-i clock-setup/ntp boolean true
+ 
+#user
+d-i passwd/root-login boolean false
+#d-i passwd/root-password password intel2019
+#d-i passwd/root-password-again password intel2019
+d-i passwd/make-user boolean true
+d-i passwd/user-fullname string interuser
+d-i passwd/username string inteluser
+d-i passwd/user-password password intel2019
+d-i passwd/user-password-again password intel2019
+d-i user-setup/allow-password-weak boolean true
+d-i user-setup/encrypt-home boolean false
+
+#disk
+d-i s390-dasd/dasd string 0.0.0300,0.0.0400,0.0.0500
+d-i s390-dasd/auto-format boolean true
+d-i s390-dasd/force-format boolean true
+
+d-i partman-auto/init_automatically_partitioin select biggest_free
+#d-i partman-auto/disk string /dev/sda
+d-i partman-auto/method string lvm
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
+d-i partman-auto-lvm/guided_size string 20GB
+d-i partman-auto/choose_recipe select atomic
+d-i partman-partitioning/confirm_write_new_label boolean true
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverwrite boolean true
+
+#addition file
+d-i preseed/late_command string cp -r /cdrom/bootstrap /target/bootstrap
+
+#basic system
+#d-i base-installer/kernel/linux/initramfs-generators string yaird
+ 
+#package
+tasksel tasksel/first multiselect ubuntu-desktop
+d-i pkgsel/include string openssh-server	build-essential vim landscape-common
+d-i pkgsel/update-policy select none
+ 
+#grub
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+ 
+# Finish
+d-i finish-install/reboot_in_progress note
+oem-config	oem-config/steps	multiselect language, timezone, keyboard, user, network, tasksroot
