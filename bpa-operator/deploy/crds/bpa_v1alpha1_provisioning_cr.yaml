@@ -1,0 +1,9 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-sample
+spec:
+  master:
+    mac-address: 00:c6:14:04:61:b2
+  worker:
+    mac-address: 00:c6:14:04:61:b2
