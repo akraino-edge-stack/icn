@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ae83753_09efd18f",
+        "filename": "tools/create_usb_bootable.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 249
+      },
+      "writtenOn": "2019-07-29T09:47:57Z",
+      "side": 1,
+      "message": "Suggest add a parameter $src (with default value \"..\") which points to the contents which need to be packaged into the iso. and this can help to separate this script with the packaged content.",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "c7b6fd6a7ced344a0d10a8f898b2c2d869e4391a",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
