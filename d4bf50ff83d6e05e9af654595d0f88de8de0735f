@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "773e2bab_2f88479a",
+        "filename": "deploy/kud-plugin-addons/device-plugins/qat/driver/install_qat.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 227,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-07-29T05:13:08Z",
+      "side": 1,
+      "message": "Is 3 seconds good enough here? Not sure if qat provide has a restart approach?",
+      "range": {
+        "startLine": 225,
+        "startChar": 0,
+        "endLine": 227,
+        "endChar": 30
+      },
+      "revId": "d4bf50ff83d6e05e9af654595d0f88de8de0735f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
