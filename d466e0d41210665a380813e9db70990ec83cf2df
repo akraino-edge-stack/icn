@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "636f3bf9_48132207",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-07-29T04:48:34Z",
+      "side": 1,
+      "message": "So we have Internet access on the infra-local-controller node?",
+      "range": {
+        "startLine": 33,
+        "startChar": 6,
+        "endLine": 33,
+        "endChar": 65
+      },
+      "revId": "d466e0d41210665a380813e9db70990ec83cf2df",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
