@@ -89,6 +89,87 @@ function _get_k8s_components {
 
 }
 
+function _get_kud_role_deps {
+    if [ -d "$dest_dir/kud_roles" ]
+    then
+        echo "Dir exits"
+    else
+        echo "Kud_roles does not exist"
+        mkdir -p $dest_dir/kud_roles
+    fi
+    kud_dir=$dest_dir/kud_roles
+
+   wget -nc -P $kud_dir https://github.com/andrewrothstein/ansible-go/archive/v2.1.10.tar.gz
+   wget -nc -P $kud_dir https://github.com/andrewrothstein/ansible-kubernetes-helm/archive/v1.2.9.tar.gz
+   wget -nc -P $kud_dir https://github.com/geerlingguy/ansible-role-docker/archive/2.5.2.tar.gz
+}
+
+function _get_addons {
+    if [ -d "$dest_dir/addons/" ]
+    then
+        echo "addons exists.. ok"
+    else
+        mkdir -p ~$dest_dir/addons
+    fi
+}
+addon_dir=$dest_dir/addons
+
+function _get_addons_multus {
+    if [ -d "$addon_dir/multus" ]
+    then
+        echo "Multus dir exists..."
+    else
+        mkdir -p $addon_dir/multus
+    fi
+    wget -nc -P $addon_dir/multus https://github.com/intel/multus-cni/releases/download/v3.3-tp/multus-cni_3.3-tp_linux_amd64.tar.gz
+
+}
+
+function _get_addons_ovn_kubernetes {
+    if [ -d "$addon_dir/ovn_kubernetes" ]
+    then
+        echo "OVN kubernetes dir exists..."
+    else
+        mkdir -p $addon_dir/ovn_kubernetes
+    fi
+    echo "Fetching prerequisites for ovn"
+
+    wget -nc -P $addon_dir/ovn_kubernetes http://launchpadlibrarian.net/341403267/openvswitch-common_2.8.0-0ubuntu2_amd64.deb
+    wget -nc -P $addon_dir/ovn_kubernetes https://launchpad.net/ubuntu/+archive/primary/+sourcefiles/openvswitch/2.8.0-0ubuntu2/openvswitch_2.8.0.orig.tar.gz
+    wget -nc -P $addon_dir/ovn_kubernetes https://github.com/openvswitch/ovn-kubernetes/archive/v0.3.0.tar.gz
+    #ASK about ovn4nfv-k8s-plugin
+}
+
+function _get_addons_virtlet {
+    if [ -d "$addon_dir/virtlet" ]
+    then
+        echo " Virtlet dir exists..."
+    else
+        mkdir -p $addon_dir/virtlet
+    fi
+    wget -nc -P $addon_dir/virtlet https://github.com/Mirantis/criproxy/releases/download/v0.14.0/criproxy
+    wget -nc -P $addon_dir/virtlet https://github.com/Mirantis/virtlet/releases/download/v1.4.4/virtletctl
+}
+
+function _get_addons_nfd {
+    if [ -d "$addon_dir/nfd" ]
+    then
+        echo "NFD dir exists..."
+    else
+        mkdir -p $addon_dir/nfd
+    fi
+    wget -nc -P $addon_dir/nfd https://github.com/kubernetes-incubator/node-feature-discovery
+}
+
+function _get_addons_istio {
+    if [ -d "$addon_dir/istio" ]
+    then
+        echo "ISTIO dir exists..."
+    else
+        mkdir -p $addon_dir/istio
+    fi
+    wget -nc -P $addon_dir/istio https://github.com/istio/istio/releases/download/1.0.3/istio-1.0.3-linux.tar.gz
+}
 
 _get_go
 _get_pip
@@ -96,3 +177,11 @@ _get_ansible
 _get_docker
 _get_kubespray
 _get_k8s_components
+_get_kud_role_deps 
+_get_addons
+_get_addons_multus
+_get_addons_ovn_kubernetes
+_get_addons_virtlet
+_get_addons_nfd
+_get_addons_istio
+
