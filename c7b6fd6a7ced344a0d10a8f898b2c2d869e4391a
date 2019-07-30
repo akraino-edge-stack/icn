@@ -22,6 +22,30 @@
       "revId": "c7b6fd6a7ced344a0d10a8f898b2c2d869e4391a",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "419711e5_05e731dc",
+        "filename": "tools/create_usb_bootable.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 25,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-07-30T02:43:26Z",
+      "side": 1,
+      "message": "Yeah, I would think more on this.",
+      "parentUuid": "9ae83753_09efd18f",
+      "range": {
+        "startLine": 25,
+        "startChar": 0,
+        "endLine": 25,
+        "endChar": 46
+      },
+      "revId": "c7b6fd6a7ced344a0d10a8f898b2c2d869e4391a",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
