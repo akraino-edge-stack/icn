@@ -1,0 +1,15 @@
+{
+  "owner":  "alpha",
+  "cluster_name": "beta",
+  "Type": "binary",
+  "image_name": "889def",
+  "description": {
+    "image_records":  [
+      {
+        "image_record_name": "98bb",
+        "repo": "java",
+        "tag":  "8"
+      }
+    ]
+  }
+}
