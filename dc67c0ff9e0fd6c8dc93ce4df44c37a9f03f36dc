@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "cc44ae0a_3e4837d9",
+        "filename": "env/akraino_bpa.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-07-31T06:01:03Z",
+      "side": 1,
+      "message": "All the packages related to compute cluster will be in bpa",
+      "range": {
+        "startLine": 17,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 8
+      },
+      "revId": "dc67c0ff9e0fd6c8dc93ce4df44c37a9f03f36dc",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
