@@ -39,6 +39,75 @@
       "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4939df70_6449c0be",
+        "filename": "env/02_configure.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-07-31T06:07:24Z",
+      "side": 1,
+      "message": "Should in 01_install_package.sh script",
+      "range": {
+        "startLine": 33,
+        "startChar": 1,
+        "endLine": 33,
+        "endChar": 62
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2c60fc68_d3d0b7fc",
+        "filename": "env/02_configure.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 80,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-07-31T06:07:24Z",
+      "side": 1,
+      "message": "Should in 01_install_package.sh script",
+      "range": {
+        "startLine": 78,
+        "startChar": 1,
+        "endLine": 80,
+        "endChar": 3
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "66796353_1cfc2670",
+        "filename": "env/02_configure.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-07-31T06:07:24Z",
+      "side": 1,
+      "message": "Should in 01_install_package.sh script",
+      "range": {
+        "startLine": 83,
+        "startChar": 6,
+        "endLine": 84,
+        "endChar": 63
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
