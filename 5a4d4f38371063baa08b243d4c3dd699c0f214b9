@@ -22,6 +22,23 @@
       "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "328b25eb_f96a9f31",
+        "filename": "env/02_configure.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-07-31T06:04:51Z",
+      "side": 1,
+      "message": "John\u0027s Network scripting should be here.",
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
