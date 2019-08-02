@@ -25,6 +25,167 @@
     },
     {
       "key": {
+        "uuid": "bd2864a7_adff88a3",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Remove this functionality",
+      "range": {
+        "startLine": 31,
+        "startChar": 3,
+        "endLine": 37,
+        "endChar": 8
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "77bee924_810106c5",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 40,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Remove this",
+      "range": {
+        "startLine": 40,
+        "startChar": 2,
+        "endLine": 40,
+        "endChar": 9
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b3228c97_6b4dfafa",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 41,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Remove the dnsutils",
+      "range": {
+        "startLine": 41,
+        "startChar": 2,
+        "endLine": 41,
+        "endChar": 10
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3da6ffe9_d5897361",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 49,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Not required",
+      "range": {
+        "startLine": 49,
+        "startChar": 2,
+        "endLine": 49,
+        "endChar": 10
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "98e14c7d_16431868",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Not required",
+      "range": {
+        "startLine": 81,
+        "startChar": 4,
+        "endLine": 81,
+        "endChar": 50
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "06a3836b_2acb84e7",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 83,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "podman | 1.4.4-2~ubuntu18.04~ppa2 | http://ppa.launchpad.net/projectatomic/ppa/ubuntu bionic/main amd64 Packages\n\nupdated in Bionic, remove the version details here",
+      "range": {
+        "startLine": 83,
+        "startChar": 23,
+        "endLine": 83,
+        "endChar": 54
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "3527c151_77a72dc6",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 87,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-02T21:15:46Z",
+      "side": 1,
+      "message": "Not needed again, it is covered in the install docker packages",
+      "range": {
+        "startLine": 87,
+        "startChar": 18,
+        "endLine": 87,
+        "endChar": 64
+      },
+      "revId": "5a4d4f38371063baa08b243d4c3dd699c0f214b9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "328b25eb_f96a9f31",
         "filename": "env/02_configure.sh",
         "patchSetId": 3
