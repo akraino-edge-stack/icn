@@ -3,7 +3,7 @@ package api
 
 import (
   "fmt"
-  "log"
+  //"log"
 
   "gopkg.in/mgo.v2"
   //"gopkg.in/mgo.v2/bson"
@@ -34,17 +34,4 @@ func (r Repository) GetImages() Images {
     fmt.Println("Failed to write results:", err)
   }
   return results
-}
-
-// PUT
-func (r Repository) UpdateImage(image Image) bool {
-  session, err := mgo.Dial(SERVER)
-  defer session.Close()
-  session.DB(DBNAME).C(DOCNAME).UpdateId(image.ID, image)
-
-  if err != nil{
-    log.Fatal(err)
-    return  false
-  }
-  return true
 }

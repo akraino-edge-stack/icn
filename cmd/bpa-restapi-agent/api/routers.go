@@ -47,11 +47,4 @@ var routes = Routes{
     "/",
     controller.FindImages,
   },
-
-  Route{
-		"UpdateImage",
-		strings.ToUpper("Put"),
-		"/",
-		controller.UpdateImage,
-	},
 }
