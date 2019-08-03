@@ -1,0 +1,4 @@
+# Comment or remove next line to disable sriov
+SRIOV_ENABLE=1
+#LEGACY_LOADED=1
+#ENABLE_KAPI=1
