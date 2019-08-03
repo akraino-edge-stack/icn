@@ -30,13 +30,26 @@ func readConfigFile(file string) (*Configuration, error) {
     return conf, err
   }
 
-  retun conf, nil
+  return conf, nil
 }
 
 func defaultConfiguration() *Configuration {
-
+  return &Configuration {
+    Password:           "",
+    DatabaseAddress:    "127.0.0.1",
+    DatabaseType:       "mongo",
+    ServicePort:        "9015",
+  }
 }
 
 func GetConfiguration() *Configuration {
+  if gConfig == nil {
+    conf, err := {
+      log.Println("Error loading config file. Using defaults")
+    }
 
+    gConfig = conf
+  }
+
+  return gConfig
 }

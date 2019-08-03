@@ -7,7 +7,7 @@ import(
   pkgerrors "github.com/pkg/errors"
 )
 
-func CheckDatabaseConection() error {
+func CheckDatabaseConnection() error {
 // To Do - Implement db and config
 
   err := db.CreateDBCLient(config.GetConfiguration().DatabaseType)
@@ -24,7 +24,7 @@ func CheckDatabaseConection() error {
 }
 
 func CheckInitialSettings() error {
-  error := CheckDatabaseConection()
+  error := CheckDatabaseConnection()
   if err != nil {
     return pkgerrors.Cause(err)
   }
