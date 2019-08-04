@@ -1,16 +1,16 @@
 package utils
 
 import(
-  "log"
-  "db"
-  "config"
+  //"log"
+  "icn/cmd/bpa-restapi-agent/internal/db"
+  "icn/cmd/bpa-restapi-agent/internal/config"
   pkgerrors "github.com/pkg/errors"
 )
 
 func CheckDatabaseConnection() error {
 // To Do - Implement db and config
 
-  err := db.CreateDBCLient(config.GetConfiguration().DatabaseType)
+  err := db.CreateDBClient(config.GetConfiguration().DatabaseType)
   if err != nil {
     return pkgerrors.Cause(err)
   }
@@ -24,8 +24,10 @@ func CheckDatabaseConnection() error {
 }
 
 func CheckInitialSettings() error {
-  error := CheckDatabaseConnection()
+  err := CheckDatabaseConnection()
   if err != nil {
     return pkgerrors.Cause(err)
   }
+
+  return nil
 }

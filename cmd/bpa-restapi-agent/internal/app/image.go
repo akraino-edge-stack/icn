@@ -1,9 +1,9 @@
 package app
 
 import (
-	"encoding/base64"
+	//"encoding/base64"
 	"encoding/json"
-	"io/ioutil"
+	//"io/ioutil"
 
 	"icn/cmd/bpa-restapi-agent/internal/db"
 
@@ -13,7 +13,7 @@ import (
 // Image contains the parameters needed for Image information
 type Image struct {
 	ImageName           string               `json:"image-name"`
-  Repository          strings              `json:"repo"`
+  Repository          string               `json:"repo"`
 	Tag                 string               `json:"tag"`
 	Description         string               `json:"description"`
 	OtherValues         ImageRecordList      `json:"other-values"`
@@ -39,10 +39,10 @@ func (dk ImageKey) String() string {
 	return string(out)
 }
 
-// ImageManager is an interface thae exposes the Image functionality
+// ImageManager is an interface that exposes the Image functionality
 type ImageManager interface {
-	Create(c Connection) (Connection, error)
-	Get(name string) (Connection, error)
+	Create(c Image) (Image, error)
+	Get(name string) (Image, error)
 	Delete(name string) error
 	GetImageRecordByName(imagename string, name string) (map[string]string, error)
 }
@@ -120,7 +120,7 @@ func (v *ImageClient) GetImageRecordByName(imgName string,
 		}
 	}
 
-	return nil, pkgerrors.New("Image record " + ImageRecordName + " not found")
+	return nil, pkgerrors.New("Image record " + imageRecordName + " not found")
 }
 
 // Delete the Image from database

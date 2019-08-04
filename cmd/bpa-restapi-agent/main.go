@@ -2,15 +2,20 @@
 package main
 
 import (
+  "context"
   "log"
+  "math/rand"
   "net/http"
   "os"
+  "os/signal"
+  "time"
 
-  //To Do - Implemnet internal for checking config
+  //To Do - Implement internal for checking config
   "github.com/gorilla/handlers"
 
   "icn/cmd/bpa-restapi-agent/api"
   utils "icn/cmd/bpa-restapi-agent/internal"
+  "icn/cmd/bpa-restapi-agent/internal/config"
 )
 
 // func main() {
@@ -32,11 +37,13 @@ import (
 
 func main() {
   // To Do - Implement initial settings
-  //check initial config
+  // check initial config
   err := utils.CheckInitialSettings()
   if err != nil{
     log.Fatal(err)
   }
+
+  rand.Seed(time.Now().UnixNano())
 
   httpRouter := api.NewRouter(nil)
   // Return http.handler and log requests to Stdout
@@ -52,7 +59,7 @@ func main() {
   connectionsClose := make(chan struct{})
   go func() {
     c := make(chan os.Signal, 1) // create c channel to receive notifications
-    signal.Notify(c, os.interrupt) // register c channel to run concurrently
+    signal.Notify(c, os.Interrupt) // register c channel to run concurrently
     <-c
     httpServer.Shutdown(context.Background())
     close(connectionsClose)

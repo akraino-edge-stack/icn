@@ -4,7 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"log"
 
-	"github.com/onap/multicloud-k8s/src/k8splugin/internal/config"
+	"icn/cmd/bpa-restapi-agent/internal/config"
 
 	pkgerrors "github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"

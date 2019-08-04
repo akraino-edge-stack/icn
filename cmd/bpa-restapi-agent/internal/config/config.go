@@ -20,13 +20,13 @@ func readConfigFile(file string) (*Configuration, error) {
   if err != nil {
     return defaultConfiguration(), err
   }
-  defer f.close()
+  defer f.Close()
 
   conf := defaultConfiguration()
 
   decoder := json.NewDecoder(f)
   err = decoder.Decode(conf)
-  if err != nile {
+  if err != nil {
     return conf, err
   }
 
@@ -44,7 +44,8 @@ func defaultConfiguration() *Configuration {
 
 func GetConfiguration() *Configuration {
   if gConfig == nil {
-    conf, err := {
+    conf, err := readConfigFile("ICNconfig.json")
+    if err != nil {
       log.Println("Error loading config file. Using defaults")
     }
 

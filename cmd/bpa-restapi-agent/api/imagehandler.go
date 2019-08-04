@@ -2,14 +2,14 @@
 package api
 
 import (
-	"bytes"
-	"encoding/base64"
+	// "bytes"
+	// "encoding/base64"
 	"encoding/json"
-	"io"
-	"io/ioutil"
+	// "io"
+	// "io/ioutil"
 	"net/http"
-
-	"icn/cmd/bpa-restapi-agent/internal/app"
+	//
+	image "icn/cmd/bpa-restapi-agent/internal/app"
 
 	"github.com/gorilla/mux"
 )
