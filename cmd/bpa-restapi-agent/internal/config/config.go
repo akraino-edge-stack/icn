@@ -7,8 +7,8 @@ import (
 )
 
 type Configuration struct {
-  Password        string `json: "password"`
-  DatabaseAddress string  `json: "database-address"`
+  Password        string  `json:  "password"`
+  DatabaseAddress string  `json:  "database-address"`
   DatabaseType    string  `json:  "database-type"`
   ServicePort     string  `json:  "service-port"`
 }

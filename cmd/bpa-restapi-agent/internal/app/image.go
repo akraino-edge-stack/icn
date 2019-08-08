@@ -1,7 +1,7 @@
 package app
 
 import (
-	//"encoding/base64"
+  //"encoding/base64"
 	"encoding/json"
 	//"io/ioutil"
 
@@ -12,20 +12,25 @@ import (
 
 // Image contains the parameters needed for Image information
 type Image struct {
-	ImageName           string               `json:"image-name"`
-  Repository          string               `json:"repo"`
-	Tag                 string               `json:"tag"`
-	Description         string               `json:"description"`
-	OtherValues         ImageRecordList      `json:"other-values"`
+	Owner          			string               `json:"owner"`
+	ClusterName         string               `json:"cluster_name"`
+	ImageName           string               `json:"image_name"`
+	Config							string 							 `json:"config"`
+	ImageOffset					int32								 `json:"image_offset"`
+	ImageLength					int32								 `json:"image_length"`
+	UploadComplete			bool								 `json:"upload_complete"`
+	Description         ImageRecordList      `json:"description"`
 }
 
 type ImageRecordList struct {
-	ImageRecords []map[string]string `json:"image-records"`
+	ImageRecords []map[string]string `json:"image_records"`
 }
 
 // ImageKey is the key structure that is used in the database
 type ImageKey struct {
-	ImageName string `json:"image-name"`
+	Owner            string     `json:"owner"`
+	ClusterName      string     `json:"cluster_name"`
+	ImageName        string     `json:"image_name"`
 }
 
 // We will use json marshalling to convert to string to
@@ -42,9 +47,9 @@ func (dk ImageKey) String() string {
 // ImageManager is an interface that exposes the Image functionality
 type ImageManager interface {
 	Create(c Image) (Image, error)
-	Get(name string) (Image, error)
-	Delete(name string) error
-	GetImageRecordByName(imagename string, name string) (map[string]string, error)
+	Get(ownerName, clusterName, imageName string) (Image, error)
+	Delete(ownerName, clusterName, imageName string) error
+	GetImageRecordByName(imgname string, imageName string) (map[string]string, error)
 }
 
 // ImageClient implements the ImageManager
@@ -67,10 +72,14 @@ func NewImageClient() *ImageClient {
 func (v *ImageClient) Create(c Image) (Image, error) {
 
 	//Construct composite key consisting of name
-	key := ImageKey{ImageName: c.ImageName}
+	key := ImageKey{
+		Owner:	c.Owner,
+		ClusterName:	c.ClusterName,
+		ImageName: c.ImageName
+	}
 
 	//Check if this Image already exists
-	_, err := v.Get(c.ImageName)
+	_, err := v.Get(c.Owner, c.ClusterName, c.ImageName)
 	if err == nil {
 		return Image{}, pkgerrors.New("Image already exists")
 	}
@@ -84,10 +93,15 @@ func (v *ImageClient) Create(c Image) (Image, error) {
 }
 
 // Get returns Image for corresponding to name
-func (v *ImageClient) Get(name string) (Image, error) {
+func (v *ImageClient) Get(ownerName, clusterName, imageName string) (Image, error) {
 
 	//Construct the composite key to select the entry
-	key := ImageKey{ImageName: name}
+	key := ImageKey{
+		Owner:	c.Owner,
+		ClusterName:	c.ClusterName,
+		ImageName: c.ImageName
+	}
+
 	value, err := db.DBconn.Read(v.storeName, key, v.tagMeta)
 	if err != nil {
 		return Image{}, pkgerrors.Wrap(err, "Get Image")
@@ -114,8 +128,8 @@ func (v *ImageClient) GetImageRecordByName(imgName string,
 		return nil, pkgerrors.Wrap(err, "Error getting image")
 	}
 
-	for _, value := range img.OtherValues.ImageRecords {
-		if imageRecordName == value["image-record-name"] {
+	for _, value := range img.Description.ImageRecords {
+		if imageRecordName == value["image_record_name"] {
 			return value, nil
 		}
 	}

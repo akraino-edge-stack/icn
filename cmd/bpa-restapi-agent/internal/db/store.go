@@ -49,7 +49,7 @@ func CreateDBClient(dbType string) error {
 	switch dbType {
 	case "mongo":
 		// create a mongodb database with ICN as the name
-		DBconn, err = NewMongoStore("ICN", nil)
+		DBconn, err = NewMongoStore("icn", nil)
 	default:
 		return pkgerrors.New(dbType + "DB not supported")
 	}
