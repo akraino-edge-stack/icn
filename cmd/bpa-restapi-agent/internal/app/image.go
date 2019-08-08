@@ -14,6 +14,7 @@ import (
 type Image struct {
 	Owner          			string               `json:"owner"`
 	ClusterName         string               `json:"cluster_name"`
+	Type                string               `json:"type"`
 	ImageName           string               `json:"image_name"`
 	Config							string 							 `json:"config"`
 	ImageOffset					int32								 `json:"image_offset"`
@@ -28,8 +29,8 @@ type ImageRecordList struct {
 
 // ImageKey is the key structure that is used in the database
 type ImageKey struct {
-	Owner            string     `json:"owner"`
-	ClusterName      string     `json:"cluster_name"`
+	// Owner            string     `json:"owner"`
+	// ClusterName      string     `json:"cluster_name"`
 	ImageName        string     `json:"image_name"`
 }
 
@@ -47,9 +48,9 @@ func (dk ImageKey) String() string {
 // ImageManager is an interface that exposes the Image functionality
 type ImageManager interface {
 	Create(c Image) (Image, error)
-	Get(ownerName, clusterName, imageName string) (Image, error)
-	Delete(ownerName, clusterName, imageName string) error
-	GetImageRecordByName(imgname string, imageName string) (map[string]string, error)
+	Get(imageName string) (Image, error)
+	Delete(imageName string) error
+	GetImageRecordByName(imgname, imageName string) (map[string]string, error)
 }
 
 // ImageClient implements the ImageManager
@@ -61,9 +62,23 @@ type ImageClient struct {
 
 // NewImageClient returns an instance of the ImageClient
 // which implements the ImageManager
-func NewImageClient() *ImageClient {
+func NewBinaryImageClient() *ImageClient {
 	return &ImageClient{
-		storeName: "image",
+		storeName: "binary_image",
+		tagMeta:   "metadata",
+	}
+}
+
+func NewContainerImageClient() *ImageClient {
+	return &ImageClient{
+		storeName: "container_image",
+		tagMeta:   "metadata",
+	}
+}
+
+func NewOSImageClient() *ImageClient {
+	return &ImageClient{
+		storeName: "os_image",
 		tagMeta:   "metadata",
 	}
 }
@@ -73,13 +88,13 @@ func (v *ImageClient) Create(c Image) (Image, error) {
 
 	//Construct composite key consisting of name
 	key := ImageKey{
-		Owner:	c.Owner,
-		ClusterName:	c.ClusterName,
-		ImageName: c.ImageName
+		// Owner:	c.Owner,
+		// ClusterName:	c.ClusterName,
+		ImageName: c.ImageName,
 	}
 
 	//Check if this Image already exists
-	_, err := v.Get(c.Owner, c.ClusterName, c.ImageName)
+	_, err := v.Get(c.ImageName)
 	if err == nil {
 		return Image{}, pkgerrors.New("Image already exists")
 	}
@@ -93,13 +108,13 @@ func (v *ImageClient) Create(c Image) (Image, error) {
 }
 
 // Get returns Image for corresponding to name
-func (v *ImageClient) Get(ownerName, clusterName, imageName string) (Image, error) {
+func (v *ImageClient) Get(imageName string) (Image, error) {
 
 	//Construct the composite key to select the entry
 	key := ImageKey{
-		Owner:	c.Owner,
-		ClusterName:	c.ClusterName,
-		ImageName: c.ImageName
+		// Owner:	ownerName,
+		// ClusterName:	clusterName,
+		ImageName: imageName,
 	}
 
 	value, err := db.DBconn.Read(v.storeName, key, v.tagMeta)
@@ -138,10 +153,14 @@ func (v *ImageClient) GetImageRecordByName(imgName string,
 }
 
 // Delete the Image from database
-func (v *ImageClient) Delete(name string) error {
+func (v *ImageClient) Delete(imageName string) error {
 
 	//Construct the composite key to select the entry
-	key := ImageKey{ImageName: name}
+	key := ImageKey{
+		// Owner:	ownerName,
+		// ClusterName:	clusterName,
+		ImageName: imageName,
+	}
 	err := db.DBconn.Delete(v.storeName, key, v.tagMeta)
 	if err != nil {
 		return pkgerrors.Wrap(err, "Delete Image")

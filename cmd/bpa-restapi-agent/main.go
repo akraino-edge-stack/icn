@@ -45,7 +45,7 @@ func main() {
 
   rand.Seed(time.Now().UnixNano())
 
-  httpRouter := api.NewRouter(nil)
+  httpRouter := api.NewRouter(nil, nil, nil)
   // Return http.handler and log requests to Stdout
   loggedRouter := handlers.LoggingHandler(os.Stdout, httpRouter)
   log.Println("Starting Integrated Cloud Native API")

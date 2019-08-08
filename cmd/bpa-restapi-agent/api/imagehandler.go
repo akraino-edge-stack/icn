@@ -96,11 +96,11 @@ func (h imageHandler) createHandler(w http.ResponseWriter, r *http.Request) {
 // Returns an Image
 func (h imageHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ownerName := vars["owner"]
-	clusterName := vars["clustername"]
-	name := vars["imgname"]
+	// ownerName := vars["owner"]
+	// clusterName := vars["clustername"]
+	imageName := vars["imgname"]
 
-	ret, err := h.client.Get(ownerName, clusterName, imageName)
+	ret, err := h.client.Get(imageName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -118,11 +118,11 @@ func (h imageHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 // deleteHandler handles DELETE operations on a particular record
 func (h imageHandler) deleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	ownerName := vars["owner"]
-	clusterName := vars["clustername"]
-	name := vars["imgname"]
+	// ownerName := vars["owner"]
+	// clusterName := vars["clustername"]
+	imageName := vars["imgname"]
 
-	err := h.client.Delete(ownerName, clusterName, imageName)
+	err := h.client.Delete(imageName)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
