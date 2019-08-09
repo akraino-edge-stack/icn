@@ -45,6 +45,30 @@
       "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a47d89e7_6ea5f1a3",
+        "filename": "tools/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 249
+      },
+      "writtenOn": "2019-08-09T05:10:28Z",
+      "side": 1,
+      "message": "@Kural, It is a good idea! For collect_XX.sh of QAT, SRIOV, since it had been tested with collect.sh, suggest changing to follow above rule after mid-Aug release. does it ok for you?",
+      "parentUuid": "8efdeddf_6e141b5e",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 4
+      },
+      "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
