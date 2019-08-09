@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "17ebfab0_15849b1c",
+        "filename": "tools/README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-08-09T07:16:34Z",
+      "side": 1,
+      "message": "Guys could you please have a look of these rules? I am not sure if these rules make sense to you",
+      "range": {
+        "startLine": 15,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 25
+      },
+      "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "4d3785da_4ff21c10",
         "filename": "tools/collect.sh",
         "patchSetId": 2
@@ -22,6 +45,30 @@
       "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "2fe89731_716c2e16",
+        "filename": "tools/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 12,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-08-09T07:16:34Z",
+      "side": 1,
+      "message": "Then which folder should we put deb packages in?",
+      "parentUuid": "4d3785da_4ff21c10",
+      "range": {
+        "startLine": 12,
+        "startChar": 0,
+        "endLine": 12,
+        "endChar": 27
+      },
+      "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     },
     {
       "key": {
@@ -69,6 +116,30 @@
       "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "83a108a9_3b9265ac",
+        "filename": "tools/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2019-08-09T07:16:34Z",
+      "side": 1,
+      "message": "I good to put all collect scripts under env/buntu/bootloader-env.\nI can use the \u0027sort\u0027 command to sort the scripts by name. So we can execute scripts in the correct order.\n\nKural, could you please also to review the rules I defined in the README.md[1]?\nBecause I am not sure if it makes sense to you or other team members.\n\n[1] https://gerrit.akraino.org/r/c/icn/+/1319/2/tools/README.md",
+      "parentUuid": "8efdeddf_6e141b5e",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 4
+      },
+      "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
