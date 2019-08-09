@@ -22,6 +22,29 @@
       "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "8efdeddf_6e141b5e",
+        "filename": "tools/collect.sh",
+        "patchSetId": 2
+      },
+      "lineNbr": 22,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-09T04:45:23Z",
+      "side": 1,
+      "message": "As the project grows, it will be an issues \"find\" command will be in lexicographical order, better to have the proper sequence as Huifeng said. Let\u0027s put the collect script in a folder env/ubuntu/bootloader-env/ with file name collect_00_* , collect_01_*, collect_02_*, collect_03_*",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 22,
+        "endChar": 4
+      },
+      "revId": "cead988149ee5c820ceb04ce45ccc9196fb20d64",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
