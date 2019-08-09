@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	//"io/ioutil"
 
-	"icn/cmd/bpa-restapi-agent/internal/db"
+	"bpa-restapi-agent/internal/db"
 
 	pkgerrors "github.com/pkg/errors"
 )
@@ -60,6 +60,7 @@ type ImageClient struct {
 	tagMeta   string
 }
 
+// To Do - Fix repetition in
 // NewImageClient returns an instance of the ImageClient
 // which implements the ImageManager
 func NewBinaryImageClient() *ImageClient {

@@ -2,8 +2,8 @@ package utils
 
 import(
   //"log"
-  "icn/cmd/bpa-restapi-agent/internal/db"
-  "icn/cmd/bpa-restapi-agent/internal/config"
+  "bpa-restapi-agent/internal/db"
+  "bpa-restapi-agent/internal/config"
   pkgerrors "github.com/pkg/errors"
 )
 

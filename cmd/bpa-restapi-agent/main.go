@@ -13,9 +13,9 @@ import (
   //To Do - Implement internal for checking config
   "github.com/gorilla/handlers"
 
-  "icn/cmd/bpa-restapi-agent/api"
-  utils "icn/cmd/bpa-restapi-agent/internal"
-  "icn/cmd/bpa-restapi-agent/internal/config"
+  "bpa-restapi-agent/api"
+  utils "bpa-restapi-agent/internal"
+  "bpa-restapi-agent/internal/config"
 )
 
 // func main() {

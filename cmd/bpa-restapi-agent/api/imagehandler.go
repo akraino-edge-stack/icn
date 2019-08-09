@@ -9,7 +9,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	image "icn/cmd/bpa-restapi-agent/internal/app"
+	image "bpa-restapi-agent/internal/app"
 
 	"github.com/gorilla/mux"
 )

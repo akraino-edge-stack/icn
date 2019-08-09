@@ -4,7 +4,7 @@ import (
 	"golang.org/x/net/context"
 	"log"
 
-	"icn/cmd/bpa-restapi-agent/internal/config"
+	"bpa-restapi-agent/internal/config"
 
 	pkgerrors "github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson"
