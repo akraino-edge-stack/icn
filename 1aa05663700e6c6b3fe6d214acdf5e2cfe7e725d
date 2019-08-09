@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2d553c21_8e7c5ee7",
+        "filename": "env/lib/common.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-09T02:40:26Z",
+      "side": 1,
+      "message": "Check with John is this specific for the",
+      "range": {
+        "startLine": 20,
+        "startChar": 0,
+        "endLine": 20,
+        "endChar": 49
+      },
+      "revId": "1aa05663700e6c6b3fe6d214acdf5e2cfe7e725d",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
