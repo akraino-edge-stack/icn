@@ -2,6 +2,23 @@
   "comments": [
     {
       "key": {
+        "uuid": "3411e28b_1f27ee7d",
+        "filename": "env/01_install_package.sh",
+        "patchSetId": 5
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 246
+      },
+      "writtenOn": "2019-08-15T04:39:57Z",
+      "side": 1,
+      "message": "The only thing missing for KUD is git. Shall I add that here? Or would you want me to create a function for it?",
+      "revId": "1aa05663700e6c6b3fe6d214acdf5e2cfe7e725d",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "ec4cf781_d0dba25b",
         "filename": "env/lib/common.sh",
         "patchSetId": 5
