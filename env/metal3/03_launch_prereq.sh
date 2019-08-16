@@ -1,11 +1,13 @@
 #!/bin/bash
 set -xe
 
-source lib/logging.sh
-source lib/common.sh
+LIBDIR="$(dirname "$PWD")"
+
+source $LIBDIR/lib/logging.sh
+source $LIBDIR/lib/common.sh
 
 if [[ $EUID -ne 0 ]]; then
-    echo "confgiure script must be run as root"
+    echo "launch script must be run as root"
     exit 1
 fi
 

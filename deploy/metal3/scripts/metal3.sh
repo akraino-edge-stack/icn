@@ -9,6 +9,11 @@ BM_OPERATOR="${BM_OPERATOR:-https://github.com/metal3-io/baremetal-operator.git}
 
 source $LIBDIR/env/lib/common.sh
 
+if [[ $EUID -ne 0 ]]; then
+    echo "This script must be run as root"
+    exit 1
+fi
+
 function get_default_inteface_ipaddress() {
     local _ip=$1
     local _default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
