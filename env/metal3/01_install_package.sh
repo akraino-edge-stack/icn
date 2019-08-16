@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -ex
 
-lib/common.sh
-lib/logging.sh
+LIBDIR="$(dirname "$PWD")"
+
+source $LIBDIR/lib/common.sh
+source $LIBDIR/lib/logging.sh
 
 if [[ $EUID -ne 0 ]]; then
     echo "This script must be run as root"
