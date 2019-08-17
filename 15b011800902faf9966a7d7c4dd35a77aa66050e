@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68d0152e_94bb8a16",
+        "filename": "cmd/bpa-operator/pkg/controller/provisioning/provisioning_controller.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-17T01:48:25Z",
+      "side": 1,
+      "message": "Just for the testing for the initial release",
+      "range": {
+        "startLine": 36,
+        "startChar": 0,
+        "endLine": 37,
+        "endChar": 92
+      },
+      "revId": "15b011800902faf9966a7d7c4dd35a77aa66050e",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
