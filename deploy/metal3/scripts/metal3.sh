@@ -1,5 +1,4 @@
 #!/bin/bash
-set -ex
 
 LIBDIR="$(dirname "$(dirname "$(dirname "$PWD")")")"
 
@@ -60,7 +59,7 @@ provision_compute_node() {
 	printf "\n  userData:" >> $COMPUTE_NODE_NAME-bm-node.yaml
 	printf "\n    name: ""%s" "$COMPUTE_NODE_NAME""-user-data" >> $COMPUTE_NODE_NAME-bm-node.yaml
 	printf "\n    namespace: metal3\n" >> $COMPUTE_NODE_NAME-bm-node.yaml
-	kubectl apply -f $COMPUTE_NODE_NAME-bm-node.yaml
+	kubectl apply -f $COMPUTE_NODE_NAME-bm-node.yaml -n metal3
 }
 
 deprovision_compute_node() {
@@ -99,10 +98,10 @@ create_userdata() {
 		printf "fqdn: ""%s" "$COMPUTE_NODE_FQDN" >> userdata.yaml
 		printf "\n" >> userdata.yaml
 	fi
-
+	printf "disable_root: false\n" >> userdata.yaml
 	printf "ssh_authorized_keys:\n  - " >> userdata.yaml
 
-	if [ -f $HOME/.ssh/id_rsa.pub ]; then
+	if [ ! -f $HOME/.ssh/id_rsa.pub ]; then
 		yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
 	fi
 
