@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
         "path/filepath"
         "os/user"
+        "os/exec"
 
 
 	bpav1alpha1 "github.com/bpa-operator/pkg/apis/bpa/v1alpha1"
@@ -32,6 +33,7 @@ import (
 
 var log = logf.Log.WithName("controller_provisioning")
 var dhcpLeaseFile = "/var/lib/dhcp/dhcpd.leases"
+var kudInstallerScript = "/root/icn/deploy/kud/multicloud-k8s/kud/hosting_providers/vagrant"
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -130,7 +132,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
 
 
-                      allString += masterLabel + "  ansible_host="  + hostIPaddress + " ip=" + hostIPaddress + "\n"
+                      allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
                       masterString += masterLabel + "\n"
 
                       fmt.Printf("%s : %s \n", hostIPaddress, master.MACaddress)
@@ -161,7 +163,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                      }
                       fmt.Printf("%s : %s \n", hostIPaddress, worker.MACaddress)
 
-                      allString += workerLabel + "  ansible_host="  + hostIPaddress + " ip=" + hostIPaddress + "\n"
+                      allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
                       workerString += workerLabel + "\n"
 
                    }else {
@@ -214,6 +216,12 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
 
         hostFile.SaveTo(iniHostFilePath)
+
+       //TODO: Test KUD installer part
+       //Copy host.ini file to the right path and install KUD
+       dstIniPath := kudInstallerScript + "/inventory/hosts.ini"
+       kudInstaller(iniHostFilePath, dstIniPath, kudInstallerScript)
+
 	return reconcile.Result{}, nil
 }
 
@@ -320,4 +328,25 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
 
  }
      return "", nil
+}
+
+func kudInstaller(srcIniPath, dstIniPath, kudInstallerPath string) {
+
+      err := os.Chdir(kudInstallerPath)
+      if err != nil {
+          fmt.Printf("Could not change directory %v", err)
+          return
+        }
+
+      commands := "cp " + srcIniPath + " "  + dstIniPath + "; ./installer.sh| tee kud_installer.log"
+
+      cmd := exec.Command("/bin/bash", "-c", commands)
+      err = cmd.Run()
+
+      if err != nil {
+          fmt.Printf("Error Occured while running KUD install scripts %v", err)
+          return
+        }
+
+      return
 }
