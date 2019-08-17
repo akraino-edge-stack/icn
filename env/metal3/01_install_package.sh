@@ -18,7 +18,6 @@ function install_essential_packages() {
 		curl \
 		dnsmasq \
 		figlet \
-		golang \
 		nmap \
 		patch \
 		psmisc \
@@ -26,7 +25,13 @@ function install_essential_packages() {
 		python-requests \
 		python-setuptools \
 		vim \
-		wget
+		wget \
+		git \
+		software-properties-common
+
+	add-apt-repository ppa:longsleep/golang-backports
+	apt-get update
+	apt-get install golang-go
 }
 
 function install_ironic_packages() {
