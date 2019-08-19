@@ -2,16 +2,14 @@ package api
 
 import (
 	"bytes"
-	"encoding/base64"
+	//"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"os/user"
 	"log"
-	"path"
 	"strconv"
 
 	image "bpa-restapi-agent/internal/app"
@@ -72,12 +70,6 @@ func (h imageHandler) createHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//Create file directory
-	dir, err := createFileDir(v.Type)
-	if err != nil {
-		log.Fatal("Error creating file server directory", err)
-	}
-
 	//Read the file section and ignore the header
 	file, _, err := r.FormFile("file")
 	if err != nil {
@@ -87,31 +79,12 @@ func (h imageHandler) createHandler(w http.ResponseWriter, r *http.Request) {
 
 	defer file.Close()
 
-	//Convert the file content to base64 for storage
-	content, err := ioutil.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Unable to read file", http.StatusUnprocessableEntity)
-		return
-	}
-
-	v.Config = base64.StdEncoding.EncodeToString(content)
 
 	ret, err := h.client.Create(v)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	h.dirPath = dir
-	filePath := path.Join(h.dirPath, v.ImageName)
-	file1, err := os.Create(filePath)
-	if err != nil {
-		e := "Error creating file in filesystem"
-		log.Printf("%s %s\n", e, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		return
-	}
-
-	defer file1.Close()
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
@@ -122,30 +95,11 @@ func (h imageHandler) createHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// Create file
-
-func createFileDir(dirName string) (string, error) {
-    u, err := user.Current()
-    if err != nil {
-        log.Println("Error while fetching user home directory", err)
-        return "", err
-    }
-    home := u.HomeDir
-    dirPath := path.Join(home, "images", dirName)
-    err = os.MkdirAll(dirPath, 0744)
-    if err != nil {
-        log.Println("Error while creating file server directory", err)
-        return "", err
-    }
-    return dirPath, nil
-}
 
 // getHandler handles GET operations on a particular name
 // Returns an Image
 func (h imageHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	// ownerName := vars["owner"]
-	// clusterName := vars["clustername"]
 	imageName := vars["imgname"]
 
 	ret, err := h.client.Get(imageName)
@@ -166,8 +120,6 @@ func (h imageHandler) getHandler(w http.ResponseWriter, r *http.Request) {
 // deleteHandler handles DELETE operations on a particular record
 func (h imageHandler) deleteHandler(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
-	// ownerName := vars["owner"]
-	// clusterName := vars["clustername"]
 	imageName := vars["imgname"]
 
 	err := h.client.Delete(imageName)
@@ -222,15 +174,6 @@ func (h imageHandler) updateHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	defer file.Close()
-
-	//Convert the file content to base64 for storage
-	content, err := ioutil.ReadAll(file)
-	if err != nil {
-		http.Error(w, "Unable to read file", http.StatusUnprocessableEntity)
-		return
-	}
-
-	v.Config = base64.StdEncoding.EncodeToString(content)
 
 	ret, err := h.client.Update(imageName, v)
 	if err != nil {
@@ -301,15 +244,12 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		log.Println("Size of received file ", len(body))
 	}
 
-	u, err := user.Current()
+	fp, _, err := h.client.GetDirPath(imageName)
 	if err != nil {
-			log.Println("Error while fetching user home directory", err)
-			return
+		log.Printf("unable to get file path %s\n", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
-	home := u.HomeDir
-	dir := path.Join(home, "images", file.Type)
-	h.dirPath = dir
-	fp := fmt.Sprintf("%s/%s", h.dirPath, imageName)
 	f, err := os.OpenFile(fp, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("unable to open file %s\n", err)
@@ -335,12 +275,12 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		*file.UploadComplete = true
 	}
 
-	// err = h.updateFile(file)
-	// if err != nil {
-	// 	log.Println("Error while updating file", err)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	_, err = h.client.Update(imageName, file)
+	if err != nil {
+		log.Println("Error while updating file", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 
 	return
