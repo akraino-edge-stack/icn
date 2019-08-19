@@ -22,6 +22,29 @@
       "revId": "15b011800902faf9966a7d7c4dd35a77aa66050e",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "37cc3ce3_1097e7f8",
+        "filename": "cmd/bpa-operator/pkg/controller/provisioning/provisioning_controller.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 213,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-08-19T18:14:55Z",
+      "side": 1,
+      "message": "Spelling mistake \"k8s-cluser\", It should be \"k8s-cluster\"",
+      "range": {
+        "startLine": 213,
+        "startChar": 39,
+        "endLine": 213,
+        "endChar": 92
+      },
+      "revId": "15b011800902faf9966a7d7c4dd35a77aa66050e",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
