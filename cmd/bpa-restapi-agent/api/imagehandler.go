@@ -335,12 +335,12 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		*file.UploadComplete = true
 	}
 
-	// err = h.updateFile(file)
-	// if err != nil {
-	// 	log.Println("Error while updating file", err)
-	// 	w.WriteHeader(http.StatusInternalServerError)
-	// 	return
-	// }
+	_, err = h.client.Update(imageName, file)
+	if err != nil {
+		log.Println("Error while updating file", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 	w.WriteHeader(http.StatusNoContent)
 
 	return
