@@ -17,7 +17,8 @@ POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 PODMAN_CNI_CONFLIST=${PODMAN_CNI_CONFLIST:-"https://raw.githubusercontent.com/containers/libpod/v1.4.4/cni/87-podman-bridge.conflist"}
 
 #Bootstrap K8s cluster
-
+BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-"eno2"}
+BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-"172.31.1.1/24"}
 
 #Ironic variables
 IRONIC_IMAGE=${IRONIC_IMAGE:-"quay.io/metal3-io/ironic:master"}

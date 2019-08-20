@@ -12,14 +12,24 @@ spec:
       labels:
         name: bpa-operator
     spec:
+      hostNetwork: true
       serviceAccountName: bpa-operator
       containers:
         - name: bpa-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: akraino.org/icn/bpa-operator:latest
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+          - name: dhcp-shared
+            mountPath: /var/lib/dhcp/
+          - name: icn-kud
+            mountPath: /multicloud-k8s
+          - name: icn-cluster
+            mountPath: /multi-cluster
           command:
-          - bpa-operator
-          imagePullPolicy: Always
+          - /bpa-operator
+          securityContext:
+            privileged: true
           env:
             - name: WATCH_NAMESPACE
               valueFrom:
@@ -31,3 +41,10 @@ spec:
                   fieldPath: metadata.name
             - name: OPERATOR_NAME
               value: "bpa-operator"
+      volumes:
+      - name: dhcp-shared
+        hostPath:
+          path: /opt/icn/dhcp/
+      - name: icn-kud
+        hostPath:
+          path: /opt/icn/multicloud-k8s/

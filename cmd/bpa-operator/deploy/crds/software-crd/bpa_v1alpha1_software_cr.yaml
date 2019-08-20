@@ -1,0 +1,19 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Software
+metadata: 
+  labels: 
+    cluster: cluster-xyz
+    owner: c1
+  name: sample-software
+spec: 
+  masterSoftware: 
+    - expect
+    - htop
+    - jq: 
+        version: 1.5+dfsg-1ubuntu0.1
+    - maven
+  workerSoftware: 
+    - curl
+    - python
+    - tmux
+    - jq
