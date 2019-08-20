@@ -24,6 +24,20 @@ function check_inteface_ip() {
     fi
 }
 
+function configure_dhcp_bridge() {
+	brctl addbr dhcp0
+	ip link set dhcp0 up
+	brctl addif dhcp0 $BS_DHCP_INTERFACE
+	ip addr add dev dhcp0 $BS_DHCP_INTERFACE_IP
+}
+
+function configure_ironic_bridge() {
+	brctl addbr provisioning
+	ip link set provisioning up
+	brctl addif provisioning $IRONIC_IPMI_INTERFACE
+	ip addr add dev provisioning 172.22.0.1/24
+}
+
 function configure_kubelet() {
 	swapoff -a
 	#Todo addition kubelet configuration
@@ -140,6 +154,8 @@ function configure() {
 	configure_kubelet
 	configure_ironic_interfaces
 	configure_ironic $1
+	configure_dhcp_bridge
+	configure_ironic_bridge
 }
 
 if [ "$1" == "-o" ]; then

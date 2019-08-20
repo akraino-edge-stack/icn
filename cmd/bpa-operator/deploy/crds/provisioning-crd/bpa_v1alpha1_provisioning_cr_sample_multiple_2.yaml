@@ -1,0 +1,21 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-test-2
+  labels:
+    cluster: cluster-xyz
+    owner: c1
+spec:
+  masters:
+    - master-1:
+        mac-address: 00:c6:14:04:61:b2
+    - master-2:
+         mac-address: 00:c5:12:06:61:b2
+  workers:
+    - worker-1:
+         mac-address: 00:c4:13:04:62:b5
+    - worker-2:
+         mac-address: 00:c3:11:02:61:b5
+
+  kudInstallerPath: /root/go/src/test-code/bpa-test/test-1/kud/multicloud-k8s/kud/hosting_providers/vagrant
+  dhcpLeaseFile: /root/go/src/test-code/dhcp_lease.txt
