@@ -1,5 +1,5 @@
 apiVersion: rbac.authorization.k8s.io/v1
-kind: Role
+kind: ClusterRole
 metadata:
   creationTimestamp: null
   name: bpa-operator
@@ -14,6 +14,7 @@ rules:
   - events
   - configmaps
   - secrets
+  - namespaces
   verbs:
   - '*'
 - apiGroups:
@@ -56,5 +57,11 @@ rules:
   - bpa.akraino.org
   resources:
   - '*'
+  verbs:
+  - '*'
+- apiGroups:
+  - metal3.io
+  resources:
+  - baremetalhosts
   verbs:
   - '*'

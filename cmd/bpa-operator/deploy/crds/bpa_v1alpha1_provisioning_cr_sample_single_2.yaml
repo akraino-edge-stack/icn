@@ -1,0 +1,14 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-sample-real-2
+  labels:
+    cluster: cluster-xyz
+    owner: c1
+spec:
+  masters:
+    - master-1:
+        mac-address: 90:e2:ba:cd:df:bd
+  workers:
+    - master-1:
+        mac-address: 90:e2:ba:cd:df:bd 
