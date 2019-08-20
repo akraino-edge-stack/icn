@@ -18,7 +18,7 @@ kud_download:
 	pushd $(KUD_PATH) && ./kud_launch.sh && popd
 
 bpa_op_install: kud_download
-	pushd $(BPA_OPERATOR) && ./bpa_operator_launch.sh && popd
+	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
 
 bpa_op_all: bm_all bpa_op_install 	
 

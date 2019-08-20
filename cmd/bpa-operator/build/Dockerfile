@@ -1,15 +1,8 @@
-FROM registry.access.redhat.com/ubi7/ubi-minimal:latest
+FROM registry.svc.ci.openshift.org/openshift/release:golang-1.12 AS builder
+WORKDIR /go/src/github.com/bpa-operator
+COPY . .
+RUN make build
 
-ENV OPERATOR=/usr/local/bin/bpa-operator \
-    USER_UID=1001 \
-    USER_NAME=bpa-operator
+FROM registry.svc.ci.openshift.org/openshift/release:golang-1.12
 
-# install operator binary
-COPY build/_output/bin/bpa-operator ${OPERATOR}
-
-COPY build/bin /usr/local/bin
-RUN  /usr/local/bin/user_setup
-
-ENTRYPOINT ["/usr/local/bin/entrypoint"]
-
-USER ${USER_UID}
+COPY --from=builder /go/src/github.com/bpa-operator/build/_output/bin/bpa-operator /

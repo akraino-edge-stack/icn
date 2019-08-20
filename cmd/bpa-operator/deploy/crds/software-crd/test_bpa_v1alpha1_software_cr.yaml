@@ -1,0 +1,19 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Software
+metadata: 
+  labels: 
+    cluster: cluster-abc
+    owner: c2
+  name: test-software
+spec: 
+  masterSoftware: 
+    - nautilus
+    - htop
+    - jq: 
+        version: 1.5+dfsg-1ubuntu0.1
+    - maven
+  workerSoftware: 
+    - curl
+    - htop
+    - tmux
+    - jq
