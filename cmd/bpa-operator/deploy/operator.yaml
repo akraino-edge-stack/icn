@@ -16,7 +16,7 @@ spec:
       containers:
         - name: bpa-operator
           # Replace this with the built image name
-          image: REPLACE_IMAGE
+          image: itohan_uk/bpa-operator:v0.0.1
           command:
           - bpa-operator
           imagePullPolicy: Always
