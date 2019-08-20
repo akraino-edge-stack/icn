@@ -1,9 +1,9 @@
 module github.com/bpa-operator
 
 require (
-	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/operator-framework/operator-sdk v0.10.0
 	github.com/spf13/pflag v1.0.3
+	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
 	gopkg.in/ini.v1 v1.46.0
 	k8s.io/api v0.0.0-20190612125737-db0771252981
 	k8s.io/apimachinery v0.0.0-20190612125636-6a5db36e93ad
@@ -29,3 +29,5 @@ replace (
 )
 
 replace github.com/operator-framework/operator-sdk => github.com/operator-framework/operator-sdk v0.9.0
+
+go 1.13
