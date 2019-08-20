@@ -1,0 +1,15 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-sample-real-3
+  labels:
+    cluster: cluster-xyz
+    owner: c1
+spec:
+  masters:
+    - master-1:
+        mac-address: 90:e2:ba:cd:df:bd
+  workers:
+     - master-1:     #colon must be put even if MAC address is not specified
+  kudInstallerPath: /root/icn/deploy/kud/multicloud-k8s/kud/hosting_providers/vagrant #Path to directory containing KUD installer script, must be unique for each BPA CR
+  dhcpLeaseFile: "/var/lib/dhcp/dhcpd.leases"
