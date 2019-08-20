@@ -8,8 +8,6 @@ import (
 	"regexp"
 	"strings"
 	"io/ioutil"
-        "path/filepath"
-        "os/user"
         "os/exec"
 
 
@@ -19,9 +17,9 @@ import (
         "k8s.io/apimachinery/pkg/runtime/schema"
 	"k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
-        "k8s.io/client-go/tools/clientcmd"
         "k8s.io/client-go/dynamic"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+        "sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
 	"sigs.k8s.io/controller-runtime/pkg/handler"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -32,9 +30,8 @@ import (
 )
 
 var log = logf.Log.WithName("controller_provisioning")
-//Todo: Should be an input from the user
-var dhcpLeaseFile = "/var/lib/dhcp/dhcpd.leases"
-var kudInstallerScript = "/root/icn/deploy/kud/multicloud-k8s/kud/hosting_providers/vagrant"
+//var dhcpLeaseFile = "/var/lib/dhcp/dhcpd.leases"
+//var kudInstallerScript = "/root/icn/deploy/kud/multicloud-k8s/kud/hosting_providers/vagrant"
 
 /**
 * USER ACTION REQUIRED: This is a scaffold file intended for the user to modify with their own Controller
@@ -108,6 +105,8 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
         mastersList := provisioningInstance.Spec.Masters
         workersList := provisioningInstance.Spec.Workers
+        dhcpLeaseFile := provisioningInstance.Spec.DHCPleaseFile
+        kudInstallerScript := provisioningInstance.Spec.KUDInstaller
         bareMetalHostList, _ := listBareMetalHosts()
 
 
@@ -115,114 +114,171 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         var masterString string
         var workerString string
 
-       //Iterate through mastersList and get all the mac addresses and IP addresses
 
-        for _, masterMap := range mastersList {
+
+       //Iterate through mastersList and get all the mac addresses and IP addresses
+       for _, masterMap := range mastersList {
 
                 for masterLabel, master := range masterMap {
-                   containsMac, bmhCR := checkMACaddress(bareMetalHostList, master.MACaddress)
+		   masterMAC := master.MACaddress
+
+                   if masterMAC == "" {
+                      err = fmt.Errorf("MAC address for masterNode %s not provided\n", masterLabel)
+                      return reconcile.Result{}, err
+                   }
+                   containsMac, bmhCR := checkMACaddress(bareMetalHostList, masterMAC)
                    if containsMac{
-                      //fmt.Println( master.MACaddress)
-                      fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, master.MACaddress)
+                      fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, masterMAC)
 
                       //Get IP address of master
-                      hostIPaddress, err := getHostIPaddress(master.MACaddress, dhcpLeaseFile )
-                     if err != nil {
-                        fmt.Printf("IP address not found for host with MAC address %s \n", master.MACaddress)
-                     }
-
-
+                      hostIPaddress, err := getHostIPaddress(masterMAC, dhcpLeaseFile )
+                      if err != nil || hostIPaddress == ""{
+                        err = fmt.Errorf("IP address not found for host with MAC address %s \n", masterMAC)
+                        return reconcile.Result{}, err
+                      }
 
                       allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
                       masterString += masterLabel + "\n"
 
-                      fmt.Printf("%s : %s \n", hostIPaddress, master.MACaddress)
+                      fmt.Printf("%s : %s \n", hostIPaddress, masterMAC)
 
 
+                      if len(workersList) != 0 {
 
+		          //Iterate through workersList and get all the mac addresses
+                          for _, workerMap := range workersList {
+
+                              //Get worker labels from the workermap
+                              for workerLabel, worker := range workerMap {
+
+                                  //Check if workerString already contains worker label
+			          containsWorkerLabel := strings.Contains(workerString, workerLabel)
+			          workerMAC := worker.MACaddress
+
+                                   //Error occurs if the same label is given to different hosts (assumption, 
+                                   //each MAC address represents a unique host
+				   if workerLabel == masterLabel && workerMAC != masterMAC && workerMAC != "" {
+				     if containsWorkerLabel {
+					    strings.ReplaceAll(workerString, workerLabel, "")
+					 }
+				      err = fmt.Errorf(`A node with label %s already exists, modify resource and assign a 
+                                      different label to node with MACAddress %s`, workerLabel, workerMAC)
+				      return reconcile.Result{}, err
+
+                                   //same node performs worker and master roles
+				   } else if workerLabel == masterLabel && !containsWorkerLabel {
+				        workerString += workerLabel + "\n"
+
+                                   //Error occurs if the same node is given different labels
+				   } else if workerLabel != masterLabel && workerMAC == masterMAC {
+				         if containsWorkerLabel {
+					    strings.ReplaceAll(workerString, workerLabel, "")
+					 }
+				      err = fmt.Errorf(`A node with label %s already exists, modify resource and assign a
+					                different label to node with MACAddress %s`, workerLabel, workerMAC)
+				      return reconcile.Result{}, err
+
+                                   //worker node is different from any master node and it has not been added to the worker list
+				   } else if workerLabel != masterLabel && !containsWorkerLabel {
+
+                                        // Error occurs if MAC address not provided for worker node not matching master
+                                        if workerMAC == "" {
+                                          err = fmt.Errorf("MAC address for worker %s not provided", workerLabel)
+                                          return reconcile.Result{}, err
+                                         }
+
+                                        containsMac, bmhCR := checkMACaddress(bareMetalHostList, workerMAC)
+                                        if containsMac{
+                                           fmt.Printf("Host %s matches that macAddress\n", bmhCR)
+
+                                           //Get IP address of worker
+                                           hostIPaddress, err := getHostIPaddress(workerMAC, dhcpLeaseFile )
+                                           if err != nil {
+                                              fmt.Printf("IP address not found for host with MAC address %s \n", workerMAC)
+                                           }
+                                           fmt.Printf("%s : %s \n", hostIPaddress, workerMAC)
+
+                                           allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                                           workerString += workerLabel + "\n"
+
+                                       //No host found that matches the worker MAC
+                                       } else {
+
+                                            err = fmt.Errorf("Host with MAC Address %s not found\n", workerMAC)
+                                            return reconcile.Result{}, err
+                                          }
+				     }
+
+                         }
+                       }
+                   //No worker node specified, add master as worker node
+                   } else if len(workersList) == 0 && !strings.Contains(workerString, masterLabel) {
+                       workerString += masterLabel + "\n"
+                   }
+
+                   //No host matching master MAC found
                    } else {
-
-                      fmt.Printf("Host with MAC Address %s not found\n", master.MACaddress)
+                      err = fmt.Errorf("Host with MAC Address %s not found\n", masterMAC)
+                      return reconcile.Result{}, err
                    }
              }
         }
-
-
-        //Iterate through workersList and get all the mac addresses
-        for _, workerMap := range workersList {
-
-                for workerLabel, worker := range workerMap {
-                   containsMac, bmhCR := checkMACaddress(bareMetalHostList, worker.MACaddress)
-                   if containsMac{
-                      //fmt.Println( worker.MACaddress)
-                      fmt.Printf("Host %s matches that macAddress\n", bmhCR)
-
-                      //Get IP address of worker
-                      hostIPaddress, err := getHostIPaddress(worker.MACaddress, dhcpLeaseFile )
-                     if err != nil {
-                        fmt.Printf("IP address not found for host with MAC address %s \n", worker.MACaddress)
-                     }
-                      fmt.Printf("%s : %s \n", hostIPaddress, worker.MACaddress)
-
-                      allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
-                      workerString += workerLabel + "\n"
-
-                   }else {
-
-                      fmt.Printf("Host with MAC Address %s not found\n", worker.MACaddress)
-                   }
-
-             }
-        }
-
 
         //Create host.ini file
-        iniHostFilePath := provisioningInstance.Spec.HostsFile
+        //iniHostFilePath := provisioningInstance.Spec.HostsFile
+        iniHostFilePath := kudInstallerScript + "/inventory/hosts.ini"
         newFile, err := os.Create(iniHostFilePath)
         defer newFile.Close()
 
 
         if err != nil {
            fmt.Printf("Error occured while creating file \n %v", err)
+           return reconcile.Result{}, err
         }
 
         hostFile, err := ini.Load(iniHostFilePath)
         if err != nil {
            fmt.Printf("Error occured while Loading file \n %v", err)
+           return reconcile.Result{}, err
         }
 
         _, err = hostFile.NewRawSection("all", allString)
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
         _, err = hostFile.NewRawSection("kube-master", masterString)
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
 
         _, err = hostFile.NewRawSection("kube-node", workerString)
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
 
         _, err = hostFile.NewRawSection("etcd", masterString)
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
 
-        _, err = hostFile.NewRawSection("k8s-cluser:children", "kube-node\n" + "kube-master")
+        _, err = hostFile.NewRawSection("k8s-cluster:children", "kube-node\n" + "kube-master")
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
 
 
         hostFile.SaveTo(iniHostFilePath)
 
-       //TODO: Test KUD installer part
-       //Copy host.ini file to the right path and install KUD
-       dstIniPath := kudInstallerScript + "/inventory/hosts.ini"
-       kudInstaller(iniHostFilePath, dstIniPath, kudInstallerScript)
-
+        //TODO: Test KUD installer part
+        //Copy host.ini file to the right path and install KUD
+        //dstIniPath := kudInstallerScript + "/inventory/hosts.ini"
+        //kudInstaller(iniHostFilePath, dstIniPath, kudInstallerScript)
+        kudInstaller(kudInstallerScript)
 	return reconcile.Result{}, nil
 }
 
@@ -230,19 +286,9 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 //Function to Get List containing baremetal hosts
 func listBareMetalHosts() (*unstructured.UnstructuredList, error) {
 
-     //Get Current User and kube config file
-     usr, err := user.Current()
+     config, err :=  config.GetConfig()
      if err != nil {
-        fmt.Println("Could not get current user\n")
-        return &unstructured.UnstructuredList{}, err
-     }
-
-     kubeConfig := filepath.Join(usr.HomeDir, ".kube", "config")
-
-     //Build Config Flags
-     config, err :=  clientcmd.BuildConfigFromFlags("", kubeConfig)
-     if err != nil {
-        fmt.Println("Could not build config\n")
+        fmt.Println("Could not get kube config\n")
         return &unstructured.UnstructuredList{}, err
      }
 
@@ -331,7 +377,8 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
      return "", nil
 }
 
-func kudInstaller(srcIniPath, dstIniPath, kudInstallerPath string) {
+//func kudInstaller(srcIniPath, dstIniPath, kudInstallerPath string) {
+func kudInstaller(kudInstallerPath string) {
 
       err := os.Chdir(kudInstallerPath)
       if err != nil {
@@ -339,13 +386,14 @@ func kudInstaller(srcIniPath, dstIniPath, kudInstallerPath string) {
           return
         }
 
-      commands := "cp " + srcIniPath + " "  + dstIniPath + "; ./installer.sh| tee kud_installer.log"
+      //commands := "cp " + srcIniPath + " "  + dstIniPath + "; ./installer.sh| tee kud_installer.log"
+      commands := "./installer.sh| tee kud_installer.log"
 
       cmd := exec.Command("/bin/bash", "-c", commands)
-      err = cmd.Run()
+      err = cmd.Start()
 
       if err != nil {
-          fmt.Printf("Error Occured while running KUD install scripts %v", err)
+          fmt.Printf("Error Occured while Starting KUD install scripts %v", err)
           return
         }
 
