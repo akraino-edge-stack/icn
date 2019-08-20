@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bootstrap-cluster-dhcp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: bootstrap-cluster-dhcp
+  template:
+    metadata:
+      labels:
+        name: bootstrap-cluster-dhcp
+    spec:
+      hostNetwork: true
+      containers:
+        - name: dhcp
+          image: networkboot/dhcpd
+          securityContext:
+            privileged: true
+          command: ["/entrypoint.sh"]
+          args: ["dhcp0"]
+          volumeMounts:
+            - mountPath: /data
+              name: dhcp-data-volume
+      volumes:
+        - name: dhcp-data-volume
+          hostPath:
+            path: /opt/icn/dhcp/
