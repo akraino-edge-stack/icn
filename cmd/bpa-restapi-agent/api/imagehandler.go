@@ -15,6 +15,7 @@ import (
 	"strconv"
 
 	image "bpa-restapi-agent/internal/app"
+	minioc "bpa-restapi-agent/internal/storage"
 
 	"github.com/gorilla/mux"
 )
@@ -26,6 +27,8 @@ type imageHandler struct {
 	// We will set this variable with a mock interface for testing
 	client image.ImageManager
 	dirPath string
+	minioI minioc.MinIOInfo
+	storeName string  // as minio client bucketname
 }
 
 // CreateHandler handles creation of the image entry in the database
@@ -176,6 +179,8 @@ func (h imageHandler) deleteHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	h.minioI.DeleteImage(h.storeName, imageName)
+
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -262,6 +267,7 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		e := "Upload already completed"
 		w.WriteHeader(http.StatusUnprocessableEntity)
 		w.Write([]byte(e))
+		log.Println("Upload already completed")
 		return
 	}
 	off, err := strconv.Atoi(r.Header.Get("Upload-Offset"))
@@ -272,9 +278,10 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Printf("Upload offset %d\n", off)
 	if *file.ImageOffset != off {
-		e := fmt.Sprintf("Expected Offset %d got offset %d", *file.ImageOffset, off)
+		e := fmt.Sprintf("Expected Offset %d, actual offset %d", *file.ImageOffset, off)
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(e))
+		log.Printf("Expected Offset:%d doesn't match got offset:%d\n", *file.ImageOffset, off)
 		return
 	}
 
@@ -324,6 +331,16 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	log.Printf("Start to Patch image, bucket: %s, image: %s, dirpath: %s, offset: %d, n: %d\n",
+		h.storeName, imageName, fp, *file.ImageOffset, n)
+	uploadbytes, err := h.minioI.PatchImage(h.storeName, imageName, fp, int64(*file.ImageOffset), int64(n))
+	if err != nil || uploadbytes == 0  {
+		log.Printf("MinIO upload with offset %d failed: %s", *file.ImageOffset, err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+    }
+
 	log.Println("number of bytes written ", n)
 	no := *file.ImageOffset + n
 	file.ImageOffset = &no

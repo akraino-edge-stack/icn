@@ -11,6 +11,10 @@ type Configuration struct {
   DatabaseAddress string  `json:  "database-address"`
   DatabaseType    string  `json:  "database-type"`
   ServicePort     string  `json:  "service-port"`
+  MinIOAddress    string  `json:  "minio-address"`
+  MinIOPort       string  `json:  "minio-port"`
+  AccessKeyID     string  `json:  "access-key-id"`
+  SecretAccessKey string  `json:  "secret-access-key"`
 }
 
 var gConfig *Configuration
@@ -39,6 +43,10 @@ func defaultConfiguration() *Configuration {
     DatabaseAddress:    "127.0.0.1",
     DatabaseType:       "mongo",
     ServicePort:        "9015",
+    MinIOAddress:       "127.0.0.1",
+    MinIOPort:          "9000",
+    AccessKeyID:        "ICN-ACCESSKEYID",
+    SecretAccessKey:    "ICN-SECRETACCESSKEY",
   }
 }
 
