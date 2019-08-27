@@ -185,3 +185,23 @@ Request
 curl -i -X DELETE http://localhost:9015/v1/baremetalcluster/alpha/beta/container_images/asdf246
 
 Response
+
+
+# Cloud Storage with MinIO
+
+Start MinIO server daemon with docker command before run REST API agent, default settings in config/config.go.
+AccessKeyID: ICN-ACCESSKEYID
+SecretAccessKey: ICN-SECRETACCESSKEY
+MinIO Port: 9000
+
+```
+$ docker run -p 9000:9000 --name minio1 \
+-v /mnt/data:/data \
+-v /mnt/config:/root/.minio \
+minio/minio server /data
+```
+
+MinIO Client will automatic initialize in main.go, and create 3 buckets: binary, container, operatingsystem.
+The Upload image will "PUT" to corresponding buckets by HTTP PATCH request url.
+You can also check by open browser: http://127.0.0.1:9000/
+
