@@ -4,7 +4,10 @@
 package api
 
 import (
+	"log"
+
 	image "bpa-restapi-agent/internal/app"
+	minio "bpa-restapi-agent/internal/storage"
 
 	"github.com/gorilla/mux"
 )
@@ -16,11 +19,16 @@ func NewRouter(binaryClient image.ImageManager,
 
 	router := mux.NewRouter()
 
+	minioInfo, err := minio.Initialize()
+	if err != nil {
+		log.Println("Error while initialize minio client: %s", err)
+	}
+
 	//Setup the image uploaad api handler here
 	if binaryClient == nil {
 		binaryClient = image.NewBinaryImageClient()
 	}
-	binaryHandler := imageHandler{client: binaryClient}
+	binaryHandler := imageHandler{client: binaryClient, minioI: minioInfo, storeName: "binary"}
 	imgRouter := router.PathPrefix("/v1").Subrouter()
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/binary_images", binaryHandler.createHandler).Methods("POST")
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/binary_images/{imgname}", binaryHandler.getHandler).Methods("GET")
@@ -32,7 +40,7 @@ func NewRouter(binaryClient image.ImageManager,
 	if containerClient == nil {
 		containerClient = image.NewContainerImageClient()
 	}
-	containerHandler := imageHandler{client: containerClient}
+	containerHandler := imageHandler{client: containerClient, minioI: minioInfo, storeName: "container"}
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/container_images", containerHandler.createHandler).Methods("POST")
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/container_images/{imgname}", containerHandler.getHandler).Methods("GET")
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/container_images/{imgname}", containerHandler.deleteHandler).Methods("DELETE")
@@ -43,7 +51,7 @@ func NewRouter(binaryClient image.ImageManager,
 	if osClient == nil {
 		osClient = image.NewOSImageClient()
 	}
-	osHandler := imageHandler{client: osClient}
+	osHandler := imageHandler{client: osClient, minioI: minioInfo, storeName: "operatingsystem"}
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/os_images", osHandler.createHandler).Methods("POST")
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/os_images/{imgname}", osHandler.getHandler).Methods("GET")
 	imgRouter.HandleFunc("/baremetalcluster/{owner}/{clustername}/os_images/{imgname}", osHandler.deleteHandler).Methods("DELETE")
