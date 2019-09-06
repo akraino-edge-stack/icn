@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "dd2b578d_28ed5f60",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-09-06T22:29:54Z",
+      "side": 1,
+      "message": "Does this need to be deleted?",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 4
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "412cd71d_41459023",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-09-06T22:29:54Z",
+      "side": 1,
+      "message": "Is better to change \u0027got\u0027 to \u0027actual\u0027?",
+      "range": {
+        "startLine": 235,
+        "startChar": 47,
+        "endLine": 235,
+        "endChar": 50
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f3b5383d_4207a668",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-09-06T22:29:54Z",
+      "side": 1,
+      "message": "Delete",
+      "range": {
+        "startLine": 286,
+        "startChar": 1,
+        "endLine": 286,
+        "endChar": 68
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92a60461_108bafb5",
+        "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-09-06T22:29:54Z",
+      "side": 1,
+      "message": "Are we using this method anywhere? If no, do we need to have it?",
+      "range": {
+        "startLine": 143,
+        "startChar": 19,
+        "endLine": 143,
+        "endChar": 27
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "19c4e969_9de7db35",
+        "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-09-06T22:29:54Z",
+      "side": 1,
+      "message": "Are we using this method anywhere? If no, do we need to have it?",
+      "range": {
+        "startLine": 167,
+        "startChar": 19,
+        "endLine": 167,
+        "endChar": 32
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
