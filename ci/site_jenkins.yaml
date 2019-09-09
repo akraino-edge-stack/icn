@@ -1,0 +1,60 @@
+- hosts: localhost
+  vars:
+    jenkins_hostname: "{{ ansible_default_ipv4.address }}"
+    jenkins_version: 2.192
+    jenkins_plugin_timeout: 360
+    jenkins_plugins:
+      - gerrit-trigger
+      - workflow-aggregator
+      - git
+  roles:
+    - role: geerlingguy.java
+      become: yes
+    - role: geerlingguy.jenkins
+      become: yes
+  tasks:
+    - name: create directory /var/lib/jenkins/.ssh
+      file:
+        path: /var/lib/jenkins/.ssh
+        owner: jenkins
+        group: jenkins
+        state: directory
+
+    - name: add gerrit ssh key
+      copy:
+        src: "{{ gerrit_key_path | default('gerrit.key') }}"
+        dest: /var/lib/jenkins/.ssh/gerrit.key
+        owner: jenkins
+        group: jenkins
+        mode: '0600'
+      tags: [gerrit]
+
+    - name: add gerrit server
+      jenkins_script:
+        script: "{{lookup('file', 'gerrit.groovy')}}"
+        url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+        user: "{{ jenkins_admin_username }}"
+        password: "{{ jenkins_admin_password }}"
+        validate_certs: no
+      tags: [gerrit]
+
+    - name: Install python-pip
+      apt:
+        name: python-pip
+      tags: [jobs]
+
+    - name: Install python-jenkins and lxml(required by jenkins_job module)
+      pip:
+        name:
+          - python-jenkins
+          - lxml
+      tags: [jobs]
+
+    - name: Add pipeline job for ICN CI
+      jenkins_job:
+        name: icn_check
+        config: "{{lookup('file', 'icn_check.xml')}}"
+        url: "http://{{ jenkins_hostname }}:{{ jenkins_http_port }}{{ jenkins_url_prefix }}"
+        user: "{{ jenkins_admin_username }}"
+        password: "{{ jenkins_admin_password }}"
+      tags: [jobs]
