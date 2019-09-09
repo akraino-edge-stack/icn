@@ -9,8 +9,22 @@ pipeline {
     stages {
         stage("Build ISO Image") {
             steps {
-                echo "refspec: ${GERRIT_REFSPEC}, branch: ${GERRIT_BRANCH}"
+                sh "sudo rm -rf icn build/ubuntu icn-ubuntu-18.04.iso"
+                sh "git clone https://gerrit.akraino.org/r/icn"
+                dir("icn") {
+                    sh "git fetch origin ${GERRIT_REFSPEC}:${changeBranch}"
+                    sh "git checkout ${changeBranch}"
+                    sh "git rebase origin/${GERRIT_BRANCH}"
+                }
+                sh "sudo icn/tools/setup_build_machine.sh"
+                // sh "sudo icn/tools/collect.sh"
+                sh "sudo icn/tools/create_usb_bootable.sh"
             }
+        }
+    }
+    post {
+        always {
+            archiveArtifacts artifacts: "icn-ubuntu-18.04.iso", onlyIfSuccessful: true
         }
     }
 }
