@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "bd1f00c2_073d907f",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 195,
+      "author": {
+        "id": 256
+      },
+      "writtenOn": "2019-09-09T02:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "dd2b578d_28ed5f60",
+      "range": {
+        "startLine": 189,
+        "startChar": 0,
+        "endLine": 195,
+        "endChar": 4
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "412cd71d_41459023",
         "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
         "patchSetId": 2
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-06T22:29:54Z",
       "side": 1,
       "message": "Is better to change \u0027got\u0027 to \u0027actual\u0027?",
+      "range": {
+        "startLine": 235,
+        "startChar": 47,
+        "endLine": 235,
+        "endChar": 50
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "c09cb13b_33e1c5b2",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 235,
+      "author": {
+        "id": 256
+      },
+      "writtenOn": "2019-09-09T02:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "412cd71d_41459023",
       "range": {
         "startLine": 235,
         "startChar": 47,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "4ae8c5dd_0c26aa7b",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 286,
+      "author": {
+        "id": 256
+      },
+      "writtenOn": "2019-09-09T02:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "f3b5383d_4207a668",
+      "range": {
+        "startLine": 286,
+        "startChar": 1,
+        "endLine": 286,
+        "endChar": 68
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "92a60461_108bafb5",
         "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
         "patchSetId": 2
@@ -94,6 +166,30 @@
     },
     {
       "key": {
+        "uuid": "3adab6b8_13045eb8",
+        "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 143,
+      "author": {
+        "id": 256
+      },
+      "writtenOn": "2019-09-09T02:47:04Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "92a60461_108bafb5",
+      "range": {
+        "startLine": 143,
+        "startChar": 19,
+        "endLine": 143,
+        "endChar": 27
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "19c4e969_9de7db35",
         "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
         "patchSetId": 2
@@ -105,6 +201,30 @@
       "writtenOn": "2019-09-06T22:29:54Z",
       "side": 1,
       "message": "Are we using this method anywhere? If no, do we need to have it?",
+      "range": {
+        "startLine": 167,
+        "startChar": 19,
+        "endLine": 167,
+        "endChar": 32
+      },
+      "revId": "f288eb88a2050a5ee468f6b5d0cd4fded9edbb17",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "dba21972_cc0b80e7",
+        "filename": "cmd/bpa-restapi-agent/internal/storage/minio.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 167,
+      "author": {
+        "id": 256
+      },
+      "writtenOn": "2019-09-09T02:47:04Z",
+      "side": 1,
+      "message": "This interface is to cleanup if there has orphan upload thread and make a reset, currently not used but I suggest to reserve it if needed in the future.",
+      "parentUuid": "19c4e969_9de7db35",
       "range": {
         "startLine": 167,
         "startChar": 19,
