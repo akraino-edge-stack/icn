@@ -10,16 +10,16 @@ import (
   "os/signal"
   "time"
 
-  //To Do - Implement internal for checking config
+
   "github.com/gorilla/handlers"
 
   "bpa-restapi-agent/api"
   utils "bpa-restapi-agent/internal"
+  "bpa-restapi-agent/internal/auth"
   "bpa-restapi-agent/internal/config"
 )
 
 func main() {
-  // To Do - Implement initial settings
   // check initial config
   err := utils.CheckInitialSettings()
   if err != nil{
@@ -36,7 +36,6 @@ func main() {
   // Create custom http server
   httpServer := &http.Server{
     Handler: loggedRouter,
-    // To Do - Implement config
     Addr:    ":" + config.GetConfiguration().ServicePort,
   }
   connectionsClose := make(chan struct{})
@@ -49,6 +48,13 @@ func main() {
   }()
 
   // Start server
-  log.Fatal(httpServer.ListenAndServe())
-
+  tlsConfig, err := auth.GetTLSConfig("ca.cert", "server.cert", "server.key")
+  if err != nil {
+    log.Println("Error Getting TLS Configuration. Starting without TLS...")
+    log.Fatal(httpServer.ListenAndServe())
+  } else {
+    httpServer.TLSConfig = tlsConfig
+    // empty strings because tlsconfig already has this information
+    err = httpServer.ListenAndServeTLS("", "")
+  }
 }
