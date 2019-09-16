@@ -3,9 +3,6 @@ package app
 import (
   //"encoding/base64"
 	"encoding/json"
-	"os"
-	"os/user"
-	"path"
 	//"io/ioutil"
 
 	"bpa-restapi-agent/internal/db"
@@ -19,6 +16,7 @@ type Image struct {
 	ClusterName         string               `json:"cluster_name"`
 	Type                string               `json:"type"`
 	ImageName           string               `json:"image_name"`
+	Config							string 							 `json:"config"`
 	ImageOffset					*int							   `json:"image_offset"`
 	ImageLength					int							 		 `json:"image_length"`
 	UploadComplete			*bool								 `json:"upload_complete"`
@@ -31,6 +29,8 @@ type ImageRecordList struct {
 
 // ImageKey is the key structure that is used in the database
 type ImageKey struct {
+	// Owner            string     `json:"owner"`
+	// ClusterName      string     `json:"cluster_name"`
 	ImageName        string     `json:"image_name"`
 }
 
@@ -52,7 +52,6 @@ type ImageManager interface {
 	Delete(imageName string) error
 	Update(imageName string, c Image) (Image, error)
 	GetImageRecordByName(imgname, imageName string) (map[string]string, error)
-	GetDirPath(imageName string) (string, string, error)
 }
 
 // ImageClient implements the ImageManager
@@ -67,21 +66,21 @@ type ImageClient struct {
 // which implements the ImageManager
 func NewBinaryImageClient() *ImageClient {
 	return &ImageClient{
-		storeName: "binary_images",
+		storeName: "binary_image",
 		tagMeta:   "metadata",
 	}
 }
 
 func NewContainerImageClient() *ImageClient {
 	return &ImageClient{
-		storeName: "container_images",
+		storeName: "container_image",
 		tagMeta:   "metadata",
 	}
 }
 
 func NewOSImageClient() *ImageClient {
 	return &ImageClient{
-		storeName: "os_images",
+		storeName: "os_image",
 		tagMeta:   "metadata",
 	}
 }
@@ -91,6 +90,8 @@ func (v *ImageClient) Create(c Image) (Image, error) {
 
 	//Construct composite key consisting of name
 	key := ImageKey{
+		// Owner:	c.Owner,
+		// ClusterName:	c.ClusterName,
 		ImageName: c.ImageName,
 	}
 
@@ -105,37 +106,7 @@ func (v *ImageClient) Create(c Image) (Image, error) {
 		return Image{}, pkgerrors.Wrap(err, "Creating DB Entry")
 	}
 
-	//Create file
-	err = v.CreateFile(v.storeName, c)
-	if err != nil {
-		return Image{}, pkgerrors.Wrap(err, "Creating File in FS")
-	}
-
 	return c, nil
-}
-
-
-// Create file
-
-func (v *ImageClient) CreateFile(dirName string, c Image) error {
-
-    filePath, dirPath, err := v.GetDirPath(c.ImageName)
-		if err != nil {
-			return pkgerrors.Wrap(err, "Get file path")
-		}
-    err = os.MkdirAll(dirPath, 0744)
-    if err != nil {
-			return pkgerrors.Wrap(err, "Make image directory")
-    }
-		file1, err := os.Create(filePath)
-		if err != nil {
-			return pkgerrors.Wrap(err, "Create image file")
-		}
-
-		defer file1.Close()
-
-
-    return nil
 }
 
 // Get returns Image for corresponding to name
@@ -183,39 +154,19 @@ func (v *ImageClient) GetImageRecordByName(imgName string,
 	return nil, pkgerrors.New("Image record " + imageRecordName + " not found")
 }
 
-func (v *ImageClient) GetDirPath(imageName string) (string, string, error) {
-	u, err := user.Current()
-	if err != nil {
-		return "", "", pkgerrors.Wrap(err, "Current user")
-	}
-	home := u.HomeDir
-	dirPath := path.Join(home, "images", v.storeName)
-	filePath := path.Join(dirPath, imageName)
-
-	return filePath, dirPath, err
-}
-
 // Delete the Image from database
 func (v *ImageClient) Delete(imageName string) error {
 
 	//Construct the composite key to select the entry
 	key := ImageKey{
+		// Owner:	ownerName,
+		// ClusterName:	clusterName,
 		ImageName: imageName,
 	}
 	err := db.DBconn.Delete(v.storeName, key, v.tagMeta)
 	if err != nil {
 		return pkgerrors.Wrap(err, "Delete Image")
 	}
-	//Delete image from FS
-	filePath, _, err := v.GetDirPath(imageName)
-	if err != nil {
-		return pkgerrors.Wrap(err, "Get file path")
-	}
-	err = os.Remove(filePath)
-	if err != nil {
-		return pkgerrors.Wrap(err, "Delete image file")
-	}
-
 	return nil
 }
 

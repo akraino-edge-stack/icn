@@ -3,15 +3,15 @@
   "cluster_name": "beta",
   "type": "container",
   "image_name": "asdf246",
-  "image_length": 29718177,
+  "image_length": 21579557,
   "image_offset": 0,
   "upload_complete":  false,
   "description": {
     "image_records":  [
       {
         "image_record_name": "iuysdi1234",
-        "repo": "icn",
-        "tag":  "2"
+        "repo": "java",
+        "tag":  "8"
       }
     ]
   }
