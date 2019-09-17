@@ -1,0 +1,3 @@
+docker build -t haibinhu/httpd .
+docker run -it -p80:80 haibinhu/httpd
+wget http://172.17.0.3/files/yui.tar.gz
