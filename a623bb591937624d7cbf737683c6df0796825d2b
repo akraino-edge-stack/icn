@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "2f7b75e5_d9d73aa5",
+        "filename": "env/kud/http_server/http_setup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 19,
+      "author": {
+        "id": 266
+      },
+      "writtenOn": "2019-09-17T01:27:50Z",
+      "side": 1,
+      "message": "ok",
+      "parentUuid": "e9df89c2_d1bd794d",
+      "range": {
+        "startLine": 5,
+        "startChar": 0,
+        "endLine": 19,
+        "endChar": 33
+      },
+      "revId": "a623bb591937624d7cbf737683c6df0796825d2b",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "dbea73c0_48fb718f",
         "filename": "env/kud/http_server/http_setup.sh",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-09-04T06:08:08Z",
       "side": 1,
       "message": "Why this code is in http_setup.sh ? It looks like a testing, do we require it here ?",
+      "range": {
+        "startLine": 32,
+        "startChar": 0,
+        "endLine": 32,
+        "endChar": 38
+      },
+      "revId": "a623bb591937624d7cbf737683c6df0796825d2b",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "6e16ad05_b86fad22",
+        "filename": "env/kud/http_server/http_setup.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 266
+      },
+      "writtenOn": "2019-09-17T01:27:50Z",
+      "side": 1,
+      "message": "I will create test verify program",
+      "parentUuid": "dbea73c0_48fb718f",
       "range": {
         "startLine": 32,
         "startChar": 0,
