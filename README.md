@@ -29,3 +29,5 @@ these files are copied to infra-local-controller under `/opt/icn`.
 3. The ubuntu 18.04 is supposed to be installed on the server, then it reboots automatically.
 4. Now we can login the server with the default user/password of icn/icn
 5. We can do anything we need here to install/configure/launch services.
+
+Thisis to test Jenkins gerrit-trigger
