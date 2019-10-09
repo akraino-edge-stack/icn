@@ -7,6 +7,8 @@ BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
 BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
+BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
+
 
 help:
 	@echo "  Targets:"
@@ -57,6 +59,12 @@ bpa_op_verifier: bpa_op_install bpa_op_e2e
 
 bpa_op_all: bm_all bpa_op_install
 
+bpa_rest_api_install:
+	pushd $(BPA_REST_API) && make deploy && popd
+
+bpa_rest_api_verifier:
+	pushd $(BPA_REST_API) && make e2e_test && popd
+
 bashate:
 	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -name *.sh`
 
@@ -66,7 +74,8 @@ prerequisite:
 verify_all: prerequisite \
 	metal3_prerequisite \
 	kud_bm_deploy_mini \
-	metal3_vm
+	metal3_vm \
+	bpa_rest_api_verifier
 
 verifier: verify_all
 
