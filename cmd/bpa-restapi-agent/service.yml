@@ -1,0 +1,64 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bpa-api-service
+spec:
+  selector:
+    app: bpa-api1
+  ports:
+    - port: 9015
+      targetPort: 9015
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bpa-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bpa-api1
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: bpa-api1
+    spec:
+      serviceAccount: bpa-restapi-agent
+      # Refer to the PVC created earlier
+      volumes:
+      - name: storage
+        persistentVolumeClaim:
+          # Name of the PVC created earlier
+          claimName: minio-local-claim
+      containers:
+      - name: bpa-api1
+        image: akraino.org/icn/bpa-restapi-agent:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9015
+      - name: mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
+      - name: minio
+        # Pulls the default Minio image from Docker Hub
+        image: minio/minio:latest
+        args:
+        - server
+        - /storage
+        env:
+        # Minio access key and secret key
+        - name: MINIO_ACCESS_KEY
+          value: "ICN-ACCESSKEYID"
+        - name: MINIO_SECRET_KEY
+          value: "ICN-SECRETACCESSKEY"
+        ports:
+        - containerPort: 9000
+        # Mount the volume into the pod
+        volumeMounts:
+        - name: storage # must match the volume name, above
+          mountPath: "/storage"
