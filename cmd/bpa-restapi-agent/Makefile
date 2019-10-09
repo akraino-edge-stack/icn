@@ -28,5 +28,17 @@
 build:
 	go build -mod=vendor -o build/_output/bin/bpa-restapi-agent main.go
 
-docker:
+docker:	untar
 	docker build -t akraino.org/icn/bpa-restapi-agent:latest . -f build/Dockerfile
+
+untar:
+	tar -xzvf vendor.tar.gz
+
+deploy: docker
+	bpa_api_install.sh
+
+unit_test:
+	go test ./... -v
+
+e2e_test: deploy
+	./e2e_test.sh
