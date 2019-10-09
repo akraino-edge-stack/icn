@@ -6,6 +6,8 @@ METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
+BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
+
 
 help:
 	@echo "  Targets:"
@@ -52,6 +54,12 @@ bpa_op_e2e:
 bpa_op_verifier: bpa_op_install bpa_op_e2e	
 
 bpa_op_all: bm_all bpa_op_install
+
+bpa_rest_api_install:
+	pushd $(BPA_REST_API) && make deploy && popd
+
+bpa_rest_api_verifier:
+	pushd $(BPA_REST_API) && make e2e_test && popd
 
 bashate:
 	bashate -i E006 `find . -name *.sh`
