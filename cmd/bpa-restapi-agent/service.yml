@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: bpa-api-service
+spec:
+  selector:
+    app: bpa-api1
+  ports:
+    - port: 80
+      targetPort: 8888
+      protocol: TCP
+  type: NodePort
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bpa-api-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bpa-api1
+  template:
+    metadata:
+      labels:
+        app: bpa-api1
+    spec:
+      serviceAccount: bpa-restapi-agent
+      containers:
+      - name: bpa-api1
+        image: enyinna1234/bpa-restapi-agent:no_minio
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 9015
+      - name: mongo
+        image: mongo
+        ports:
+        - containerPort: 27017
