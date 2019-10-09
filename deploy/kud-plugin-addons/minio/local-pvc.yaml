@@ -8,5 +8,5 @@ spec:
   resources:
     requests:
       storage: 64Gi
-  storageClassName: local-storage
+  storageClassName: local-sc
 
