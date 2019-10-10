@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bd90da8c_aa755e98",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 287
+      },
+      "writtenOn": "2019-10-10T18:16:09Z",
+      "side": 1,
+      "message": "Use go fmt or an editor that will do that for you. That will fix the indentations here.",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 54
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "11b573ed_ff22c136",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 287
+      },
+      "writtenOn": "2019-10-10T18:16:09Z",
+      "side": 1,
+      "message": "There is no need to mock the go package calls. It just makes everything complicated as you are forced to use these in your code. Just mock the calls that are made to databases and to other micro services.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 39
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "4b16ec14_13107895",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 287
+      },
+      "writtenOn": "2019-10-10T18:16:09Z",
+      "side": 1,
+      "message": "Where is this variable being initialized?",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "babef7e5_bd5f3442",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 287
+      },
+      "writtenOn": "2019-10-10T18:16:09Z",
+      "side": 1,
+      "message": "Is util initialized somewhere? How is this call not erroring out for you?",
+      "range": {
+        "startLine": 114,
+        "startChar": 1,
+        "endLine": 114,
+        "endChar": 54
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
