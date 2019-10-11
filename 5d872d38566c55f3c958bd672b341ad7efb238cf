@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "ebbbcd10_de17d11d",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-10-11T18:42:14Z",
+      "side": 1,
+      "message": "Appreciated. I ran go fmt.",
+      "parentUuid": "bd90da8c_aa755e98",
+      "range": {
+        "startLine": 19,
+        "startChar": 0,
+        "endLine": 21,
+        "endChar": 54
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "11b573ed_ff22c136",
         "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
         "patchSetId": 1
@@ -36,6 +60,30 @@
       "writtenOn": "2019-10-10T18:16:09Z",
       "side": 1,
       "message": "There is no need to mock the go package calls. It just makes everything complicated as you are forced to use these in your code. Just mock the calls that are made to databases and to other micro services.",
+      "range": {
+        "startLine": 62,
+        "startChar": 0,
+        "endLine": 63,
+        "endChar": 39
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "79444eef_5bbead9d",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 63,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-10-11T18:42:14Z",
+      "side": 1,
+      "message": "Thanks for all the feedback Kiran. But if I don\u0027t mock OS calls won\u0027t I have system changes due to unit tests? For instance, POST creates a directory and file. Mocking out OS calls prevents an actual directory and file creation.",
+      "parentUuid": "11b573ed_ff22c136",
       "range": {
         "startLine": 62,
         "startChar": 0,
@@ -71,6 +119,30 @@
     },
     {
       "key": {
+        "uuid": "ce29f533_674247aa",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 72,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-10-11T18:42:14Z",
+      "side": 1,
+      "message": "I missed this. Fixed.",
+      "parentUuid": "4b16ec14_13107895",
+      "range": {
+        "startLine": 72,
+        "startChar": 4,
+        "endLine": 72,
+        "endChar": 16
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "babef7e5_bd5f3442",
         "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
         "patchSetId": 1
@@ -82,6 +154,30 @@
       "writtenOn": "2019-10-10T18:16:09Z",
       "side": 1,
       "message": "Is util initialized somewhere? How is this call not erroring out for you?",
+      "range": {
+        "startLine": 114,
+        "startChar": 1,
+        "endLine": 114,
+        "endChar": 54
+      },
+      "revId": "5d872d38566c55f3c958bd672b341ad7efb238cf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f43829d_a97426e1",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-10-11T18:42:14Z",
+      "side": 1,
+      "message": "Fixed.",
+      "parentUuid": "babef7e5_bd5f3442",
       "range": {
         "startLine": 114,
         "startChar": 1,
