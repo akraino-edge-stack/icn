@@ -1,0 +1,11 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: e2e-test-provisioning
+  labels:
+    cluster: cluster-test
+    owner: c1
+spec:
+  masters:
+    - master-test:
+        mac-address: 08:00:27:00:ab:c0
