@@ -9,7 +9,7 @@ import (
         "regexp"
         "strings"
         "io/ioutil"
-
+        "encoding/json"
 
         bpav1alpha1 "github.com/bpa-operator/pkg/apis/bpa/v1alpha1"
         metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -34,6 +34,20 @@ import (
         "gopkg.in/ini.v1"
 	"golang.org/x/crypto/ssh"
 )
+
+type VirtletVM struct {
+        IPaddress string
+        MACaddress string
+}
+
+type NetworksStatus struct {
+        Name string `json:"name,omitempty"`
+        Interface string `json:"interface,omitempty"`
+        Ips []string `json:"ips,omitempty"`
+        Mac string `json:"mac,omitempty"`
+        Default bool `json:"default,omitempty"`
+        Dns interface{} `json:"dns,omitempty"`
+}
 
 var log = logf.Log.WithName("controller_provisioning")
 
@@ -87,13 +101,11 @@ func add(mgr manager.Manager, r reconcile.Reconciler) error {
                 return err
         }
 
-
         // Watch for changes to resource software CR
         err = c.Watch(&source.Kind{Type: &bpav1alpha1.Software{}}, &handler.EnqueueRequestForObject{})
         if err != nil {
                 return err
         }
-
 
 
         return nil
@@ -171,6 +183,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         ////////////////         Provisioning CR was created so install KUD          /////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
 	clusterName := provisioningInstance.Labels["cluster"]
+	clusterType := provisioningInstance.Labels["cluster-type"]
         mastersList := provisioningInstance.Spec.Masters
         workersList := provisioningInstance.Spec.Workers
         dhcpLeaseFile := provisioningInstance.Spec.DHCPleaseFile
@@ -179,7 +192,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
 
         bareMetalHostList, _ := listBareMetalHosts(config)
-
+        virtletVMList, _ := listVirtletVMs()
 
         var allString string
         var masterString string
@@ -218,39 +231,57 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
                 for masterLabel, master := range masterMap {
                    masterMAC := master.MACaddress
+                   hostIPaddress := ""
 
                    if masterMAC == "" {
                       err = fmt.Errorf("MAC address for masterNode %s not provided\n", masterLabel)
                       return reconcile.Result{}, err
                    }
+
                    containsMac, bmhCR := checkMACaddress(bareMetalHostList, masterMAC)
+
+		   //Check 'cluster-type' label for Virtlet VMs
+		   if clusterType == "virtlet-vm" {
+                       //Get VM IP address of master
+                       hostIPaddress, err = getVMIPaddress(virtletVMList, masterMAC)
+                       if err != nil || hostIPaddress == "" {
+                           err = fmt.Errorf("IP address not found for VM with MAC address %s \n", masterMAC)
+                           return reconcile.Result{}, err
+                       }
+                       containsMac = true
+		   }
+
                    if containsMac{
-                      fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, masterMAC)
 
-                      //Get IP address of master
-                      hostIPaddress, err := getHostIPaddress(masterMAC, dhcpLeaseFile )
-                      if err != nil || hostIPaddress == ""{
-                        err = fmt.Errorf("IP address not found for host with MAC address %s \n", masterMAC)
-                        return reconcile.Result{}, err
-                      }
+		       if clusterType != "virtlet-vm" {
+                           fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, masterMAC)
 
-                      allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
-                      masterString += masterLabel + "\n"
-		      clusterData[masterTag + masterLabel] = hostIPaddress
+                           //Get IP address of master
+                           hostIPaddress, err = getHostIPaddress(masterMAC, dhcpLeaseFile )
+                           if err != nil || hostIPaddress == ""{
+                               err = fmt.Errorf("IP address not found for host with MAC address %s \n", masterMAC)
+                               return reconcile.Result{}, err
+                           }
+		       }
 
-                      fmt.Printf("%s : %s \n", hostIPaddress, masterMAC)
+                       allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                       masterString += masterLabel + "\n"
+                       clusterData[masterTag + masterLabel] = hostIPaddress
 
-                      if len(workersList) != 0 {
+                       fmt.Printf("%s : %s \n", hostIPaddress, masterMAC)
 
-                          //Iterate through workersList and get all the mac addresses
-                          for _, workerMap := range workersList {
+                       if len(workersList) != 0 {
 
-                              //Get worker labels from the workermap
-                              for workerLabel, worker := range workerMap {
+                           //Iterate through workersList and get all the mac addresses
+                           for _, workerMap := range workersList {
 
-                                  //Check if workerString already contains worker label
-                                  containsWorkerLabel := strings.Contains(workerString, workerLabel)
-                                  workerMAC := worker.MACaddress
+                               //Get worker labels from the workermap
+                               for workerLabel, worker := range workerMap {
+
+                                   //Check if workerString already contains worker label
+                                   containsWorkerLabel := strings.Contains(workerString, workerLabel)
+                                   workerMAC := worker.MACaddress
+                                   hostIPaddress = ""
 
                                    //Error occurs if the same label is given to different hosts (assumption,
                                    //each MAC address represents a unique host
@@ -289,17 +320,30 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                          }
 
                                         containsMac, bmhCR := checkMACaddress(bareMetalHostList, workerMAC)
+
+					if clusterType == "virtlet-vm" {
+		                            //Get VM IP address of master
+		                            hostIPaddress, err = getVMIPaddress(virtletVMList, workerMAC)
+		                            if err != nil || hostIPaddress == "" {
+		                                err = fmt.Errorf("IP address not found for VM with MAC address %s \n", workerMAC)
+		                                return reconcile.Result{}, err
+		                            }
+		                            containsMac = true
+		                        }
+
                                         if containsMac{
-                                           fmt.Printf("Host %s matches that macAddress\n", bmhCR)
 
-                                           //Get IP address of worker
-                                           hostIPaddress, err := getHostIPaddress(workerMAC, dhcpLeaseFile )
-                                           if err != nil {
-                                              fmt.Errorf("IP address not found for host with MAC address %s \n", workerMAC)
-                                              return reconcile.Result{}, err
-                                           }
+		                           if clusterType != "virtlet-vm" {
+                                               fmt.Printf("Host %s matches that macAddress\n", bmhCR)
+
+                                               //Get IP address of worker
+                                               hostIPaddress, err = getHostIPaddress(workerMAC, dhcpLeaseFile )
+                                               if err != nil {
+                                                   fmt.Errorf("IP address not found for host with MAC address %s \n", workerMAC)
+                                                   return reconcile.Result{}, err
+                                               }
+					   }
                                            fmt.Printf("%s : %s \n", hostIPaddress, workerMAC)
-
 
 
                                            allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
@@ -312,9 +356,8 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                             err = fmt.Errorf("Host with MAC Address %s not found\n", workerMAC)
                                             return reconcile.Result{}, err
                                           }
-                                     }
-
-                         }
+                                   }
+                             }
                        }
                    //No worker node specified, add master as worker node
                    } else if len(workersList) == 0 && !strings.Contains(workerString, masterLabel) {
@@ -372,6 +415,19 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
            return reconcile.Result{}, err
+        }
+
+        if clusterType == "virtlet-vm" {
+                _, err = hostFile.NewRawSection("ovn-central", masterString)
+                if err != nil {
+                        fmt.Printf("Error occured while creating section \n %v", err)
+                        return reconcile.Result{}, err
+                }
+                _, err = hostFile.NewRawSection("ovn-controller", masterString)
+                if err != nil {
+                        fmt.Printf("Error occured while creating section \n %v", err)
+                        return reconcile.Result{}, err
+                }
         }
 
         _, err = hostFile.NewRawSection("k8s-cluster:children", "kube-node\n" + "kube-master")
@@ -435,7 +491,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
         return reconcile.Result{}, nil
 }
-
 
 //Function to Get List containing baremetal hosts
 func listBareMetalHosts(config *rest.Config) (*unstructured.UnstructuredList, error) {
@@ -574,7 +629,6 @@ func getConfigMapData(namespace, clusterName string, clientset *kubernetes.Clien
      return configmapData, nil
 }
 
-
 //Function to create job for KUD installation
 func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, clientset *kubernetes.Clientset) error{
 
@@ -691,6 +745,7 @@ func checkJob(clusterName, namespace string, data, labels map[string]string, cli
     return
 
 }
+
 //Function to get software list from software CR
 func getSoftwareList(softwareCR *bpav1alpha1.Software) (string, []interface{}, []interface{}) {
 
@@ -780,4 +835,67 @@ func sshInstaller(softwareString, sshPrivateKey, ipAddress string) error {
 
     return nil
 
+}
+
+func listVirtletVMs() ([]VirtletVM, error) {
+
+        var vmPodList []VirtletVM
+
+        config, err :=  config.GetConfig()
+        if err != nil {
+                fmt.Println("Could not get kube config, Error: %v\n", err)
+                return []VirtletVM{}, err
+        }
+
+        // create the clientset
+        clientset, err := kubernetes.NewForConfig(config)
+        if err != nil {
+                fmt.Println("Could not create the client set, Error: %v\n", err)
+                return []VirtletVM{}, err
+        }
+
+        pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
+        if err != nil {
+                fmt.Println("Could not get pod info, Error: %v\n", err)
+                return []VirtletVM{}, err
+        }
+
+        for _, pod := range pods.Items {
+                var podAnnotation map[string]interface{}
+                var podStatus corev1.PodStatus
+                var podDefaultNetStatus []NetworksStatus
+
+                annotation, err := json.Marshal(pod.ObjectMeta.GetAnnotations())
+                if err != nil {
+                        fmt.Println("Could not get pod annotations, Error: %v\n", err)
+                        return []VirtletVM{}, err
+                }
+
+                json.Unmarshal([]byte(annotation), &podAnnotation)
+                if podAnnotation != nil && podAnnotation["kubernetes.io/target-runtime"] != nil {
+                        runtime := podAnnotation["kubernetes.io/target-runtime"].(string)
+
+                        podStatusJson, _ := json.Marshal(pod.Status)
+                        json.Unmarshal([]byte(podStatusJson), &podStatus)
+
+                        if runtime  == "virtlet.cloud" && podStatus.Phase == "Running" && podAnnotation["v1.multus-cni.io/default-network"] != nil {
+                                ns := podAnnotation["v1.multus-cni.io/default-network"].(string)
+                                json.Unmarshal([]byte(ns), &podDefaultNetStatus)
+
+                                vmPodList = append(vmPodList, VirtletVM{podStatus.PodIP, podDefaultNetStatus[0].Mac})
+                        }
+                }
+        }
+
+        return vmPodList, nil
+}
+
+func getVMIPaddress(vmList []VirtletVM, macAddress string) (string, error) {
+
+        for i := 0; i < len(vmList); i++ {
+                if vmList[i].MACaddress == macAddress {
+                        return vmList[i].IPaddress, nil
+                }
+        }
+        return "", nil
 }
