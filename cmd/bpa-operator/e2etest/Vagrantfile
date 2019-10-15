@@ -1,0 +1,81 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+# SPDX-license-identifier: Apache-2.0
+##############################################################################
+# Copyright (c) 2018
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Apache License, Version 2.0
+# which accompanies this distribution, and is available at
+# http://www.apache.org/licenses/LICENSE-2.0
+##############################################################################
+
+box = {
+  :virtualbox => { :name => "elastic/ubuntu-18.04-x86_64", :version=> '20191020.0.0' },
+  :libvirt => { :name => "generic/ubuntu1804", :version=> "1.9.38"}
+}
+
+
+
+provider = (ENV["VAGRANT_DEFAULT_PROVIDER"] || :libvirt).to_sym
+puts "[INFO] Provider: #{provider} "
+
+if ENV["no_proxy"] != nil or ENV["NO_PROXY"]
+  $no_proxy = ENV["NO_PROXY"] || ENV["no_proxy"] || "127.0.0.1,localhost,192.168.50.63"
+  $subnet = "192.168.121"
+  if provider == :virtualbox
+    $subnet = "10.0.2"
+  end
+  # NOTE: This range is based on vagrant-libvirt network definition CIDR 192.168.121.0/27
+  (1..31).each do |i|
+    $no_proxy += ",#{$subnet}.#{i}"
+  end
+end
+
+Vagrant.configure("2") do |config|
+  config.vm.box =  box[provider][:name]
+  config.ssh.insert_key = false
+  config.vm.box_version = box[provider][:version]
+  config.vm.provision "file", source: "vm_authorized_keys", destination: "/home/vagrant/.ssh/authorized_keys"
+
+   config.vm.provision "shell" do |sh|
+     sh.inline = "mkdir -p /root/.ssh; cp /home/vagrant/.ssh/authorized_keys /root/.ssh/authorized_keys"
+     sh.privileged = true
+   end
+
+  if ENV["http_proxy"] != nil and ENV["https_proxy"] != nil
+    if Vagrant.has_plugin?("vagrant-proxyconf")
+      config.proxy.http     = ENV["http_proxy"] || ENV["HTTP_PROXY"] || ""
+      config.proxy.https    = ENV["https_proxy"] || ENV["HTTPS_PROXY"] || ""
+      config.proxy.no_proxy = $no_proxy
+      config.proxy.enabled = { docker: false }
+    end
+  end
+  config.vm.provider "libvirt" do |v|
+    v.nested = true
+    v.cpu_mode = "host-passthrough"
+    v.management_network_address = "192.168.121.0/27"
+    v.random_hostname = true
+  end
+
+
+   config.vm.define vm_name = "bpa-test-vm" do |config|
+     config.vm.hostname = "master-test"
+     config.vm.network :private_network, :ip => "192.168.50.63", :type => :static, :mac => "080027efab60"
+   end
+   config.vm.provider "virtualbox" do |v|
+      v.customize ["modifyvm", :id, "--memory", 16384]
+      v.customize ["modifyvm", :id, "--cpus", 16]
+   end
+     
+   config.vm.provider "libvirt" do |v|
+      v.memory = 16384
+      v.cpus = 16
+        
+   end
+   #end
+ 
+  sync_type = "virtualbox"
+  if provider == :libvirt
+    sync_type = "nfs"
+  end
+end
