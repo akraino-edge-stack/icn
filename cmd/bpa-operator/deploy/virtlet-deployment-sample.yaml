@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: virtlet-deployment
+  labels:
+    app: virtlet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: virtlet
+  template:
+    metadata:
+      labels:
+        app: virtlet
+      annotations:
+        VirtletLibvirtCPUSetting: |
+          mode: host-passthrough
+        # This tells CRI Proxy that this pod belongs to Virtlet runtime
+        kubernetes.io/target-runtime: virtlet.cloud
+        VirtletCloudInitUserData: |
+          ssh_pwauth: True
+          disable_root: false
+          chpasswd: {expire: False}
+          users:
+          - name: root
+            gecos: User
+            primary-group: root
+            groups: users
+            lock_passwd: false
+            shell: /bin/bash
+            sudo: ALL=(ALL) NOPASSWD:ALL
+            ssh_authorized_keys:
+            # SSH key goes here
+          runcmd:
+            - echo hello world
+        v1.multus-cni.io/default-network: '[
+            { "name": "flannel-vm",
+              "mac": "c2:b4:57:49:47:f1" }]'
+        VirtletRootVolumeSize: 12Gi
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: extraRuntime
+                operator: In
+                values:
+                - virtlet
+      containers:
+      - name: virtlet-deployment
+        # This specifies the image to use.
+        # virtlet.cloud/ prefix is used by CRI proxy, the remaining part
+        # of the image name is prepended with https:// and used to download the image
+        image: virtlet.cloud/ubuntu/18.04
+        imagePullPolicy: IfNotPresent
+        # tty and stdin required for "kubectl attach -t" to work
+        tty: true
+        stdin: true
+        resources:
+          requests:
+            cpu: 2
+            memory: 12Gi
+          limits:
+            # This memory limit is applied to the libvirt domain definition
+            cpu: 2
+            memory: 12Gi

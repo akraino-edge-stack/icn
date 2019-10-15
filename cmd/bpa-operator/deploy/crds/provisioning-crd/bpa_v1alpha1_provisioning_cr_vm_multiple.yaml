@@ -1,0 +1,15 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-test-vm-2
+  labels:
+    cluster: vm-cluster-2
+    cluster-type: virtlet-vm
+    owner: c1
+spec:
+  masters:
+    - master-1:
+        mac-address: 00:c6:14:04:61:b2
+  workers:
+    - worker-1:
+         mac-address: 00:c4:13:04:62:b5
