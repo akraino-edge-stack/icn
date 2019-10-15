@@ -22,8 +22,6 @@ spec:
           volumeMounts:
           - name: dhcp-shared
             mountPath: /var/lib/dhcp/
-          - name: icn-kud
-            mountPath: /multicloud-k8s
           - name: icn-cluster
             mountPath: /multi-cluster
           command:
@@ -45,6 +43,6 @@ spec:
       - name: dhcp-shared
         hostPath:
           path: /opt/icn/dhcp/
-      - name: icn-kud
+      - name: multi-cluster
         hostPath:
-          path: /opt/icn/multicloud-k8s/
+          path: /opt/kud/multi-cluster
