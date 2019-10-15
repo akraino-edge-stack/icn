@@ -15,6 +15,7 @@ rules:
   - configmaps
   - secrets
   - namespaces
+  - jobs
   verbs:
   - '*'
 - apiGroups:
@@ -63,5 +64,11 @@ rules:
   - metal3.io
   resources:
   - baremetalhosts
+  verbs:
+  - '*'
+- apiGroups:
+  - "batch"
+  resources:
+  - jobs
   verbs:
   - '*'
