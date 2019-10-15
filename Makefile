@@ -20,6 +20,9 @@ kud_download:
 bpa_op_install: kud_download
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
 
+bpa_op_delete:
+	pushd $(BPA_OPERATOR) && make delete && popd
+
 bpa_op_all: bm_all bpa_op_install 	
 
 .PHONY: all bm_preinstall bm_install
