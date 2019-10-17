@@ -11,10 +11,10 @@ cd $ICN_PATH/../
 mkdir -p build
 
 if [ ! -f "build/ubuntu-18.04.2-server-amd64.iso" ];then
-  curl "http://old-releases.ubuntu.com/releases/18.04.2/ubuntu-18.04.2-server-amd64.iso" \
+    curl "http://old-releases.ubuntu.com/releases/18.04.2/ubuntu-18.04.2-server-amd64.iso" \
     -o build/ubuntu-18.04.2-server-amd64.iso
 else
-  echo "Not download official ISO, using existing one"
+    echo "Not download official ISO, using existing one"
 fi
 
 mkdir -p build/iso
@@ -27,4 +27,4 @@ cp -rf icn/tools/ubuntu/* build/ubuntu/
 cp -rf icn build/ubuntu/
 
 mkisofs -R -J -T -v -no-emul-boot -boot-load-size 4 -boot-info-table \
-  -b isolinux/isolinux.bin -c isolinux/boot.cat -o icn-ubuntu-18.04.iso build/ubuntu/
+    -b isolinux/isolinux.bin -c isolinux/boot.cat -o icn-ubuntu-18.04.iso build/ubuntu/

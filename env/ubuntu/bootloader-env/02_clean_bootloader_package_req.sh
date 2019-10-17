@@ -14,18 +14,18 @@ if [[ $(lsb_release -d | cut -f2) != $UBUNTU_BIONIC ]]; then
     exit 1
 fi
 
-function clean_essential_packages() {
+function clean_essential_packages {
     apt-get update
-	for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
-			python-pip python-requests python-setuptools vim wget; do
-    	apt-get remove $package -y
-	done
+    for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
+        python-pip python-requests python-setuptools vim wget; do
+        apt-get remove $package -y
+    done
 
-	apt-get autoremove -y
-	rm -rf /etc/apt/sources.list.d/*
+    apt-get autoremove -y
+    rm -rf /etc/apt/sources.list.d/*
 }
 
-function check_prerequisite() {
+function check_prerequisite {
     if !(which pip); then
         apt-get install python-pip -y
     fi
@@ -39,15 +39,15 @@ function check_prerequisite() {
     fi
 }
 
-function clean_ironic_packages() {
-	for package in jq nodejs python-ironicclient \
-			python-ironic-inspector-client python-lxml python-netaddr \
-			python-openstackclient unzip genisoimage; do
-    	apt-get remove $package -y
-	done    
+function clean_ironic_packages {
+    for package in jq nodejs python-ironicclient \
+        python-ironic-inspector-client python-lxml python-netaddr \
+        python-openstackclient unzip genisoimage; do
+        apt-get remove $package -y
+    done
 }
 
-function clean_docker_packages() {
+function clean_docker_packages {
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
     add-apt-repository \
         "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
@@ -55,50 +55,50 @@ function clean_docker_packages() {
         stable"
     apt-get update
     apt-get remove docker-ce -y
-	for package in apt-transport-https ca-certificates gnupg-agent \
+    for package in apt-transport-https ca-certificates gnupg-agent \
             software-properties-common; do
         apt-get remove $package -y
     done
 
-	apt-get remove -y docker \
+    apt-get remove -y docker \
         docker-engine \
         docker.io \
         containerd \
         runc \
         docker-ce
 
-	apt-get update
+    apt-get update
 }
 
-function clean_podman_packages() {
+function clean_podman_packages {
     apt-get update
     add-apt-repository -y ppa:projectatomic/ppa
     apt-get remove podman -y
 }
 
-function clean_kubernetes_packages() {
-	#Just to make sure kubernetes packages are removed during the download
-   curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
-   bash -c 'cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+function clean_kubernetes_packages {
+    #Just to make sure kubernetes packages are removed during the download
+    curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+    bash -c 'cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
 deb https://apt.kubernetes.io/ kubernetes-xenial main
 EOF'
-   apt-get update
-   apt-get remove kubelet kubeadm kubectl -y
+    apt-get update
+    apt-get remove kubelet kubeadm kubectl -y
 }
 
-function clean_apt_cache() {
-	shopt -s extglob
-	pushd /var/cache/apt/archives
+function clean_apt_cache {
+    shopt -s extglob
+    pushd /var/cache/apt/archives
 
-	if [ $(ls -1q . | wc -l ) -ge 3 ]; then
-    	$(rm !("lock"|"partial"))
-	fi
-	popd
-	
+    if [ $(ls -1q . | wc -l ) -ge 3 ]; then
+        $(rm !("lock"|"partial"))
+    fi
+    popd
+
 }
 
-function mv_apt_cache() {
-	shopt -s extglob
+function mv_apt_cache {
+    shopt -s extglob
     pushd /var/cache/apt/archives
 
     if [ $(ls -1q . | wc -l ) -gt 2 ]; then
@@ -107,14 +107,14 @@ function mv_apt_cache() {
     popd
 }
 
-function check_dir() {
+function check_dir {
     if [ ! -d $1 ]; then
         mkdir -p $1
     fi
 }
 
-function clean_dir() {
-	shopt -s extglob
+function clean_dir {
+    shopt -s extglob
     pushd $1
 
     if [ $(ls -1q . | wc -l ) -ne 0 ]; then

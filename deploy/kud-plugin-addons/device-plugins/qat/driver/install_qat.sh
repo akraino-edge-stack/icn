@@ -16,34 +16,34 @@ libdir=/usr/local/lib
 bindir=/usr/local/bin
 
 am__append_1="drivers/crypto/qat/qat_dh895xcc/qat_dh895xcc.ko\
-			drivers/crypto/qat/qat_dh895xccvf/qat_dh895xccvf.ko"
+        drivers/crypto/qat/qat_dh895xccvf/qat_dh895xccvf.ko"
 
 am__append_2="qat_895xcc.bin qat_895xcc_mmp.bin"
 am__append_3="dh895xcc_dev0.conf dh895xcc_dev1.conf dh895xccvf_dev0.conf.vm"
 
 # Kernel modules list
 KO_MODULES_LIST="drivers/crypto/qat/qat_common/intel_qat.ko \
-	drivers/crypto/qat/qat_c62x/qat_c62x.ko \
-	drivers/crypto/qat/qat_c62xvf/qat_c62xvf.ko \
-	drivers/crypto/qat/qat_d15xx/qat_d15xx.ko \
-	drivers/crypto/qat/qat_d15xxvf/qat_d15xxvf.ko \
-	drivers/crypto/qat/qat_c3xxx/qat_c3xxx.ko \
-	drivers/crypto/qat/qat_c3xxxvf/qat_c3xxxvf.ko $am__append_1"
+    drivers/crypto/qat/qat_c62x/qat_c62x.ko \
+    drivers/crypto/qat/qat_c62xvf/qat_c62xvf.ko \
+    drivers/crypto/qat/qat_d15xx/qat_d15xx.ko \
+    drivers/crypto/qat/qat_d15xxvf/qat_d15xxvf.ko \
+    drivers/crypto/qat/qat_c3xxx/qat_c3xxx.ko \
+    drivers/crypto/qat/qat_c3xxxvf/qat_c3xxxvf.ko $am__append_1"
 
 # Firmwares list
 BIN_LIST="qat_c3xxx.bin qat_c3xxx_mmp.bin qat_c62x.bin \
-	qat_c62x_mmp.bin qat_mmp.bin qat_d15xx.bin qat_d15xx_mmp.bin \
-	$am__append_2"
+    qat_c62x_mmp.bin qat_mmp.bin qat_d15xx.bin qat_d15xx_mmp.bin \
+    $am__append_2"
 CONFIG_LIST="c3xxx_dev0.conf \
-	c3xxxvf_dev0.conf.vm \
-	c6xx_dev0.conf \
-	c6xx_dev1.conf \
-	c6xx_dev2.conf \
-	c6xxvf_dev0.conf.vm \
-	d15xx_dev0.conf \
-	d15xxpf_dev0.conf \
-	d15xxvf_dev0.conf.vm \
-	$am__append_3"
+    c3xxxvf_dev0.conf.vm \
+    c6xx_dev0.conf \
+    c6xx_dev1.conf \
+    c6xx_dev2.conf \
+    c6xxvf_dev0.conf.vm \
+    d15xx_dev0.conf \
+    d15xxpf_dev0.conf \
+    d15xxvf_dev0.conf.vm \
+    $am__append_3"
 
 QAT_DH895XCC_NUM_VFS=32
 QAT_DHC62X_NUM_VFS=16
@@ -113,41 +113,33 @@ $MV $ROOT/etc/c6xx*.conf $ROOT/etc/qat_conf_backup/ 2>/dev/null;
 $MV $ROOT/etc/d15xx*.conf $ROOT/etc/qat_conf_backup/ 2>/dev/null;
 $MV $ROOT/etc/c3xxx*.conf $ROOT/etc/qat_conf_backup/ 2>/dev/null;
 
-for ((dev=0; dev<$numDh895xDevicesP; dev++))
-do
+for ((dev=0; dev<$numDh895xDevicesP; dev++)); do
     $INSTALL -D -m 640 dh895xcc_dev0.conf $ROOT/etc/dh895xcc_dev$dev.conf;
-    for ((vf_dev = 0; vf_dev<$QAT_DH895XCC_NUM_VFS; vf_dev++))
-    do
+    for ((vf_dev = 0; vf_dev<$QAT_DH895XCC_NUM_VFS; vf_dev++)); do
         vf_dev_num=$(($dev * $QAT_DH895XCC_NUM_VFS + $vf_dev));
         $INSTALL -D -m 640 dh895xccvf_dev0.conf.vm $ROOT/etc/dh895xccvf_dev$vf_dev_num.conf;
     done;
 done;
 
-for ((dev=0; dev<$numC62xDevicesP; dev++))
-do
+for ((dev=0; dev<$numC62xDevicesP; dev++)); do
     $INSTALL -D -m 640 c6xx_dev$(($dev%3)).conf $ROOT/etc/c6xx_dev$dev.conf;
-    for ((vf_dev = 0; vf_dev<$QAT_DHC62X_NUM_VFS; vf_dev++))
-    do
+    for ((vf_dev = 0; vf_dev<$QAT_DHC62X_NUM_VFS; vf_dev++)); do
         vf_dev_num=$(($dev * $QAT_DHC62X_NUM_VFS + $vf_dev));
         $INSTALL -D -m 640 c6xxvf_dev0.conf.vm $ROOT/etc/c6xxvf_dev$vf_dev_num.conf;
     done;
 done;
 
-for ((dev=0; dev<$numD15xxDevicesP; dev++))
-do
+for ((dev=0; dev<$numD15xxDevicesP; dev++)); do
     $INSTALL -D -m 640 d15xx_dev$(($dev%3)).conf $ROOT/etc/d15xx_dev$dev.conf;
-    for ((vf_dev = 0; vf_dev<$QAT_DHD15XX_NUM_VFS; vf_dev++))
-    do
+    for ((vf_dev = 0; vf_dev<$QAT_DHD15XX_NUM_VFS; vf_dev++)); do
         vf_dev_num=$(($dev * $QAT_DHD15XX_NUM_VFS + $vf_dev));
         $INSTALL -D -m 640 d15xxvf_dev0.conf.vm $ROOT/etc/d15xxvf_dev$vf_dev_num.conf;
     done;
 done;
 
-for ((dev=0; dev<$numC3xxxDevicesP; dev++))
-do
+for ((dev=0; dev<$numC3xxxDevicesP; dev++)); do
     $INSTALL -D -m 640 c3xxx_dev0.conf $ROOT/etc/c3xxx_dev$dev.conf;
-    for ((vf_dev = 0; vf_dev<$QAT_DHC3XXX_NUM_VFS; vf_dev++))
-    do
+    for ((vf_dev = 0; vf_dev<$QAT_DHC3XXX_NUM_VFS; vf_dev++)); do
         vf_dev_num=$(($dev * $QAT_DHC3XXX_NUM_VFS + $vf_dev));
         $INSTALL -D -m 640 c3xxxvf_dev0.conf.vm $ROOT/etc/c3xxxvf_dev$vf_dev_num.conf;
     done;
