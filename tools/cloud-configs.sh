@@ -15,20 +15,20 @@ for module in $MODULES_LIST; do
     filename=$module-$VER.tar.gz
     if [ ! -e $filename ]; then
         if [ ! -e $SHARE_FOLDER/$filename ]; then
-	    echo "Cannot install module $module ..."
-	    continue
-	else
+        echo "Cannot install module $module ..."
+        continue
+    else
             cp $SHARE_FOLDER/$filename .
         fi
     fi
 
     tar xvzf $filename
-    if [ -d $module ]; then 
+    if [ -d $module ]; then
         echo "Installing module $module ..."
-	pushd $module
+    pushd $module
         bash ./install.sh
         popd
-	rm -rf $module
+    rm -rf $module
     fi
-done    
+done
 

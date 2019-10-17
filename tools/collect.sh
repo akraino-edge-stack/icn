@@ -13,10 +13,9 @@ mkdir -p $ICN_PATH/apt/deb/
 
 # Call scripts to collect everything from Internet,
 # all the collected files need to be put under ICN_PATH
-for collect_sh in `find icn/ -name collect_*.sh | sort`
-do
-  collect_parent=`dirname $collect_sh`
-  pushd $collect_parent
+for collect_sh in `find icn/ -name collect_*.sh | sort`; do
+    collect_parent=`dirname $collect_sh`
+    pushd $collect_parent
     bash `basename $collect_sh` $ICN_PATH
-  popd
+    popd
 done

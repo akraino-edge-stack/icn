@@ -22,4 +22,7 @@ bpa_op_install: kud_download
 
 bpa_op_all: bm_all bpa_op_install 	
 
-.PHONY: all bm_preinstall bm_install
+bashate:
+	bashate -i E006 `find . -name *.sh`
+
+.PHONY: all bm_preinstall bm_install bashate
