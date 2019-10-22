@@ -33,7 +33,7 @@ spec:
       - name: storage
         persistentVolumeClaim:
           # Name of the PVC created earlier
-          claimName: minio-local-claim
+          claimName: minio-local-pvc
       containers:
       - name: bpa-api1
         image: akraino.org/icn/bpa-restapi-agent:latest

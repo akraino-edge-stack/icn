@@ -1,7 +1,7 @@
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-  name: minio-local-claim
+  name: minio-local-pvc
 spec:
   accessModes:
   - ReadWriteOnce
