@@ -8,7 +8,7 @@ kubectl apply -f bpa_api_cluster_role.yml
 
 kubectl apply -f bpa_api_cluster_role_binding.yml
 
-pushd $ICN_DIR/deploy/kud-plugin-addons/minio
+pushd $ICN_DIR/deploy/kud-plugin-addons/minio/yaml
 
 ./install.sh
 
