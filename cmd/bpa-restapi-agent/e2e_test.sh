@@ -3,6 +3,7 @@
 ICN_DIR=$(dirname "$(dirname "$PWD")")
 
 source "$ICN_DIR/env/lib/common.sh"
+source "$ICN_DIR/deploy/kud-plugin-addons/minio/lib/minio.sh"
 
 #create sample image
 if true ; then
@@ -68,6 +69,14 @@ http://$IP:9015/v1/baremetalcluster/alpha/beta/container_images/qwerty123
 call_api --request PATCH --data-binary "@/tmp/sample_image" \
 http://$IP:9015/v1/baremetalcluster/alpha/beta/container_images/qwerty123 \
 --header "Upload-Offset: 0" --header "Expect:" -i
+
+MINIO_IP=$(kubectl get services | grep minio-service | awk '{print $3}')
+setup_mc $MINIO_IP
+obj_size=$(get_object_size container qwerty123)
+echo "Got obj size: $obj_size"
+if [[ $obj_size != $IMAGE_SIZE ]]; then
+    exit 1
+fi
 
 call_api -i -X DELETE \
 http://$IP:9015/v1/baremetalcluster/alpha/beta/container_images/qwerty123
