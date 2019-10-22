@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "25376de8_b9b82bf8",
+        "filename": "deploy/kud-plugin-addons/device-plugins/qat/test/test_kerneldrv.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 249
+      },
+      "writtenOn": "2019-10-22T13:12:04Z",
+      "side": 1,
+      "message": "Haibin, Please change the name of \"dpdkXXX\" which may cause a litter confusion. Thanks!",
+      "range": {
+        "startLine": 7,
+        "startChar": 10,
+        "endLine": 7,
+        "endChar": 23
+      },
+      "revId": "5d0fa50d708a892a84bb703e73b3619e9ec07b71",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
