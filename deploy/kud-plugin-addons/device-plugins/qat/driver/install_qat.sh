@@ -217,6 +217,7 @@ $ECHO "Starting QAT service";
 /etc/init.d/qat_service shutdown;
 $SLEEP 3;
 /etc/init.d/qat_service start;
+/etc/init.d/qat_service_vfs start;
 
 # load kernel vf module for QAT device plugin
 numC62xDevicesV=`lspci -n | egrep -c "$INTEL_VENDORID:$C62X_DEVICE_NUMBER_VM"`
