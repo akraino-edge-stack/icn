@@ -5,17 +5,24 @@
 
 # QAT package: https://01.org/zh/intel-quick-assist-technology/downloads
 
-# install qat driver
+# 1.install qat driver
 cd driver
 ./install_qat.sh
 
-# install qat device plugin
+# 2.install qat device plugin
+# 2.1 for dpdp mode
 # pre-pull local build docker image: intel-qat-plugin:devel
 cd yaml
 cat qat_plugin_default_configmap.yaml | kubectl apply -f -
 cat qat_plugin_privileges.yaml | kubectl apply -f -
 
-# test
+# 2.2 for kernel mode
+sudo sed -i "s/\[SSL\]/\[SSL${dev_id}\]/g" /etc/c6xxvf_dev${dev_id}.conf
+cd yaml
+cat qat_plugin_kernel_mode.yaml | kubectl apply -f -
+
+# 3. test
+# 3.1 test qat dpdk mode
 # pre-pull local build docker image: crypto-perf:devel
 cd test
 cat test.yaml | kubectl apply -f -
@@ -24,3 +31,9 @@ kubectl exec -it dpdk2 bash
  --devtype crypto_qat --optype cipher-only --cipher-algo aes-cbc\
  --cipher-op encrypt --cipher-key-sz 16 --total-ops 10000000\
  --burst-sz 32 --buffer-sz 64
+
+# 3.2 test qat kernel mode
+cd test
+cat test_kerneldrv.yaml | kubectl apply -f -
+env | grep QAT
+
