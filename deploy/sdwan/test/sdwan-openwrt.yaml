@@ -1,0 +1,53 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: sdwan-config
+data:
+  entrypoint.sh: |
+    #!/bin/bash
+    # Always exit on errors.
+    set -e
+    
+    /sbin/procd &
+    /sbin/ubusd &
+    sleep 1
+    /etc/init.d/rpcd start
+    /etc/init.d/dnsmasq start
+    /etc/init.d/network start
+    /etc/init.d/odhcpd start
+    /etc/init.d/uhttpd start
+    /etc/init.d/log start
+    /etc/init.d/dropbear start
+    /etc/init.d/mwan3 restart
+
+    echo "Entering sleep... (success)"
+
+    # Sleep forever.
+    while true; do sleep 100; done 
+
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: sdwan-basic
+spec:
+  containers:
+  - name: sdwan-pod
+    image: hle2/openwrt-1806-mwan3:v0.1.0
+    command:
+    - /bin/sh
+    - /init/entrypoint.sh
+    imagePullPolicy: IfNotPresent
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - name: entrypoint-sh
+        mountPath: /init
+  volumes:
+    - name: entrypoint-sh
+      configMap:
+        name: sdwan-config
+        items:
+        - key: entrypoint.sh
+          path: entrypoint.sh
