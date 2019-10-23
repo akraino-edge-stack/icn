@@ -12,7 +12,8 @@ make install
 popd
 
 #Copy bpa operator directory to the right path
-kubectl create -f $PWD/deploy/crds/bpa_v1alpha1_provisioning_crd.yaml 
+kubectl create -f $PWD/deploy/crds/provisioning-crd/bpa_v1alpha1_provisioning_crd.yaml
+kubectl create -f $PWD/deploy/crds/software-crd/bpa_v1alpha1_software_crd.yaml
 echo $GOPATH
 mkdir -p $GOPATH/src/github.com/ && cp -r $PWD $GOPATH/src/github.com/bpa-operator
 pushd $GOPATH/src/github.com/bpa-operator
