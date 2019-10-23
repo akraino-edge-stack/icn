@@ -5,6 +5,14 @@ BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
 
+help:
+	@echo "  Targets:"
+	@echo "  test             -- run unit tests"
+	@echo "  installer        -- run icn installer"
+	@echo "  verifier         -- run verifier tests for CI & CD logs"
+	@echo "  unit             -- run the unit tests"
+	@echo "  help             -- this help output"
+
 all: bm_install
 
 bm_preinstall:
@@ -34,8 +42,15 @@ bpa_op_verifier: bpa_op_install bpa_op_e2e
 
 bpa_op_all: bm_all bpa_op_install
 
-
 bashate:
 	bashate -i E006 `find . -name *.sh`
+
+ci_dummy_test:
+	$(info ************  TESTING ICN CD LOGS ************)
+
+verify_all: ci_dummy_test
+
+verifer: verify_all
+
 
 .PHONY: all bm_preinstall bm_install bashate
