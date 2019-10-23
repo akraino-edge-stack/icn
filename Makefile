@@ -4,6 +4,14 @@ METAL3DIR:=$(CURDIR)/deploy/metal3/scripts
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 
+help:
+	@echo "  Targets:"
+	@echo "  test             -- run unit tests"
+	@echo "  installer        -- run icn installer"
+	@echo "  verifier         -- run verifier tests for CI & CD logs"
+	@echo "  unit             -- run the unit tests"
+	@echo "  help             -- this help output"
+
 all: bm_install
 
 bm_preinstall:
@@ -23,6 +31,11 @@ bpa_op_install: kud_download
 bpa_op_all: bm_all bpa_op_install 	
 
 bashate:
-	bashate -i E006 `find . -name *.sh`
+	bashate -i E006 `find . -name *.sh`i
+
+verify_all:
+
+verifer:
+
 
 .PHONY: all bm_preinstall bm_install bashate
