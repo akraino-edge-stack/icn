@@ -30,4 +30,7 @@ printf "\n\nBeginning E2E Test Teardown\n\n"
 kubectl delete -f e2e_test_provisioning_cr.yaml
 kubectl delete -f bmh-bpa-test.yaml
 kubectl delete job kud-cluster-test
-vagrant destroy -f	
+vagrant destroy -f
+
+# Run Virtlet VM E2E test
+./bpa_e2e_vm_test.sh
