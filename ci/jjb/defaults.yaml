@@ -1,0 +1,20 @@
+---
+- defaults:
+    name: icn
+
+    gerrit-server-name: Primary
+    git-url: 'ssh://icn.jenkins@gerrit.akraino.org:29418'
+    jenkins-ssh-credential: jenkins-ssh
+    lftools-version: '<1.0.0'
+    submodule-timeout: 10
+
+    # Nexus 2 for jars
+    mvn-snapshot-id: snapshots
+    mvn-staging-id: staging
+    mvn-site-id: site
+    nexus-snapshot-repo: snapshots
+    staging-profile-id: a7925c009cb5d
+
+    # Sonarcloud
+    sonarcloud_project_organization: akraino-edge-stack
+    sonarcloud_api_token: 6864256050596cb8f0cb689d599687f5de46f414

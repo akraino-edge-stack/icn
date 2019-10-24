@@ -1,0 +1,11 @@
+---
+- project:
+    name: icn-private
+    project: icn
+    project-name: icn
+    nexus_log_subdir: intel/ICN_CD_logs
+    stream:
+      - master:
+          branch: master
+    jobs:
+      - icn-stream-verify
