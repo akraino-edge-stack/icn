@@ -1,4 +1,5 @@
 SHELL:=/bin/bash
+ENV:=$(CURDIR)/env
 BMDIR:=$(CURDIR)/env/metal3
 METAL3DIR:=$(CURDIR)/deploy/metal3/scripts
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
@@ -23,8 +24,8 @@ bm_install:
 
 bm_all: bm_preinstall bm_install
 
-kud_download:
-	pushd $(KUD_PATH) && ./kud_launch.sh && popd
+kud_bm_deploy:
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh && popd
 
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
@@ -45,12 +46,12 @@ bpa_op_all: bm_all bpa_op_install
 bashate:
 	bashate -i E006 `find . -name *.sh`
 
-ci_dummy_test:
-	$(info ************  TESTING ICN CD LOGS ************)
+prerequisite:
+	pushd $(ENV) && ./cd_package_installer.sh && popd
 
-verify_all: ci_dummy_test
+verify_all: prerequisite \
+	kud_bm_deploy 
 
-verifer: verify_all
-
+verifier: verify_all
 
 .PHONY: all bm_preinstall bm_install bashate
