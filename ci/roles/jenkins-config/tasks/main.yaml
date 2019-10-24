@@ -1,0 +1,33 @@
+---
+- name: grant jenkins user sudo
+  copy:
+    content: "jenkins        ALL=(ALL)       NOPASSWD: ALL"
+    dest: /etc/sudoers.d/jenkins
+    owner: root
+    group: root
+    mode: '0660'
+
+- name: install and configure vagrant
+  block:
+    - name: install libvirt and vagrant
+      package:
+        name: "{{ item }}"
+      with_items:
+        - libvirt-bin
+        - vagrant
+
+    - name: add jenkins user to libvirt and vagrant group
+      user:
+        append: yes
+        groups:
+          - libvirt
+          - vagrant
+
+    - name: setup vagrant-libvirt plugin
+      shell: vagrant plugin install vagrant-libvirt
+      become_user: jenkins
+  when: enable_vagrant
+  tags: [vagrant]
+
+- name: install python3-pip
+  package: python3-pip
