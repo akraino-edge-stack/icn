@@ -1,0 +1,52 @@
+---
+- publisher:
+    name: icn-infra-publish
+    # lf-infra macro to finish up a build.
+    #
+    # Handles the following:
+    #   - Shipping logs to Nexus logs site repository
+    #   - Cleanup workspace
+    publishers:
+      - postbuildscript:
+          builders:
+            - role: BOTH
+              build-on:
+                - ABORTED
+                - FAILURE
+                - NOT_BUILT
+                - SUCCESS
+                - UNSTABLE
+              build-steps:
+                - lf-infra-sysstat
+                - lf-infra-package-listing
+                - icn-infra-ship-logs
+          mark-unstable-if-failed: true
+      - workspace-cleanup:
+          exclude:
+            # Do not clean up *.jenkins-trigger files for jobs that use a
+            # properties file as input for triggering another build.
+            - "**/*.jenkins-trigger"
+          fail-build: false
+
+- builder:
+    name: icn-infra-ship-logs
+    builders:
+      # Ensure no pre-existing .netrc files are overriding logs config
+      #- lf-provide-maven-settings-cleanup
+      #- config-file-provider:
+      #    files:
+      #      - file-id: "jenkins-log-archives-settings"
+      #        variable: "SETTINGS_FILE"
+      #- lf-infra-create-netrc:
+      #    server-id: logs
+      - shell: !include-raw:
+          # Ensure python-tools are installed in case job template does not
+          # call the lf-infra-pre-build macro.
+          - ../../../ci-management/jjb/global-jjb/shell/python-tools-install.sh
+      - shell: !include-raw:
+          - shell/org-logs-deploy.sh
+      #- shell: !include-raw:
+      #    - ../../../ci-management/jjb/global-jjb/shell/logs-clear-credentials.sh
+      - description-setter:
+          regexp: "^Build logs: .*"
+
