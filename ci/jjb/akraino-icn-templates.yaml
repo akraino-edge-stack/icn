@@ -1,0 +1,63 @@
+---
+- job-template:
+    id: icn-stream-verify
+    name: 'icn-{stream}-verify'
+    defaults: icn
+    archive-artifacts: >
+      **/*.log
+    build-days-to-keep: 30
+    build-timeout: 60
+    stream: master
+    project-type: freestyle
+    submodule-recursive: true
+    #node: '{build-node}'
+
+    properties:
+      - lf-infra-properties:
+          build-days-to-keep: '{build-days-to-keep}'
+
+    parameters:
+      - lf-infra-parameters:
+          project: '{project}'
+          stream: '{stream}'
+          branch: '{branch}'
+          lftools-version: '{lftools-version}'
+
+      - string:
+          name: ARCHIVE_ARTIFACTS
+          default: '{archive-artifacts}'
+          description: Artifacts to archive to the logs server.
+
+      - string:
+          name: NEXUS_LOG_SUBDIR
+          default: '{nexus_log_subdir}'
+          description: Organization sub dir on Akraino Nexus server.
+
+    wrappers:
+      - lf-infra-wrappers:
+          build-timeout: '{build-timeout}'
+          jenkins-ssh-credential: '{jenkins-ssh-credential}'
+
+    scm:
+      - lf-infra-gerrit-scm:
+          jenkins-ssh-credential: '{jenkins-ssh-credential}'
+          git-url: '{git-url}/{project}.git'
+          refspec: '$GERRIT_REFSPEC'
+          branch: '$GERRIT_BRANCH'
+          submodule-recursive: '{submodule-recursive}'
+          submodule-timeout: '{submodule-timeout}'
+          submodule-disable: false
+          choosing-strategy: 'gerrit'
+
+    triggers:
+      - timed: "@midnight"
+
+    builders:
+      - shell: !include-raw-escape:
+          - shell/verify.sh
+
+    publishers:
+      - icn-infra-publish
+#      - email:
+#          recipients: icn.jenkins@intel.com
+
