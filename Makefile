@@ -66,12 +66,17 @@ bpa_op_e2e_vm:
 bpa_op_e2e_bmh:
 	pushd $(BPA_OPERATOR) && make e2etest_bmh && popd
 
+bpa_op_e2e_virtletvm:
+	pushd $(BPA_OPERATOR) && make e2etest_virtletvm && popd
+
 bpa_op_unit:
 	pushd $(BPA_OPERATOR) && make unit_test && popd
 
 bpa_op_vm_verifier: bpa_op_install bpa_op_e2e_vm
 
 bpa_op_bmh_verifier: bpa_op_install bpa_op_e2e_bmh
+
+bpa_op_virtletvm_verifier: bpa_op_install bpa_op_e2e_virtletvm
 
 bpa_op_all: bm_all bpa_op_install
 
@@ -106,7 +111,8 @@ verifier: verify_all
 
 verify_nestedk8s: prerequisite \
 	kud_bm_deploy \
-	sdwan_verifier
+	sdwan_verifier \
+	bpa_op_virtletvm_verifier
 
 .PHONY: all bm_preinstall bm_install bashate
 
