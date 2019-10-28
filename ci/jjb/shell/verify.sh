@@ -6,7 +6,7 @@ echo "---> verify.sh"
 set -exuf -o pipefail
 
 function clean_vm {
-  vagrant destroy -f
+    vagrant destroy -f
 }
 trap clean_vm EXIT
 
