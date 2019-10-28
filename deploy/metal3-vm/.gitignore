@@ -1,0 +1,8 @@
+logs
+config_*.sh
+!config_example.sh
+master-0*.yaml
+worker-0*.yaml
+*.bk
+*.tmp
+*.swp
