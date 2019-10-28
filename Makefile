@@ -31,7 +31,7 @@ bpa_op_install: kud_download
 bpa_op_all: bm_all bpa_op_install 	
 
 bashate:
-	bashate -i E006 `find . -name *.sh`i
+	bashate -i E006 `find . -name *.sh`
 
 verify_all:
 
