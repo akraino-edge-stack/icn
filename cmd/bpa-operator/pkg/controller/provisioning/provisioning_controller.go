@@ -257,6 +257,9 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 		       }
 
                        allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                       if clusterType == "virtlet-vm" {
+                           allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                       }
                        masterString += masterLabel + "\n"
                        clusterData[masterTag + masterLabel] = hostIPaddress
 
@@ -337,8 +340,10 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 					   }
                                            fmt.Printf("%s : %s \n", hostIPaddress, workerMAC)
 
-
                                            allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                                           if clusterType == "virtlet-vm" {
+                                               allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                                           }
                                            workerString += workerLabel + "\n"
 					   clusterData[workerTag + workerLabel] = hostIPaddress
 
