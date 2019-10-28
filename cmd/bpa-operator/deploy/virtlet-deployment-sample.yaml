@@ -22,6 +22,9 @@ spec:
           ssh_pwauth: True
           disable_root: false
           chpasswd: {expire: False}
+          manage_resolv_conf: True
+          resolv_conf:
+            nameservers: ['8.8.8.8', '8.8.4.4']
           users:
           - name: root
             gecos: User
@@ -31,13 +34,16 @@ spec:
             shell: /bin/bash
             sudo: ALL=(ALL) NOPASSWD:ALL
             ssh_authorized_keys:
-            # SSH key goes here
+              $ssh_key
           runcmd:
-            - echo hello world
+            - sed -i -e 's/^#DNS=.*/DNS=8.8.8.8/g' /etc/systemd/resolved.conf
+            - systemctl daemon-reload
+            - systemctl restart systemd-resolved
         v1.multus-cni.io/default-network: '[
             { "name": "flannel-vm",
               "mac": "c2:b4:57:49:47:f1" }]'
-        VirtletRootVolumeSize: 12Gi
+        VirtletRootVolumeSize: 8Gi
+        VirtletVCPUCount: "2"
     spec:
       affinity:
         nodeAffinity:
@@ -61,8 +67,8 @@ spec:
         resources:
           requests:
             cpu: 2
-            memory: 12Gi
+            memory: 8Gi
           limits:
             # This memory limit is applied to the libvirt domain definition
             cpu: 2
-            memory: 12Gi
+            memory: 8Gi
