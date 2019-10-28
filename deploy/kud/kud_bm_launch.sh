@@ -30,6 +30,7 @@ function set_ssh_key {
 function set_bm_kud {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
+    if [ "$1" == "virlet" ] ; then
     cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
@@ -50,6 +51,25 @@ $HOSTNAME
 kube-node
 kube-master
 EOL
+    else
+    cat <<EOL > hosts.ini
+[all]
+$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
+
+[kube-master]
+$HOSTNAME
+
+[kube-node]
+$HOSTNAME
+
+[etcd]
+$HOSTNAME
+
+[k8s-cluster:children]
+kube-node
+kube-master
+EOL
+    fi
     popd
 }
 
@@ -69,10 +89,9 @@ function verifier {
   call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
 }
 
-
 get_kud_repo
 set_ssh_key
-set_bm_kud
+set_bm_kud $1
 kud_install
 verifier
 
