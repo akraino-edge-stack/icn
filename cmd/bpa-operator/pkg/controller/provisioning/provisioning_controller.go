@@ -257,6 +257,9 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 		       }
 
                        allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                       if clusterType == "virtlet-vm" {
+                           allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                       }
                        masterString += masterLabel + "\n"
                        clusterData[masterTag + masterLabel] = hostIPaddress
 
@@ -337,8 +340,10 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 					   }
                                            fmt.Printf("%s : %s \n", hostIPaddress, workerMAC)
 
-
                                            allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
+                                           if clusterType == "virtlet-vm" {
+                                               allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                                           }
                                            workerString += workerLabel + "\n"
 					   clusterData[workerTag + workerLabel] = hostIPaddress
 
@@ -867,8 +872,8 @@ func listVirtletVMs(clientset kubernetes.Interface) ([]VirtletVM, error) {
                         podStatusJson, _ := json.Marshal(pod.Status)
                         json.Unmarshal([]byte(podStatusJson), &podStatus)
 
-                        if runtime  == "virtlet.cloud" && podStatus.Phase == "Running" && podAnnotation["v1.multus-cni.io/default-network"] != nil {
-                                ns := podAnnotation["v1.multus-cni.io/default-network"].(string)
+                        if runtime  == "virtlet.cloud" && podStatus.Phase == "Running" && podAnnotation["k8s.v1.cni.cncf.io/networks-status"] != nil {
+                                ns := podAnnotation["k8s.v1.cni.cncf.io/networks-status"].(string)
                                 json.Unmarshal([]byte(ns), &podDefaultNetStatus)
 
                                 vmPodList = append(vmPodList, VirtletVM{podStatus.PodIP, podDefaultNetStatus[0].Mac})

@@ -63,3 +63,7 @@ e2etest_vm:
 .PHONY: e2etest_bmh
 e2etest_bmh:
 	./e2etest/bpa_bmh_verifier.sh
+
+.PHONY: e2etest_virtletvm
+e2etest_virtletvm:
+	cd e2etest && ./bpa_virtletvm_verifier.sh
