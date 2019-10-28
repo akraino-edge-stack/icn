@@ -32,7 +32,7 @@ function set_ssh_key {
 function set_bm_kud {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
-    if [ "$1" == "virlet" ] ; then
+    if [ "$1" == "virtlet" ] ; then
     cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22

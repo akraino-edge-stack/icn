@@ -66,4 +66,7 @@ verify_all: prerequisite \
 
 verifier: verify_all
 
+verify_nestedk8s: prerequisite \
+	kud_bm_deploy
+
 .PHONY: all bm_preinstall bm_install bashate
