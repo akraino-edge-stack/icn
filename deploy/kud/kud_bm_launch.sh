@@ -85,6 +85,7 @@ function kud_install {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
     if [ "$1" == "all" ]; then
         sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
+        sed -i -e 's/^kube_pods_subnet.*/kube_pods_subnet: 172.21.64.0\/18/g' inventory/group_vars/k8s-cluster.yml
     fi
     ./installer.sh | tee kud_deploy.log
     popd
