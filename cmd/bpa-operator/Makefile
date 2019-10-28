@@ -26,3 +26,7 @@ delete:
 .PHONY: e2etest
 e2etest:
 	cd e2etest && ./bpa_e2e_test.sh
+
+.PHONY: e2evmtest
+e2evmtest:
+	cd e2etest && ./bpa_e2e_vm_test.sh
