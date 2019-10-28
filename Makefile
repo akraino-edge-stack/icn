@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 ENV:=$(CURDIR)/env
 BMDIR:=$(CURDIR)/env/metal3
 METAL3DIR:=$(CURDIR)/deploy/metal3/scripts
+METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
@@ -24,8 +25,17 @@ bm_install:
 
 bm_all: bm_preinstall bm_install
 
+kud_bm_deploy_mini:
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
+
 kud_bm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh virtlet && popd
+
+metal3_prerequisite:
+	pushd $(METAL3VMDIR) && make bmh_install && popd
+
+metal3_vm:
+	pushd $(METAL3VMDIR) && make bmh && popd
 
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
@@ -50,7 +60,9 @@ prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
 
 verify_all: prerequisite \
-	kud_bm_deploy 
+	metal3_prerequisite \
+	kud_bm_deploy_mini \
+	metal3_vm
 
 verifier: verify_all
 
