@@ -28,6 +28,9 @@ bm_all: bm_preinstall bm_install
 kud_bm_deploy_mini:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
 
+kud_verifier_deploy:
+	pushd $(KUD_PATH) && ./kud_e2e_test.sh && popd
+
 kud_bm_deploy:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh virtlet && popd
 
