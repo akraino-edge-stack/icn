@@ -42,3 +42,7 @@ unit_test:
 .PHONY: e2etest
 e2etest:
 	./bpa_verifier.sh
+
+.PHONY: e2etest_virtletvm
+e2etest_virtletvm:
+	cd e2etest && ./bpa_virtletvm_verifier.sh

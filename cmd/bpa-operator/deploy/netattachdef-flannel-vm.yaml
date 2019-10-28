@@ -5,7 +5,7 @@ metadata:
 spec:
   config: '{
             "cniVersion": "0.3.1",
-            "name" : "flannel-vm",
+            "name" : "cni0",
             "plugins": [ {
               "type": "flannel",
               "cniVersion": "0.3.1",
