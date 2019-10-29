@@ -5,6 +5,7 @@ METAL3DIR:=$(CURDIR)/deploy/metal3/scripts
 METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
+SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
 BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
 
 help:
@@ -37,6 +38,9 @@ metal3_prerequisite:
 metal3_vm:
 	pushd $(METAL3VMDIR) && make bmh && popd
 
+sdwan_verifier:
+	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
+
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
 
@@ -67,6 +71,7 @@ verify_all: prerequisite \
 verifier: verify_all
 
 verify_nestedk8s: prerequisite \
-	kud_bm_deploy
+	kud_bm_deploy \
+	sdwan_verifier
 
 .PHONY: all bm_preinstall bm_install bashate
