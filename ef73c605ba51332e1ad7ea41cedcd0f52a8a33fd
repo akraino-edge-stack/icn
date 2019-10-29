@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "24f7856d_32ac58d0",
+        "filename": "cmd/bpa-restapi-agent/vendor.tar.gz",
+        "patchSetId": 15
+      },
+      "lineNbr": 1,
+      "author": {
+        "id": 287
+      },
+      "writtenOn": "2019-10-29T23:32:45Z",
+      "side": 1,
+      "message": "Not a good idea to checkin binary files into the git repo. Is this absolutely needed here?",
+      "revId": "ef73c605ba51332e1ad7ea41cedcd0f52a8a33fd",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
