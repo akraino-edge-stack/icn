@@ -1,13 +1,14 @@
 ---
 - job-template:
-    id: icn-stream-verify
-    name: 'icn-{stream}-verify'
+    id: icn-stream-verify-target
+    name: 'icn-{stream}-verify-{target}'
     defaults: icn
     archive-artifacts: >
       **/*.log
     build-days-to-keep: 30
     build-timeout: 60
     stream: master
+    target: verifier
     project-type: freestyle
     submodule-recursive: true
     #node: '{build-node}'
@@ -53,7 +54,7 @@
       - timed: "@midnight"
 
     builders:
-      - shell: !include-raw-escape:
+      - shell: !include-raw:
           - shell/verify.sh
 
     publishers:
