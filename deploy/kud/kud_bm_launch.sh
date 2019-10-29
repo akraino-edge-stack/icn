@@ -32,7 +32,7 @@ function set_ssh_key {
 function set_bm_kud {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
-    if [ "$1" == "virtlet" ] ; then
+    if [ "$1" == "minimal" ] ; then
     cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
@@ -44,9 +44,6 @@ $HOSTNAME
 $HOSTNAME
 
 [etcd]
-$HOSTNAME
-
-[virtlet]
 $HOSTNAME
 
 [k8s-cluster:children]
@@ -67,6 +64,15 @@ $HOSTNAME
 [etcd]
 $HOSTNAME
 
+[ovn-central]
+$HOSTNAME
+
+[ovn-controller]
+$HOSTNAME
+
+[virtlet]
+$HOSTNAME
+
 [k8s-cluster:children]
 kube-node
 kube-master
@@ -77,7 +83,7 @@ EOL
 
 function kud_install {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
-    ./installer.sh | tee kud_minial_deploy.log
+    ./installer.sh | tee kud_deploy.log
     popd
 }
 

@@ -29,7 +29,7 @@ kud_bm_deploy_mini:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
 
 kud_bm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh virtlet && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh all && popd
 
 metal3_prerequisite:
 	pushd $(METAL3VMDIR) && make bmh_install && popd
