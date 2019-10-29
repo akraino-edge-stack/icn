@@ -4,8 +4,11 @@
     project: icn
     project-name: icn
     nexus_log_subdir: intel/ICN_CD_logs
+    target:
+      - verifier
+      - verify_nestedk8s
     stream:
       - master:
           branch: master
     jobs:
-      - icn-stream-verify
+      - icn-stream-verify-target

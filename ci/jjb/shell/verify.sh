@@ -5,9 +5,9 @@ echo "---> verify.sh"
 # Disable 'globbing'
 set -exuf -o pipefail
 
-function clean_vm {
+function clean_vm {{
     vagrant destroy -f
-}
+}}
 trap clean_vm EXIT
 
 vagrant destroy -f
@@ -19,5 +19,5 @@ sudo resize2fs /dev/sda3
 sudo apt update
 sudo apt install -y make
 cd /vagrant
-sudo su -c 'make verifier'
+sudo su -c 'make {target}'
 "
