@@ -6,7 +6,6 @@ METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
-BPA_E2E_SETUP:=https://raw.githubusercontent.com/onap/multicloud-k8s/master/kud/hosting_providers/vagrant/setup.sh
 BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
 
 
@@ -49,13 +48,10 @@ bpa_op_install:
 bpa_op_delete:
 	pushd $(BPA_OPERATOR) && make delete && popd
 
-bpa_op_e2e_preinstall:
-	wget $(BPA_E2E_SETUP) && bash setup.sh -p libvirt
-
 bpa_op_e2e:
 	pushd $(BPA_OPERATOR) && make e2etest && popd
 
-bpa_op_verifier: bpa_op_install bpa_op_e2e	
+bpa_op_verifier: bpa_op_install bpa_op_e2e
 
 bpa_op_all: bm_all bpa_op_install
 
@@ -75,6 +71,7 @@ verify_all: prerequisite \
 	metal3_prerequisite \
 	kud_bm_deploy_mini \
 	metal3_vm \
+	bpa_op_verifier \
 	bpa_rest_api_verifier
 
 verifier: verify_all
