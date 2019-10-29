@@ -20,7 +20,6 @@ import (
         "k8s.io/apimachinery/pkg/api/errors"
         "k8s.io/apimachinery/pkg/runtime"
         "k8s.io/client-go/dynamic"
-        "k8s.io/client-go/rest"
 
         "k8s.io/client-go/kubernetes"
         "sigs.k8s.io/controller-runtime/pkg/client"
@@ -64,7 +63,23 @@ func Add(mgr manager.Manager) error {
 
 // newReconciler returns a new reconcile.Reconciler
 func newReconciler(mgr manager.Manager) reconcile.Reconciler {
-        return &ReconcileProvisioning{client: mgr.GetClient(), scheme: mgr.GetScheme()}
+
+        config, err :=  config.GetConfig()
+        if err != nil {
+           fmt.Printf("Could not get kube config, Error: %v\n", err)
+        }
+
+       clientSet, err := kubernetes.NewForConfig(config)
+        if err != nil {
+           fmt.Printf("Could not create clientset, Error: %v\n", err)
+        }
+       bmhDynamicClient, err := dynamic.NewForConfig(config)
+
+       if err != nil {
+          fmt.Printf("Could not create dynamic client for bareMetalHosts, Error: %v\n", err)
+       }
+
+       return &ReconcileProvisioning{client: mgr.GetClient(), scheme: mgr.GetScheme(), clientset: clientSet, bmhClient: bmhDynamicClient }
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -120,6 +135,8 @@ type ReconcileProvisioning struct {
         // that reads objects from the cache and writes to the apiserver
         client client.Client
         scheme *runtime.Scheme
+        clientset kubernetes.Interface
+        bmhClient dynamic.Interface
 }
 
 // Reconcile reads that state of the cluster for a Provisioning object and makes changes based on the state read
@@ -131,7 +148,6 @@ type ReconcileProvisioning struct {
 // Result.Requeue is true, otherwise upon completion it will remove the work from the queue.
 func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.Result, error) {
         reqLogger := log.WithValues("Request.Namespace", request.Namespace, "Request.Name", request.Name)
-        //reqLogger.Info("Reconciling Provisioning")
         fmt.Printf("\n\n")
         reqLogger.Info("Reconciling Custom Resource")
 
@@ -166,17 +182,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         masterTag := "MASTER_"
         workerTag := "WORKER_"
 
-        config, err :=  config.GetConfig()
-        if err != nil {
-           fmt.Printf("Could not get kube config, Error: %v\n", err)
-           return reconcile.Result{}, err
-        }
-
-        clientset, err := kubernetes.NewForConfig(config)
-        if err != nil {
-           fmt.Printf("Could not create clientset, Error: %v\n", err)
-           return reconcile.Result{}, err
-        }
         if provisioningCreated {
 
         ///////////////////////////////////////////////////////////////////////////////////////////////
@@ -191,8 +196,11 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 	multiClusterDir := provisioningInstance.Spec.MultiClusterPath
 
 
-        bareMetalHostList, _ := listBareMetalHosts(config)
-        virtletVMList, _ := listVirtletVMs()
+        bareMetalHostList, _ := listBareMetalHosts(r.bmhClient)
+        virtletVMList, _ := listVirtletVMs(r.clientset)
+
+
+
 
         var allString string
         var masterString string
@@ -441,7 +449,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         hostFile.SaveTo(iniHostFilePath)
 
         //Install KUD
-        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, clientset)
+        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, r.clientset)
         if err != nil {
            fmt.Printf("Error occured while creating KUD Installer job for cluster %v\n ERROR: %v", clusterName, err)
            return reconcile.Result{}, err
@@ -449,7 +457,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
         //Start separate thread to keep checking job status, Create an IP address configmap
         //for cluster if KUD is successfully installed
-        go checkJob(clusterName, request.Namespace, clusterData, clusterLabel, clientset)
+        go checkJob(clusterName, request.Namespace, clusterData, clusterLabel, r.clientset)
 
         return reconcile.Result{}, nil
 
@@ -464,7 +472,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         defaultSSHPrivateKey := "/root/.ssh/id_rsa"
 
         //Get IP address configmap for the cluster
-        clusterConfigMapData, err := getConfigMapData(request.Namespace, softwareClusterName, clientset)
+        clusterConfigMapData, err := getConfigMapData(request.Namespace, softwareClusterName, r.clientset)
         if err != nil {
            fmt.Printf("Error occured while retrieving IP address Data for cluster %s, ERROR: %v\n", softwareClusterName, err)
            return reconcile.Result{}, err
@@ -493,15 +501,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 }
 
 //Function to Get List containing baremetal hosts
-func listBareMetalHosts(config *rest.Config) (*unstructured.UnstructuredList, error) {
-
-    //Create Dynamic Client  for BareMetalHost CRD
-    bmhDynamicClient, err := dynamic.NewForConfig(config)
-
-    if err != nil {
-       fmt.Println("Could not create dynamic client for bareMetalHosts, Error: %v\n", err)
-       return &unstructured.UnstructuredList{}, err
-    }
+func listBareMetalHosts(bmhDynamicClient dynamic.Interface) (*unstructured.UnstructuredList, error) {
 
     //Create GVR representing a BareMetalHost CR
     bmhGVR := schema.GroupVersionResource{
@@ -513,7 +513,7 @@ func listBareMetalHosts(config *rest.Config) (*unstructured.UnstructuredList, er
     //Get List containing all BareMetalHosts CRs
     bareMetalHosts, err := bmhDynamicClient.Resource(bmhGVR).List(metav1.ListOptions{})
     if err != nil {
-       fmt.Println("Error occured, cannot get BareMetalHosts list, Error: %v\n", err)
+       fmt.Printf("Error occured, cannot get BareMetalHosts list, Error: %v\n", err)
        return &unstructured.UnstructuredList{}, err
     }
 
@@ -549,7 +549,7 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
      //Read the dhcp lease file
      dhcpFile, err := ioutil.ReadFile(dhcpLeaseFilePath)
      if err != nil {
-        fmt.Println("Failed to read lease file\n")
+        fmt.Printf("Failed to read lease file\n")
         return "", err
      }
 
@@ -559,7 +559,7 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
      reg := "lease.*{|ethernet.*|\n. binding state.*"
      re, err := regexp.Compile(reg)
      if err != nil {
-        fmt.Println("Could not create Regexp object, Error %v occured\n", err)
+        fmt.Printf("Could not create Regexp object, Error %v occured\n", err)
         return "", err
      }
 
@@ -592,7 +592,7 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
 }
 
 //Function to create configmap 
-func createConfigMap(data, labels map[string]string, namespace string, clientset *kubernetes.Clientset) error{
+func createConfigMap(data, labels map[string]string, namespace string, clientset kubernetes.Interface) error{
 
      configmapClient := clientset.CoreV1().ConfigMaps(namespace)
 
@@ -616,7 +616,7 @@ func createConfigMap(data, labels map[string]string, namespace string, clientset
 }
 
 //Function to get configmap Data
-func getConfigMapData(namespace, clusterName string, clientset *kubernetes.Clientset) (map[string]string, error) {
+func getConfigMapData(namespace, clusterName string, clientset kubernetes.Interface) (map[string]string, error) {
 
      configmapClient := clientset.CoreV1().ConfigMaps(namespace)
      configmapName := clusterName + "-configmap"
@@ -630,7 +630,7 @@ func getConfigMapData(namespace, clusterName string, clientset *kubernetes.Clien
 }
 
 //Function to create job for KUD installation
-func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, clientset *kubernetes.Clientset) error{
+func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, clientset kubernetes.Interface) error{
 
     var backOffLimit int32 = 0
     var privi bool = true
@@ -707,7 +707,7 @@ func createKUDinstallerJob(clusterName, namespace string, labels map[string]stri
 }
 
 //Function to Check if job succeeded
-func checkJob(clusterName, namespace string, data, labels map[string]string, clientset *kubernetes.Clientset) {
+func checkJob(clusterName, namespace string, data, labels map[string]string, clientset kubernetes.Interface) {
 
      fmt.Printf("\nChecking job status for cluster %s\n", clusterName)
      jobName := "kud-" + clusterName
@@ -837,26 +837,13 @@ func sshInstaller(softwareString, sshPrivateKey, ipAddress string) error {
 
 }
 
-func listVirtletVMs() ([]VirtletVM, error) {
+func listVirtletVMs(clientset kubernetes.Interface) ([]VirtletVM, error) {
 
         var vmPodList []VirtletVM
 
-        config, err :=  config.GetConfig()
-        if err != nil {
-                fmt.Println("Could not get kube config, Error: %v\n", err)
-                return []VirtletVM{}, err
-        }
-
-        // create the clientset
-        clientset, err := kubernetes.NewForConfig(config)
-        if err != nil {
-                fmt.Println("Could not create the client set, Error: %v\n", err)
-                return []VirtletVM{}, err
-        }
-
         pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
         if err != nil {
-                fmt.Println("Could not get pod info, Error: %v\n", err)
+                fmt.Printf("Could not get pod info, Error: %v\n", err)
                 return []VirtletVM{}, err
         }
 
@@ -867,7 +854,7 @@ func listVirtletVMs() ([]VirtletVM, error) {
 
                 annotation, err := json.Marshal(pod.ObjectMeta.GetAnnotations())
                 if err != nil {
-                        fmt.Println("Could not get pod annotations, Error: %v\n", err)
+                        fmt.Printf("Could not get pod annotations, Error: %v\n", err)
                         return []VirtletVM{}, err
                 }
 
@@ -899,3 +886,4 @@ func getVMIPaddress(vmList []VirtletVM, macAddress string) (string, error) {
         }
         return "", nil
 }
+

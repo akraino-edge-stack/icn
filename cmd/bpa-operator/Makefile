@@ -25,4 +25,4 @@ delete:
 
 .PHONY: e2etest
 e2etest:
-	cd e2etest && ./bpa_e2e_test.sh
+	./bpa_verifier.sh
