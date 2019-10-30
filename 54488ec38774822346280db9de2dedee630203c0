@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "79f50c5c_e73cbbb7",
+        "filename": "cmd/bpa-operator/Makefile",
+        "patchSetId": 3
+      },
+      "lineNbr": 32,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-30T20:31:34Z",
+      "side": 1,
+      "message": "pushd /vagrant/cmd/bpa-operator/ \u0026\u0026 make docker \u0026\u0026 make deploy \u0026\u0026 popd\n/vagrant/cmd/bpa-operator /vagrant\nmake[1]: Entering directory \u0027/vagrant/cmd/bpa-operator\u0027\nmake[1]: Leaving directory \u0027/vagrant/cmd/bpa-operator\u0027\nMakefile:32: *** missing separator (did you mean TAB instead of 8 spaces?).  Stop.\nMakefile:41: recipe for target \u0027bpa_op_install\u0027 failed",
+      "revId": "54488ec38774822346280db9de2dedee630203c0",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
