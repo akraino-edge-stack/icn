@@ -17,8 +17,9 @@ POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 PODMAN_CNI_CONFLIST=${PODMAN_CNI_CONFLIST:-"https://raw.githubusercontent.com/containers/libpod/v1.4.4/cni/87-podman-bridge.conflist"}
 
 #Bootstrap K8s cluster
-BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-"eno2"}
+BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-"ens513f0"}
 BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-"172.31.1.1/24"}
+BS_DHCP_DIR=${BS_DHCP_DIR:-$DOWNLOAD_PATH/dhcp}
 
 #Ironic variables
 IRONIC_IMAGE=${IRONIC_IMAGE:-"quay.io/metal3-io/ironic:master"}
@@ -28,20 +29,16 @@ IRONIC_BAREMETAL_SOCAT_IMAGE=${IRONIC_BAREMETAL_SOCAT_IMAGE:-"alpine/socat:lates
 
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
+IRONIC_INTERFACE=${IRONIC_INTERFACE:-"enp4s0f1"}
 IRONIC_PROVISIONING_INTERFACE=${IRONIC_PROVISIONING_INTERFACE:-"provisioning"}
-IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-"eno1"}
+IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-"enp4s0f0"}
 IRONIC_PROVISIONING_INTERFACE_IP=${IRONIC_PROVISIONING_INTERFACE_IP:-"172.22.0.1"}
-IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-"172.31.1.9"}
+IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-"10.10.110.20"}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
 #Todo change into nodes list in json pattern
-COMPUTE_NODE_NAME=${COMPUTE_NODE_NAME:-"el-100-node-01"}
-COMPUTE_IPMI_ADDRESS=${COMPUTE_IPMI_ADDRESS:-"172.31.1.17"}
-COMPUTE_IPMI_USER=${COMPUTE_IPMI_USER:-"ryeleswa"}
-COMPUTE_IPMI_PASSWORD=${COMPUTE_IPMI_PASSWORD:-"changeme1"}
-COMPUTE_NODE_FQDN=${COMPUTE_NODE_FQDN:-"node01.akraino.org"}
-#COMPUTE_NODE_HOSTNAME=${COMPUTE_NODE_HOSTNAME:-"node01"}
+COMPUTE_NODE_FQDN=${COMPUTE_NODE_FQDN:-".akraino.org"}
 COMPUTE_NODE_PASSWORD=${COMPUTE_NODE_PASSWORD:-"mypasswd"}
 
 #refered from onap
@@ -74,3 +71,20 @@ function call_api {
         fi
     fi
 }
+
+function list_nodes() {
+    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
+    cat "$NODES_FILE" | \
+        jq '.nodes[] | {
+           name,
+           username:.ipmi_driver_info.username,
+           password:.ipmi_driver_info.password,
+           address:.ipmi_driver_info.address
+           } |
+           .name + " " +
+           .username + " " +
+           .password + " " +
+           .address' \
+       | sed 's/"//g'
+}
+
