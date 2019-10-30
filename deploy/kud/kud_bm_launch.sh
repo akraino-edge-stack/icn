@@ -83,6 +83,9 @@ EOL
 
 function kud_install {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
+    if [ "$1" == "all" ]; then
+        sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
+    fi
     ./installer.sh | tee kud_deploy.log
     popd
 }
@@ -100,7 +103,7 @@ function verifier {
 get_kud_repo
 set_ssh_key
 set_bm_kud $1
-kud_install
+kud_install $1
 verifier
 
 exit 0
