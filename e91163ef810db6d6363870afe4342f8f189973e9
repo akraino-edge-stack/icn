@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "bed7b2ae_94ae1f3f",
+        "filename": "deploy/kud-plugin-addons/minio/install.sh",
+        "patchSetId": 10
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-30T23:39:46Z",
+      "side": 1,
+      "message": "Please change this. KUD is already having local-storage",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 13,
+        "endChar": 71
+      },
+      "revId": "e91163ef810db6d6363870afe4342f8f189973e9",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
