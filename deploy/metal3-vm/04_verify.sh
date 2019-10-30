@@ -9,14 +9,14 @@ node=0
 declare -i timeout=30
 declare -i interval=60
 
-function check_num_hosts() {
+function check_num_hosts {
     while read -r name address user password mac; do
         ((node+=1))
     done
     return $node
 }
 
-function check_bm_state() {
+function check_bm_state {
     c=1
     n=$1
     while [ $c -le $n ]
@@ -26,7 +26,7 @@ function check_bm_state() {
     done
 }
 
-function check_provisioned() {
+function check_provisioned {
     declare -i prev_host_state=0
     declare -i j=0
     while read -r name address user password mac; do
@@ -60,7 +60,7 @@ function check_provisioned() {
     return $prev_host_state
 }
 
-function wait_for_provisioned() {
+function wait_for_provisioned {
     all_bmh_provisioned=1
     while ((timeout > 0)); do
         echo "Try $timeout: Wait for $interval seconds to check all bmh state"
@@ -76,7 +76,7 @@ function wait_for_provisioned() {
     exit 1
 }
 
-function verify_bm_hosts() {
+function verify_bm_hosts {
     #list_nodes | check_num_hosts
     #nodes=$?
     #check_bm_state $nodes

@@ -32,7 +32,7 @@ BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
 IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
 
-function clone_repos() {
+function clone_repos {
     mkdir -p "${M3PATH}"
     if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
       rm -rf "${BMOPATH}"
@@ -48,7 +48,7 @@ function clone_repos() {
     popd
 }
 
-function launch_baremetal_operator() {
+function launch_baremetal_operator {
     pushd "${BMOPATH}"
     if [ "${BMO_RUN_LOCAL}" = true ]; then
       touch bmo.out.log
@@ -121,7 +121,7 @@ EOF
     kubectl apply -n metal3 -f $name-user-data-credential.yaml
 }
 
-function make_bm_hosts() {
+function make_bm_hosts {
     while read -r name address user password mac; do
         create_userdata $name
         apply_userdata_credential $name
@@ -141,7 +141,7 @@ function make_bm_hosts() {
     done
 }
 
-function apply_bm_hosts() {
+function apply_bm_hosts {
     list_nodes | make_bm_hosts
 }
 

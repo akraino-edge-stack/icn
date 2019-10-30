@@ -107,7 +107,7 @@ if [ ! -d "$WORKING_DIR" ]; then
   chmod 755 "$WORKING_DIR"
 fi
 
-function list_nodes() {
+function list_nodes {
     # Includes -machine and -machine-namespace
     cat $NODES_FILE | \
         jq '.nodes[] | {
