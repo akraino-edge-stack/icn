@@ -54,7 +54,7 @@ bpa_op_verifier: bpa_op_install bpa_op_e2e
 bpa_op_all: bm_all bpa_op_install
 
 bashate:
-	bashate -i E006 `find . -name *.sh`
+	bashate -i E006,E003,E002,E010,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -name *.sh`
 
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
