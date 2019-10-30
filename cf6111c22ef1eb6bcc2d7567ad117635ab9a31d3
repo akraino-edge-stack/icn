@@ -22,6 +22,30 @@
       "revId": "cf6111c22ef1eb6bcc2d7567ad117635ab9a31d3",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7635bee9_85452d48",
+        "filename": "cmd/bpa-restapi-agent/internal/app/image.go",
+        "patchSetId": 14
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 254
+      },
+      "writtenOn": "2019-10-30T00:11:53Z",
+      "side": 1,
+      "message": "I looked up using tempfiles but I\u0027m not sure how to use it here. I\u0027ll set up a meeting with you. And I\u0027ll file that under a separate commit as a bug fix.",
+      "parentUuid": "e9d2102b_b21fd971",
+      "range": {
+        "startLine": 57,
+        "startChar": 1,
+        "endLine": 66,
+        "endChar": 72
+      },
+      "revId": "cf6111c22ef1eb6bcc2d7567ad117635ab9a31d3",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
