@@ -27,9 +27,10 @@ function install_essential_packages {
     vim \
     wget \
     git \
-    software-properties-common
+    software-properties-common \
+    bridge-utils
 
-    add-apt-repository ppa:longsleep/golang-backports
+    add-apt-repository -y ppa:longsleep/golang-backports
     apt-get update
     apt-get install golang-go
 }

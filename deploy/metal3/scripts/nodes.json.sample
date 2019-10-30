@@ -1,0 +1,30 @@
+{
+  "nodes": [
+    {
+      "name": "edge01-node01",
+      "ipmi_driver_info": {
+        "username": "admin",
+        "password": "admin",
+        "address": "10.10.10.11"
+      },
+      "os": {
+        "image_name": "bionic-server-cloudimg-amd64.img",
+        "username": "ubuntu",
+        "password": "mypasswd"
+      }
+    },
+     {
+      "name": "edge01-node02",
+      "ipmi_driver_info": {
+        "username": "admin",
+        "password": "admin",
+        "address": "10.10.10.12"
+      },
+      "os": {
+        "image_name": "bionic-server-cloudimg-amd64.img",
+        "username": "ubuntu",
+        "password": "mypasswd"
+      }
+    }
+  ]
+}
