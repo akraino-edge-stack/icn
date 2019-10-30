@@ -72,7 +72,7 @@ function call_api {
     fi
 }
 
-function list_nodes() {
+function list_nodes {
     NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
     cat "$NODES_FILE" | \
         jq '.nodes[] | {
