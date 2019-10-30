@@ -18,34 +18,34 @@ function get_default_inteface_ipaddress {
     eval $_ip="'$_ipv4address'"
 }
 
-
-
 function check_cni_network {
     #since bootstrap cluster is a single node cluster,
     #podman and bootstap cluster have same network configuration to avoid the cni network conf conflicts
     if [ ! -d "/etc/cni/net.d" ]; then
-    mkdir -p "/etc/cni/net.d"
+        mkdir -p "/etc/cni/net.d"
     fi
 
-    if [ ! -f "/etc/cni/net.d/87-podman-bridge.conflist" ]; then
+    if [ -f "/etc/cni/net.d/87-podman-bridge.conflist" ]; then
+        rm -rf /etc/cni/net.d/87-podman-bridge.conflist
+    fi
+
     if [ "$1" == "offline" ]; then
         cp $BUILD_DIR/87-podman-bridge.conflist /etc/cni/net.d/
         return
-        fi
+    fi
 
     if !(wget $PODMAN_CNI_CONFLIST -P /etc/cni/net.d/); then
         exit 1
-    fi
     fi
 }
 
 function create_k8s_regular_user {
     if [ ! -d "$HOME/.kube" ]; then
-    mkdir -p $HOME/.kube
+        mkdir -p $HOME/.kube
     fi
 
     if [ ! -f /etc/kubernetes/admin.conf]; then
-    exit 1
+        exit 1
     fi
 
     cp -rf /etc/kubernetes/admin.conf $HOME/.kube/config
@@ -60,19 +60,19 @@ function check_k8s_node_status {
         check_node=$(kubectl get node -o \
             jsonpath='{.items[0].status.conditions[?(@.reason == "KubeletReady")].status}')
         if [ $check_node != "" ]; then
-        node_status=${check_node}
+            node_status=${check_node}
         fi
 
         if [ $node_status == "True" ]; then
-        break
+            break
         fi
 
         sleep 3
     done
 
     if [ $node_status != "True" ]; then
-    echo "bootstrap cluster single node status is not ready"
-    exit 1
+        echo "bootstrap cluster single node status is not ready"
+        exit 1
     fi
 }
 
@@ -85,7 +85,7 @@ function install_podman {
 
     # Start dnsmasq, http, mariadb, and ironic containers using same image
     podman run -d --net host --privileged --name dnsmasq  --pod ironic-pod \
-    -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/rundnsmasq ${IRONIC_IMAGE}
+        -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/rundnsmasq ${IRONIC_IMAGE}
 
     podman run -d --net host --privileged --name httpd --pod ironic-pod \
         -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/runhttpd ${IRONIC_IMAGE}
@@ -100,25 +100,38 @@ function install_podman {
 
     # Start Ironic Inspector
     podman run -d --net host --privileged --name ironic-inspector \
-    --pod ironic-pod "${IRONIC_INSPECTOR_IMAGE}"
+        --pod ironic-pod "${IRONIC_INSPECTOR_IMAGE}"
 }
 
 function remove_k8s_noschedule_taint {
     #Bootstrap cluster is a single node
     nodename=$(kubectl get node -o jsonpath='{.items[0].metadata.name}')
     if !(kubectl taint node $nodename node-role.kubernetes.io/master:NoSchedule-); then
-    exit 1
+        exit 1
     fi
 }
 
 function install_k8s_single_node {
     get_default_inteface_ipaddress apiserver_advertise_addr
     kubeadm_init="kubeadm init --kubernetes-version=$KUBE_VERSION \
-    --pod-network-cidr=$POD_NETWORK_CIDR \
-    --apiserver-advertise-address=$apiserver_advertise_addr"
+        --pod-network-cidr=$POD_NETWORK_CIDR \
+        --apiserver-advertise-address=$apiserver_advertise_addr"
     if !(${kubeadm_init}); then
-    exit 1
+        exit 1
     fi
+}
+
+function install_dhcp {
+    if [ ! -d $BS_DHCP_DIR ]; then
+        mkdir -p $BS_DHCP_DIR
+    fi
+
+    #make sure the dhcp conf sample are configured
+    if [ ! -f $BS_DHCP_DIR/dhcpd.conf ]; then
+        cp $PWD/05_dhcp.conf.sample $BS_DHCP_DIR/dhcpd.conf
+    fi
+
+    kubectl create -f $PWD/04_dhcp.yaml
 }
 
 function install {
@@ -132,6 +145,7 @@ function install {
     #install_podman
     #Todo - error handling mechanism
     install_podman
+    install_dhcp
 }
 
 if [ "$1" == "-o" ]; then
