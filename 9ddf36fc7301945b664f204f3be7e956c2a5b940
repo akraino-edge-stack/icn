@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "14bad362_5e914dd9",
+        "filename": "Makefile",
+        "patchSetId": 2
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-30T00:32:07Z",
+      "side": 1,
+      "message": "Please fix this error:\n\nProcessing triggers for man-db (2.8.3-2ubuntu0.1) ...\n+ cd /vagrant\n+ sudo su -c \u0027make verify_nestedk8s\u0027\nMakefile:53: *** missing separator (did you mean TAB instead of 8 spaces?).  Stop.\n+ clean_vm\n+ vagrant destroy -f",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 53,
+        "endChar": 55
+      },
+      "revId": "9ddf36fc7301945b664f204f3be7e956c2a5b940",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
