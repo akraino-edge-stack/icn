@@ -42,20 +42,6 @@ lease ${workerIP} {
 }
 EOF
 
-# Build KUD image
-echo "Building KUD image"
-git clone https://github.com/onap/multicloud-k8s.git
-pushd multicloud-k8s
-docker build  --rm \
-         --build-arg http_proxy=${http_proxy} \
-         --build-arg HTTP_PROXY=${HTTP_PROXY} \
-         --build-arg https_proxy=${https_proxy} \
-         --build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-         --build-arg no_proxy=${no_proxy} \
-         --build-arg NO_PROXY=${NO_PROXY} \
-         -t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
-
-popd
 # Create ssh-key-secret required for job
 kubectl create secret generic ssh-key-secret --from-file=id_rsa=/root/.ssh/id_rsa --from-file=id_rsa.pub=/root/.ssh/id_rsa.pub
 
@@ -121,5 +107,4 @@ kubectl delete secret ssh-key-secret
 rm e2e_test_provisioning_cr.yaml
 rm -rf /multi-cluster/cluster-test
 rm /opt/icn/dhcp/dhcpd.leases
-rm -rf multicloud-k8s
 make delete

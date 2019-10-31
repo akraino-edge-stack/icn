@@ -1,6 +1,7 @@
 module github.com/bpa-operator
 
 require (
+	github.com/NYTimes/gziphandler v1.0.1 // indirect
 	github.com/operator-framework/operator-sdk v0.10.0
 	github.com/spf13/pflag v1.0.3
 	golang.org/x/crypto v0.0.0-20190404164418-38d8ce5564a5
