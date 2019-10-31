@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0e8bc880_86ddf6e9",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 6
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-31T16:35:30Z",
+      "side": 1,
+      "message": "Add kubect describe pod $$(kubectl get pods |grep -i virtlet-deployment | \u003cget the pod name\u003e)\n\nAfter that I will run the test in jenkins printf of status is not enough.",
+      "revId": "4de1c3da1966567aa36e5c29d38faaea2b9b752e",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
