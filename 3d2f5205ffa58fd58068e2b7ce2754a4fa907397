@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "12a7e6ac_4f46b59c",
+        "filename": "cmd/bpa-operator/bpa_verifier.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 84,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-31T01:11:27Z",
+      "side": 1,
+      "message": "Could we do kubectl logs -f $(kubectl get pods | grep -i kud-cluster-test | awk \u0027NR\u003d\u003d1{print $1}\u0027), to throw the logs into CD logs ?",
+      "revId": "3d2f5205ffa58fd58068e2b7ce2754a4fa907397",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "92a9f4ba_9f012fa8",
+        "filename": "cmd/bpa-operator/bpa_verifier.sh",
+        "patchSetId": 3
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-10-31T01:11:27Z",
+      "side": 1,
+      "message": "After the kubectl log -f, we don\u0027t require sleep. We just check the status.",
+      "range": {
+        "startLine": 88,
+        "startChar": 1,
+        "endLine": 88,
+        "endChar": 9
+      },
+      "revId": "3d2f5205ffa58fd58068e2b7ce2754a4fa907397",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
