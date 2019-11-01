@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "85ee735b_8cbef689",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-01T00:49:51Z",
+      "side": 1,
+      "message": "cat $key\n\nprivate_key\u003d$(cat /root/.ssh/id_rsa)\ncat $private_Key",
+      "range": {
+        "startLine": 39,
+        "startChar": 0,
+        "endLine": 39,
+        "endChar": 32
+      },
+      "revId": "10880af1ac438c131b69f8d271237eb4384ae7a6",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "53ad1ec9_0242011f",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 42,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-01T00:49:51Z",
+      "side": 1,
+      "message": "kubectl get $(kubectl get pods |grep -i virtlet-deployment | awk \u0027{print $1}\u0027) -o json",
+      "range": {
+        "startLine": 42,
+        "startChar": 0,
+        "endLine": 42,
+        "endChar": 38
+      },
+      "revId": "10880af1ac438c131b69f8d271237eb4384ae7a6",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d9a8b457_fad27a90",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 12
+      },
+      "lineNbr": 78,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-01T00:49:51Z",
+      "side": 1,
+      "message": "kubectl exec -it $kudjob -- cat /root/.ssh/id_rsa\nkubectl exec -it $kudjob -- cat /root/.ssh/id_rsa.pub",
+      "range": {
+        "startLine": 78,
+        "startChar": 0,
+        "endLine": 78,
+        "endChar": 70
+      },
+      "revId": "10880af1ac438c131b69f8d271237eb4384ae7a6",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
