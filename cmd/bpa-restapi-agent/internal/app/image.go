@@ -58,11 +58,8 @@ type Utility interface {
 	DBCreate(storeName string, key ImageKey, meta string, c Image) error
 	DBRead(storeName string, key ImageKey, meta string) ([]byte, error)
 	DBUnmarshal(value []byte) (Image, error)
-	OSMakeDir(dirpath string, perm int) error
-	OSCreateFile(filePath string) error
 	GetPath(user *user.User, imageName string, storeName string) (string, string)
 	DBDelete(storeName string, key ImageKey, meta string) error
-	OSRemove(filePath string) error
 	DBUpdate(storeName string, key ImageKey, tagMeta string, c Image) error
 }
 
@@ -151,32 +148,15 @@ func (v *ImageClient) CreateFile(c Image) error {
 	if err != nil {
 		return pkgerrors.Wrap(err, "Get file path")
 	}
-	err = v.util.OSMakeDir(dirPath, 0744)
+	err = os.MkdirAll(dirPath, 0744)
 	if err != nil {
 		return pkgerrors.Wrap(err, "Make image directory")
 	}
-	err = v.util.OSCreateFile(filePath)
+	file, err := os.Create(filePath)
 	if err != nil {
 		return pkgerrors.Wrap(err, "Create image file")
 	}
-
-	return nil
-}
-
-func (d DBService) OSMakeDir(dirPath string, perm int) error {
-	err := os.MkdirAll(dirPath, 0744)
-	if err != nil {
-		return pkgerrors.Wrap(err, "Make image directory")
-	}
-	return nil
-}
-
-func (d DBService) OSCreateFile(filePath string) error {
-	file1, err := os.Create(filePath)
-	if err != nil {
-		return pkgerrors.Wrap(err, "Create image file")
-	}
-	defer file1.Close()
+    defer file.Close()
 
 	return nil
 }
@@ -267,16 +247,10 @@ func (v *ImageClient) Delete(imageName string) error {
 	if err != nil {
 		return pkgerrors.Wrap(err, "Get file path")
 	}
-	err = v.util.OSRemove(filePath)
-
-	return nil
-}
-
-func (d DBService) OSRemove(filePath string) error {
-	err := os.Remove(filePath)
-	if err != nil {
-		return pkgerrors.Wrap(err, "Delete image file")
-	}
+	err = os.Remove(filePath)
+    if err != nil {
+        return pkgerrors.Wrap(err, "Delete image file")
+    }
 
 	return nil
 }

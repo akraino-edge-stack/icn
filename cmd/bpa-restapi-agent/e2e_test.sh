@@ -36,19 +36,18 @@ if true ; then
 EOF
 fi
 
-curr_status=""
+cur_status=""
 
-while [[ $curr_status != "Running" ]]; do
+while [[ $cur_status != "Running" ]]; do
 
-    new_status=$(kubectl get pods | grep bpa-api-deployment | awk '{print $3}')
-    if [[ $new_status != $curr_status ]]; then
-        echo "$(date +%H:%M:%S) - BPA-RESTful-API Pod status: $new_status"
-        curr_status=$new_status
-        if [[ $new_status == "Running" ]]; then
-            break
-        fi
+    cur_status=$(kubectl get pods | grep bpa-api-deployment | awk '{print $3}')
+    if [[ $cur_status != "Running" ]]; then
+        echo "$(date +%H:%M:%S) - BPA-RESTful-API Pod status: $cur_status"
+    else
+        break
+
     fi
-    if [[ $new_status == "Err"* ]]; then
+    if [[ $cur_status == "Err"* ]]; then
         exit 1
     fi
     sleep 10

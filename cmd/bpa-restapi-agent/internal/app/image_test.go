@@ -2,7 +2,11 @@ package app
 
 import (
   "fmt"
+  "io/ioutil"
+  "log"
+  "os"
   "os/user"
+  "path"
   "testing"
 
   "github.com/stretchr/testify/mock"
@@ -51,31 +55,17 @@ func (m *mockValues) DBRead(name string, key ImageKey, meta string) ([]byte, err
     return args.Get(0).([]byte), args.Error(1)
 }
 
-func (m *mockValues) DBUnmarshal(value []byte, c Image) error {
+func (m *mockValues) DBUnmarshal(value []byte) (Image, error) {
     fmt.Println("Mocked Mongo DB Unmarshal Operation")
-    args := m.Called(value, c)
+    args := m.Called(value)
 
-    return args.Error(0)
+    return args.Get(0).(Image), args.Error(1)
 }
 
 func (m *mockValues) GetPath(u *user.User, imageName string, storeName string) (string, string) {
     args := m.Called(u, "", "test_image")
 
     return args.String(0), args.String(1)
-}
-
-func (m *mockValues) OSMakeDir(dirPath string, perm int) error {
-    fmt.Println("Mocked OS Create Directory Operation")
-    args := m.Called(dirPath, perm)
-    
-    return args.Error(0)
-}
-
-func (m *mockValues) OSCreateFile(filePath string) error {
-    fmt.Println("Mocked Create File Operation")
-    args := m.Called(filePath)
-
-    return args.Error(0)
 }
 
 func (m *mockValues) DBDelete(name string, key ImageKey, meta string) error {
@@ -86,13 +76,6 @@ func (m *mockValues) DBDelete(name string, key ImageKey, meta string) error {
 
 }
 
-func (m *mockValues) OSRemove(filePath string) error {
-    fmt.Println("Mocked OS File Remove")
-    args := m.Called(filePath)
-
-    return args.Error(0)
-}
-
 func (m *mockValues) DBUpdate(s string, k ImageKey, t string, c Image) error {
     fmt.Println("Mocked Mongo DB Update")
     args := m.Called(s, k, t, c)
@@ -101,45 +84,58 @@ func (m *mockValues) DBUpdate(s string, k ImageKey, t string, c Image) error {
 }
 
 func TestCreate(t *testing.T) {
-    image := Image{}
+    dir, err := ioutil.TempDir("", "test_images")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer os.RemoveAll(dir)
+
+    image := Image{
+                    ImageName: "test_asdf",
+                }
     arr_data := []byte{}
-    key := ImageKey{}
+    key := ImageKey{ImageName:"test_asdf"}
     myMocks := new(mockValues)
     // just to get an error value
     err1 := errors.New("math: square root of negative number")
 
     fakeUser := user.User{}
     u := &fakeUser
+    file_path := path.Join(dir, "test_asdf")
 
     myMocks.On("DBCreate", "test_image", key, "test_meta", image).Return(nil)
     myMocks.On("DBRead", "test_image", key, "test_meta").Return(arr_data, err1)
-    myMocks.On("DBUnmarshal", arr_data, image).Return(nil)
+    myMocks.On("DBUnmarshal", arr_data).Return(image, nil)
     myMocks.On("GetCurrentUser").Return(&fakeUser, nil)
-    myMocks.On("GetPath", u, "", "test_image").Return("", "")
-    myMocks.On("OSMakeDir", "", 0744).Return(nil)
-    myMocks.On("OSCreateFile", "").Return(nil)
+    myMocks.On("GetPath", u, "", "test_image").Return(file_path, dir)
 
     imageClient := ImageClient{myMocks, "test_image", "test_meta"}
-    _, err := imageClient.Create(image)
+    _, err = imageClient.Create(image)
     if err != nil {
         t.Errorf("Some error occured!")
     }
 }
 
 func TestDelete(t *testing.T) {
-    key := ImageKey{}
+    tmpfile, err := ioutil.TempFile("", "test_images")
+    if err != nil {
+        log.Fatal(err)
+    }
+    defer os.Remove(tmpfile.Name())
+
+    key := ImageKey{ImageName: "test_asdf"}
     fakeUser := user.User{}
     u := &fakeUser
+    file_path := tmpfile.Name()
 
     myMocks := new(mockValues)
 
     myMocks.On("DBDelete", "test_image", key, "test_meta").Return(nil)
     myMocks.On("GetCurrentUser").Return(&fakeUser, nil)
-    myMocks.On("GetPath", u, "", "test_image").Return("", "")
-    myMocks.On("OSRemove", "").Return(nil)
+    myMocks.On("GetPath", u, "", "test_image").Return(file_path, "")
 
     imageClient := ImageClient{myMocks, "test_image", "test_meta"}
-    err := imageClient.Delete("")
+    err = imageClient.Delete("test_asdf")
     if err != nil {
         t.Errorf("Some error occured!")
     }
@@ -154,7 +150,7 @@ func TestUpdate(t *testing.T) {
     myMocks := new(mockValues)
 
     myMocks.On("DBRead", "test_image", key, "test_meta").Return(arr_data, nil)
-    myMocks.On("DBUnmarshal", arr_data, image).Return(nil)
+    myMocks.On("DBUnmarshal", arr_data).Return(image, nil)
     myMocks.On("DBUpdate", "test_image", key, "test_meta", image).Return(nil)
     imageClient := ImageClient{myMocks, "test_image", "test_meta"}
     _, err := imageClient.Update("", image)

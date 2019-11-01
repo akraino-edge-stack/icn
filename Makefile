@@ -64,6 +64,9 @@ bpa_rest_api_install:
 bpa_rest_api_verifier:
 	pushd $(BPA_REST_API) && make e2e_test && popd
 
+bpa_rest_api_unit:
+	pushd $(BPA_REST_API) && make unit_test && popd
+
 bashate:
 	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -name *.sh`
 
