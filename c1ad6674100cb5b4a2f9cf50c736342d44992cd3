@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "e9590742_5b3c997a",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 37,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-01T17:20:58Z",
+      "side": 1,
+      "message": "cat /root/.ssh/id_rsa.pub",
+      "revId": "c1ad6674100cb5b4a2f9cf50c736342d44992cd3",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "eda5dc9f_2adc0a14",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 14
+      },
+      "lineNbr": 48,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-01T17:20:58Z",
+      "side": 1,
+      "message": "kubectl get $(kubectl get pods |grep -i virtlet-deployment | awk \u0027{print $1}\u0027) -o json\n\nTo see the key inside the VM injected",
+      "revId": "c1ad6674100cb5b4a2f9cf50c736342d44992cd3",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
