@@ -17,3 +17,6 @@ go_install:
 
 e2e_test: deploy
 	./e2e_test.sh
+
+clean:
+	./bpa_api_uninstall.sh

@@ -61,6 +61,9 @@ bpa_op_all: bm_all bpa_op_install
 bpa_rest_api_install:
 	pushd $(BPA_REST_API) && make deploy && popd
 
+bpa_rest_api_uninstall:
+	pushd $(BPA_REST_API) && make clean && popd
+
 bpa_rest_api_verifier:
 	pushd $(BPA_REST_API) && make e2e_test && popd
 
