@@ -8,7 +8,6 @@ KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
 BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
 
-
 help:
 	@echo "  Targets:"
 	@echo "  test             -- run unit tests"
@@ -17,15 +16,26 @@ help:
 	@echo "  unit             -- run the unit tests"
 	@echo "  help             -- this help output"
 
-all: bm_install
+install: bmh_all
 
-bm_preinstall:
-	pushd $(BMDIR) && ./01_install_package.sh && ./02_configure.sh && ./03_launch_prereq.sh && popd
+bmh_preinstall:
+	pushd $(BMDIR) && ./01_install_package.sh && ./02_configure.sh && \
+	./03_launch_prereq.sh && popd
 
-bm_install:
-	pushd $(METAL3DIR) && ./metal3.sh && popd
+bmh_clean:
+	pushd $(METAL3DIR) && ./01_metal3.sh deprovision && \
+	./03_verify_deprovisioning.sh && ./01_metal3.sh clean popd
 
-bm_all: bm_preinstall bm_install
+bmh_clean_host:
+	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
+
+bmh_install:
+	pushd $(METAL3DIR) && ./01_metal3.sh launch && \
+	 ./01_metal3.sh provision && ./02_verify.sh && popd
+
+bmh_all: bmh_preinstall bmh_install
+
+bmh_clean_all: bmh_clean bmh_clean_host
 
 kud_bm_deploy_mini:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
@@ -75,6 +85,8 @@ bashate:
 
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
+
+bm_verifer: install
 
 verify_all: prerequisite \
 	metal3_prerequisite \

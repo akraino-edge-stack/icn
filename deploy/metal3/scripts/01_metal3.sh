@@ -174,6 +174,18 @@ function remove_bm_hosts {
     done
 }
 
+function cleanup {
+    while read -r name username password address; do
+        kubectl delete bmh $name -n metal3
+        kubectl delete secrets $name-bmc-secret -n metal3
+        kubectl delete secrets $name-user-data -n metal3
+    done
+}
+
+function clean_all {
+    list_nodes | cleanup
+}
+
 function apply_bm_hosts {
     list_nodes | make_bm_hosts
 }
@@ -188,12 +200,20 @@ if [ "$1" == "launch" ]; then
 fi
 
 if [ "$1" == "deprovision" ]; then
+    configure_nodes
     deprovision_all_hosts
     exit 0
 fi
 
 if [ "$1" == "provision" ]; then
+    configure_nodes
     apply_bm_hosts
+    exit 0
+fi
+
+if [ "$1" == "clean" ]; then
+    configure_nodes
+    clean_all
     exit 0
 fi
 
@@ -201,6 +221,7 @@ echo "Usage: metal3.sh"
 echo "launch      - Launch the metal3 operator"
 echo "provision   - provision baremetal node as specified in common.sh"
 echo "deprovision - deprovision baremetal node as specified in common.sh"
+echo "clean       - clean all the resources"
 exit 1
 
 #Following code is tested for the offline mode

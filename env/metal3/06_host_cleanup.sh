@@ -23,3 +23,8 @@ brctl delbr dhcp0
 
 rm -rf ${BS_DHCP_DIR}
 rm -rf ${IRONIC_DATA_DIR}
+
+kubeadm reset -f
+iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
+rm -rf $HOME/.kube/config
+rm -rf /var/lib/etcd

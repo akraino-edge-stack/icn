@@ -1,5 +1,9 @@
 #!/bin/bash
 
+ICNDIR="$(dirname "$(dirname "$PWD")")"
+echo $ICNDIR
+source $ICNDIR/user_config.sh
+
 #supported OS version
 UBUNTU_BIONIC=${UBUNTU_BIONIC:-Ubuntu 18.04.2 LTS}
 
@@ -17,8 +21,8 @@ POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 PODMAN_CNI_CONFLIST=${PODMAN_CNI_CONFLIST:-"https://raw.githubusercontent.com/containers/libpod/v1.4.4/cni/87-podman-bridge.conflist"}
 
 #Bootstrap K8s cluster
-BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-"ens513f0"}
-BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-"172.31.1.1/24"}
+BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-}
+BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-}
 BS_DHCP_DIR=${BS_DHCP_DIR:-$DOWNLOAD_PATH/dhcp}
 
 #Ironic variables
@@ -29,11 +33,11 @@ IRONIC_BAREMETAL_SOCAT_IMAGE=${IRONIC_BAREMETAL_SOCAT_IMAGE:-"alpine/socat:lates
 
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
-IRONIC_INTERFACE=${IRONIC_INTERFACE:-"enp4s0f1"}
+IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE=${IRONIC_PROVISIONING_INTERFACE:-"provisioning"}
-IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-"enp4s0f0"}
+IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE_IP=${IRONIC_PROVISIONING_INTERFACE_IP:-"172.22.0.1"}
-IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-"10.10.110.20"}
+IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
@@ -74,6 +78,11 @@ function call_api {
 
 function list_nodes {
     NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
+
+    if [ ! -f $IRONIC_DATA_DIR/nodes.json ]; then
+        exit 1
+    fi
+
     cat "$NODES_FILE" | \
         jq '.nodes[] | {
            name,
