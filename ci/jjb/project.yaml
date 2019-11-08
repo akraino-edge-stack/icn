@@ -1,6 +1,6 @@
 ---
 - project:
-    name: icn-private
+    name: icn-vagrant
     project: icn
     project-name: icn
     nexus_log_subdir: intel/ICN_CD_logs
@@ -11,4 +11,17 @@
       - master:
           branch: master
     jobs:
-      - icn-stream-verify-target
+      - icn-stream-vagrant-verify-target
+
+- project:
+    name: icn-bm
+    project: icn
+    project-name: icn
+    nexus_log_subdir: intel/ICN_CD_logs
+    target:
+      - bm_verifer
+    stream:
+      - master:
+          branch: master
+    jobs:
+      - icn-stream-bm-verify-target
