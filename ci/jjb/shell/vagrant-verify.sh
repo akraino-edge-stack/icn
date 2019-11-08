@@ -1,5 +1,5 @@
 #!/bin/bash -l
-echo "---> verify.sh"
+echo "---> vagrant-verify.sh"
 
 # Ensure we fail the job if any steps fail
 # Disable 'globbing'

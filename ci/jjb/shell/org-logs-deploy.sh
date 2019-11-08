@@ -14,7 +14,7 @@ echo "---> logs-deploy.sh"
 # Disable 'globbing'
 set -euf -o pipefail
 
-JENKINS_HOSTNAME=pod14-node2
+JENKINS_HOSTNAME=`hostname`
 NEXUS_URL=https://nexus.akraino.org
 LOGS_SERVER=https://logs.akraino.org
 

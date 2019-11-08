@@ -25,17 +25,33 @@ Once the playbook is successful, we can visite the jenkins server at http://<lis
 ## What to do next
 
 1. Add the gerrit ssh key as jenkins credential, so that our jobs can pull code from the gerrit.
-The credential ID field must be `jenkins-ssh`. As this is hard coded in the jobs.
+The credential ID field must be `jenkins-ssh`, as this is hard coded in the jobs. The type should
+be private key. The user name is the gerrit account name.
 2. To push the logs to Akraino Nexus server, we need to create the authentication file for lftools.
-The file path is `/var/lib/jenkins/.netrc` and the content should be one line
-`machine nexus.akraino.org login the_name password the_pass`
+The file should be owned by jenkins user. The file path is `/var/lib/jenkins/.netrc` and
+the content should be one line `machine nexus.akraino.org login the_name password the_pass`
 3. The last step is to deploy our CD jobs by jenkins-job-builder tool.
 
 ```
-git clone "https://gerrit.akraino.org/r/ci-management"
+git clone --recursive "https://gerrit.akraino.org/r/ci-management"
 git clone "https://gerrit.akraino.org/r/icn"
 # create the jjb config file before moving on
 # https://docs.releng.linuxfoundation.org/en/latest/jenkins-sandbox.html
 jenkins-jobs test ci-management/jjb:icn/ci/jjb icn-master-verify
 jenkins-jobs update ci-management/jjb:icn/ci/jjb icn-master-verify
+```
+
+A sample of jjb config file
+```
+[job_builder]
+ignore_cache=True
+keep_descriptions=False
+recursive=True
+retain_anchors=True
+update=jobs
+
+[jenkins]
+user=admin
+password=admin
+url=http://localhost:8080
 ```
