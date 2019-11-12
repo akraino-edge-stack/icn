@@ -14,4 +14,3 @@ spec:
   workers:
     - worker-1:
          mac-address: 00:c4:13:04:62:b5
-  hostfile: /root/go/src/test-code/hosts.ini
