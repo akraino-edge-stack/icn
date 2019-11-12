@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "622cf088_405dcd33",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 66,
+      "author": {
+        "id": 255
+      },
+      "writtenOn": "2019-11-12T07:47:18Z",
+      "side": 1,
+      "message": "I update bpa_op_install to generate the secret so this can be removed from this script if bpa_op_install is going to be called before it",
+      "range": {
+        "startLine": 65,
+        "startChar": 0,
+        "endLine": 66,
+        "endChar": 45
+      },
+      "revId": "55a0b60437a551f9a16f54e58e1da341858c8f5c",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9e453126_213db52a",
+        "filename": "cmd/bpa-operator/e2etest/bpa_e2e_vm_test.sh",
+        "patchSetId": 21
+      },
+      "lineNbr": 93,
+      "author": {
+        "id": 255
+      },
+      "writtenOn": "2019-11-12T07:47:18Z",
+      "side": 1,
+      "message": "You also need to delete the configmap created when the job is successful.",
+      "range": {
+        "startLine": 93,
+        "startChar": 0,
+        "endLine": 93,
+        "endChar": 47
+      },
+      "revId": "55a0b60437a551f9a16f54e58e1da341858c8f5c",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
