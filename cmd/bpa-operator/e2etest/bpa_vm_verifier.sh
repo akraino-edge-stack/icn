@@ -42,11 +42,8 @@ lease ${workerIP} {
 }
 EOF
 
-# Create ssh-key-secret required for job
-kubectl create secret generic ssh-key-secret --from-file=id_rsa=/root/.ssh/id_rsa --from-file=id_rsa.pub=/root/.ssh/id_rsa.pub
-
 # Create provisioning CR file for testing
-cat <<EOF > e2e_test_provisioning_cr.yaml
+cat <<EOF > e2etest/e2e_test_provisioning_cr.yaml
 apiVersion: bpa.akraino.org/v1alpha1
 kind: Provisioning
 metadata:
@@ -62,7 +59,7 @@ spec:
     - worker-0:
         mac-address: ${workerMAC}
 EOF
-kubectl apply -f e2e_test_provisioning_cr.yaml
+kubectl apply -f e2etest/e2e_test_provisioning_cr.yaml
 sleep 5
 
 #Check Status of kud job pod
@@ -79,32 +76,32 @@ done
 if [[ $status == "Completed" ]];
 then
    printf "KUD Install Job completed\n"
+   printf "Checking cluster status\n"
+
+   source ../../env/lib/common.sh
+   CLUSTER_NAME=cluster-test
+   KUBECONFIG=--kubeconfig=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/admin.conf
+   APISERVER=$(kubectl ${KUBECONFIG} config view --minify -o jsonpath='{.clusters[0].cluster.server}')
+   TOKEN=$(kubectl ${KUBECONFIG} get secret $(kubectl ${KUBECONFIG} get serviceaccount default -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode )
+   call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
+   ret=$?
+   if [[ $ret != 0 ]];
+   then
+     printf "\nKubernetes Cluster Install did not complete successfully\n"
+   else
+     printf "\nKubernetes Cluster Install was successful\n"
+   fi
+
 else
    printf "KUD Install Job failed\n"
 fi
 
-printf "Checking cluster status\n"
-
-source ../../env/lib/common.sh
-CLUSTER_NAME=cluster-test
-KUBECONFIG=--kubeconfig=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/admin.conf
-APISERVER=$(kubectl ${KUBECONFIG} config view --minify -o jsonpath='{.clusters[0].cluster.server}')
-TOKEN=$(kubectl ${KUBECONFIG} get secret $(kubectl ${KUBECONFIG} get serviceaccount default -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode )
-call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
-ret=$?
-if [[ $ret != 0 ]];
-then
-   printf "\nKubernetes Cluster Install did not complete successfully\n"
-else
-  printf "\nKubernetes Cluster Install was successful\n"
-fi
-
 
 printf "\n\nBeginning E2E Test Teardown\n\n"
-kubectl delete -f e2e_test_provisioning_cr.yaml
+kubectl delete -f e2etest/e2e_test_provisioning_cr.yaml
 kubectl delete job kud-cluster-test
-kubectl delete secret ssh-key-secret
-rm e2e_test_provisioning_cr.yaml
-rm -rf /multi-cluster/cluster-test
+kubectl delete configmap cluster-test-configmap
+rm e2etest/e2e_test_provisioning_cr.yaml
+rm -rf /opt/kud/multi-cluster/cluster-test
 rm /opt/icn/dhcp/dhcpd.leases
 make delete

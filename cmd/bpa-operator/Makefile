@@ -6,7 +6,7 @@ docker:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
 	git clone https://github.com/onap/multicloud-k8s.git
 	cd multicloud-k8s && \
-	docker build  --rm \
+	docker build  --network=host --rm \
          	--build-arg http_proxy=${http_proxy} \
          	--build-arg HTTP_PROXY=${HTTP_PROXY} \
          	--build-arg https_proxy=${https_proxy} \
@@ -25,6 +25,7 @@ deploy:
 	kubectl apply -f deploy/crds/provisioning-crd/bpa_v1alpha1_provisioning_crd.yaml
 	kubectl apply -f deploy/crds/software-crd/bpa_v1alpha1_software_crd.yaml
 	kubectl apply -f deploy/operator.yaml
+	kubectl create secret generic ssh-key-secret --from-file=id_rsa=/root/.ssh/id_rsa --from-file=id_rsa.pub=/root/.ssh/id_rsa.pub
 
 .PHONY: delete
 delete:
@@ -34,11 +35,16 @@ delete:
 	kubectl delete -f deploy/crds/provisioning-crd/bpa_v1alpha1_provisioning_crd.yaml
 	kubectl delete -f deploy/crds/software-crd/bpa_v1alpha1_software_crd.yaml
 	kubectl delete -f deploy/operator.yaml
+	kubectl delete secret ssh-key-secret
 
 .PHONY: unit_test
 unit_test:
 	go test ./pkg/controller/provisioning/
 
-.PHONY: e2etest
-e2etest:
-	./bpa_verifier.sh
+.PHONY: e2etest_vm
+e2etest_vm:
+	./e2etest/bpa_vm_verifier.sh
+
+.PHONY: e2etest_bmh
+e2etest_bmh:
+	./e2etest/bpa_bmh_verifier.sh
