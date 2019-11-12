@@ -16,6 +16,3 @@ spec:
          mac-address: 00:c4:13:04:62:b5
     - worker-2:
          mac-address: 00:c3:11:02:61:b5
-
-  kudInstallerPath: /root/go/src/test-code/bpa-test/test-1/kud/multicloud-k8s/kud/hosting_providers/vagrant
-  dhcpLeaseFile: /root/go/src/test-code/dhcp_lease.txt

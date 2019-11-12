@@ -58,8 +58,11 @@ bpa_op_install:
 bpa_op_delete:
 	pushd $(BPA_OPERATOR) && make delete && popd
 
-bpa_op_e2e:
-	pushd $(BPA_OPERATOR) && make e2etest && popd
+bpa_op_e2e_vm:
+	pushd $(BPA_OPERATOR) && make e2etest_vm && popd
+
+bpa_op_e2e_bmh:
+	pushd $(BPA_OPERATOR) && make e2etest_bmh && popd
 
 bpa_op_unit:
 	pushd $(BPA_OPERATOR) && make unit_test && popd
@@ -92,7 +95,7 @@ verify_all: prerequisite \
 	metal3_prerequisite \
 	kud_bm_deploy_mini \
 	metal3_vm \
-	bpa_op_verifier \
+	bpa_op_vm_verifier \
 	bpa_rest_api_verifier
 
 verifier: verify_all
@@ -102,3 +105,4 @@ verify_nestedk8s: prerequisite \
 	sdwan_verifier
 
 .PHONY: all bm_preinstall bm_install bashate
+

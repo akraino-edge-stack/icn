@@ -15,9 +15,7 @@ type ProvisioningSpec struct {
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
 	Masters []map[string]Master  `json:"masters,omitempty"`
 	Workers []map[string]Worker  `json:"workers,omitempty"`
-	KUDInstaller string `json:"kudInstallerPath,omitempty"`
-	DHCPleaseFile string `json:"dhcpLeaseFile,omitempty"`
-	MultiClusterPath string `json:"multiClusterDir,omitempty"`
+	KUDPlugins []string `json:"KUDPlugins,omitempty"`
 }
 
 // ProvisioningStatus defines the observed state of Provisioning
