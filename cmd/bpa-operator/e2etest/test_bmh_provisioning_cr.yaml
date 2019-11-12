@@ -1,0 +1,14 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: provisioning-test-bmh
+  labels:
+    cluster: test-bmh-cluster
+    owner: tester
+spec:
+  masters:
+    - master-1:
+        mac-address: 00:1e:67:f8:6a:78 
+  workers:
+    - worker-1:
+         mac-address: 00:1e:67:f8:69:80
