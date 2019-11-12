@@ -191,9 +191,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 	clusterType := provisioningInstance.Labels["cluster-type"]
         mastersList := provisioningInstance.Spec.Masters
         workersList := provisioningInstance.Spec.Workers
-        dhcpLeaseFile := provisioningInstance.Spec.DHCPleaseFile
-        kudInstallerScript := provisioningInstance.Spec.KUDInstaller
-	multiClusterDir := provisioningInstance.Spec.MultiClusterPath
+        kudPlugins := provisioningInstance.Spec.KUDPlugins
 
 
         bareMetalHostList, _ := listBareMetalHosts(r.bmhClient)
@@ -206,25 +204,12 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         var masterString string
         var workerString string
 
-	defaultDHCPFile := "/var/lib/dhcp/dhcpd.leases"
-	defaultKUDInstallerPath := "/multicloud-k8s/kud/hosting_providers/vagrant"
-	defaultMultiClusterDir := "/multi-cluster"
-
-	//Give Default values for paths if no path is given in the CR
-	if dhcpLeaseFile == "" {
-	   dhcpLeaseFile = defaultDHCPFile
-	}
-
-	if kudInstallerScript == "" {
-	   kudInstallerScript = defaultKUDInstallerPath
-	}
-
-	if multiClusterDir == "" {
-	   multiClusterDir = defaultMultiClusterDir
-	}
+	dhcpLeaseFile := "/var/lib/dhcp/dhcpd.leases"
+	multiClusterDir := "/multi-cluster"
 
 	//Create Directory for the specific cluster
 	clusterDir := multiClusterDir + "/" + clusterName
+	fmt.Printf("%v\n", clusterDir)
 	os.MkdirAll(clusterDir, os.ModePerm)
 
 	//Create Maps to be used for cluster ip address to label configmap
@@ -449,7 +434,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         hostFile.SaveTo(iniHostFilePath)
 
         //Install KUD
-        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, r.clientset)
+        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, kudPlugins,  r.clientset)
         if err != nil {
            fmt.Printf("Error occured while creating KUD Installer job for cluster %v\n ERROR: %v", clusterName, err)
            return reconcile.Result{}, err
@@ -630,10 +615,23 @@ func getConfigMapData(namespace, clusterName string, clientset kubernetes.Interf
 }
 
 //Function to create job for KUD installation
-func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, clientset kubernetes.Interface) error{
+func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, kudPlugins []string, clientset kubernetes.Interface) error{
 
     var backOffLimit int32 = 0
     var privi bool = true
+
+    installerString := " ./installer --cluster " + clusterName
+
+    // Check if any plugin was specified
+    if len(kudPlugins) > 0 {
+	    plugins := " --plugins"
+
+	    for _, plug := range kudPlugins {
+	       plugins += " " + plug
+	    }
+
+	   installerString += plugins
+    }
 
 
     jobClient := clientset.BatchV1().Jobs("default")
@@ -668,7 +666,7 @@ func createKUDinstallerJob(clusterName, namespace string, labels map[string]stri
 
                                            },
                                            Command: []string{"/bin/sh","-c"},
-                                           Args: []string{"cp -r /.ssh /root/; chmod -R 600 /root/.ssh; ./installer --cluster " +  clusterName},
+                                           Args: []string{"cp -r /.ssh /root/; chmod -R 600 /root/.ssh;" + installerString},
                                            SecurityContext: &corev1.SecurityContext{
                                                             Privileged : &privi,
 
@@ -886,4 +884,3 @@ func getVMIPaddress(vmList []VirtletVM, macAddress string) (string, error) {
         }
         return "", nil
 }
-
