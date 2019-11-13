@@ -19,6 +19,7 @@ help:
 install: bmh_all
 
 bmh_preinstall:
+	source user_config.sh && env && \
 	pushd $(BMDIR) && ./01_install_package.sh && ./02_configure.sh && \
 	./03_launch_prereq.sh && popd
 
@@ -30,6 +31,7 @@ bmh_clean_host:
 	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
 
 bmh_install:
+	source user_config.sh && env && \
 	pushd $(METAL3DIR) && ./01_metal3.sh launch && \
 	 ./01_metal3.sh provision && ./02_verify.sh && popd
 
