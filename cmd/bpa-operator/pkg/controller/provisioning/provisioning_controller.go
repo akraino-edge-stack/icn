@@ -409,17 +409,22 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
            return reconcile.Result{}, err
         }
 
-        if clusterType == "virtlet-vm" {
-                _, err = hostFile.NewRawSection("ovn-central", masterString)
-                if err != nil {
-                        fmt.Printf("Error occured while creating section \n %v", err)
-                        return reconcile.Result{}, err
-                }
-                _, err = hostFile.NewRawSection("ovn-controller", masterString)
-                if err != nil {
-                        fmt.Printf("Error occured while creating section \n %v", err)
-                        return reconcile.Result{}, err
-                }
+        _, err = hostFile.NewRawSection("ovn-central", masterString)
+        if err != nil {
+           fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
+        }
+
+        _, err = hostFile.NewRawSection("ovn-controller", workerString)
+        if err != nil {
+           fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
+        }
+
+        _, err = hostFile.NewRawSection("virtlet", workerString)
+        if err != nil {
+           fmt.Printf("Error occured while creating section \n %v", err)
+           return reconcile.Result{}, err
         }
 
         _, err = hostFile.NewRawSection("k8s-cluster:children", "kube-node\n" + "kube-master")
