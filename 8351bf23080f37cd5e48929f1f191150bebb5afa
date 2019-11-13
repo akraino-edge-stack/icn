@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "104201f7_9375289e",
+        "filename": "cmd/bpa-operator/e2etest/test_bmh_provisioning_cr.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-13T22:46:03Z",
+      "side": 1,
+      "message": "Please remove this",
+      "range": {
+        "startLine": 11,
+        "startChar": 38,
+        "endLine": 11,
+        "endChar": 39
+      },
+      "revId": "8351bf23080f37cd5e48929f1f191150bebb5afa",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
