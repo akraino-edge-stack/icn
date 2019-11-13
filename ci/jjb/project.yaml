@@ -20,6 +20,7 @@
     nexus_log_subdir: intel/ICN_CD_logs
     target:
       - bm_verifer
+      - bm_verify_nestedk8s
     stream:
       - master:
           branch: master
