@@ -1,9 +1,5 @@
 #!/bin/bash
 
-ICNDIR="$(dirname "$(dirname "$PWD")")"
-echo $ICNDIR
-source $ICNDIR/user_config.sh
-
 #supported OS version
 UBUNTU_BIONIC=${UBUNTU_BIONIC:-Ubuntu 18.04.2 LTS}
 
@@ -24,6 +20,10 @@ PODMAN_CNI_CONFLIST=${PODMAN_CNI_CONFLIST:-"https://raw.githubusercontent.com/co
 BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-}
 BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-}
 BS_DHCP_DIR=${BS_DHCP_DIR:-$DOWNLOAD_PATH/dhcp}
+
+#User Provider Network configuration
+PROVIDER_NETWORK_GATEWAY=${PROVIDER_NETWORK_GATEWAY:-}
+PROVIDER_NETWORK_DNS=${PROVIDER_NETWORK_DNS:-}
 
 #Ironic variables
 IRONIC_IMAGE=${IRONIC_IMAGE:-"quay.io/metal3-io/ironic:master"}

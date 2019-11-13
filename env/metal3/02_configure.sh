@@ -131,8 +131,11 @@ function configure_ironic {
 	return
     fi
 
-    podman pull $IRONIC_IMAGE
-    podman pull $IRONIC_INSPECTOR_IMAGE
+    #Podman usage is deprecated for v1.0.0 release
+    #podman pull $IRONIC_IMAGE
+    docker pull $IRONIC_IMAGE
+    #podman pull $IRONIC_INSPECTOR_IMAGE
+    docker pull $IRONIC_INSPECTOR_IMAGE
 
     mkdir -p "$IRONIC_DATA_DIR/html/images"
     pushd $IRONIC_DATA_DIR/html/images
@@ -149,8 +152,9 @@ function configure_ironic {
 }
 
 function configure {
-    configure_kubeadm $1
-    configure_kubelet
+    #Kubeadm usage deprecated for v1.0.0 release
+    #configure_kubeadm $1
+    #configure_kubelet
     configure_ironic $1
     configure_dhcp_bridge
     configure_ironic_bridge

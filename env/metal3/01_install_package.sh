@@ -106,9 +106,10 @@ EOF'
 install() {
     install_essential_packages
     install_ironic_packages $1
-    install_docker_packages $1
-    install_podman_packages $1
-    install_kubernetes_packages $1
+
+    #install_docker_packages $1
+    #install_podman_packages $1
+    #install_kubernetes_packages $1
 }
 
 if ["$1" == "-o"]; then

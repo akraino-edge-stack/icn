@@ -116,8 +116,21 @@ write_files:
         sudo ifconfig `basename $intf` up
         sudo dhclient -nw `basename $intf`
     done
+EOF
+cat << EOF
+- path: /opt/user_net.sh
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -xe
+    route add default gw $PROVIDER_NETWORK_GATEWAY
+    sed -i -e 's/^#DNS=.*/DNS=$PROVIDER_NETWORK_DNS/g' /etc/systemd/resolved.conf
+    systemctl daemon-reload
+    systemctl restart systemd-resolved
 runcmd:
  - [ /opt/ironic_net.sh ]
+ - [ /opt/user_net.sh ]
 EOF
 }
 

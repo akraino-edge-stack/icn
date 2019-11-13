@@ -76,31 +76,28 @@ function check_k8s_node_status {
     fi
 }
 
-function install_podman {
+function install_ironic_container {
     # set password for mariadb
     mariadb_password=$(echo $(date;hostname)|sha256sum |cut -c-20)
 
-    # Create pod
-    podman pod create -n ironic-pod
-
     # Start dnsmasq, http, mariadb, and ironic containers using same image
-    podman run -d --net host --privileged --name dnsmasq  --pod ironic-pod \
+    docker run -d --net host --privileged --name dnsmasq \
         -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/rundnsmasq ${IRONIC_IMAGE}
 
-    podman run -d --net host --privileged --name httpd --pod ironic-pod \
+    docker run -d --net host --privileged --name httpd \
         -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/runhttpd ${IRONIC_IMAGE}
 
-    podman run -d --net host --privileged --name mariadb --pod ironic-pod \
+    docker run -d --net host --privileged --name mariadb \
         -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/runmariadb \
         --env MARIADB_PASSWORD=$mariadb_password ${IRONIC_IMAGE}
 
-    podman run -d --net host --privileged --name ironic --pod ironic-pod \
+    docker run -d --net host --privileged --name ironic \
         --env MARIADB_PASSWORD=$mariadb_password \
         -v $IRONIC_DATA_DIR:/shared ${IRONIC_IMAGE}
 
     # Start Ironic Inspector
-    podman run -d --net host --privileged --name ironic-inspector \
-        --pod ironic-pod "${IRONIC_INSPECTOR_IMAGE}"
+    docker run -d --net host --privileged --name ironic-inspector \
+        "${IRONIC_INSPECTOR_IMAGE}"
 }
 
 function remove_k8s_noschedule_taint {
@@ -135,16 +132,17 @@ function install_dhcp {
 }
 
 function install {
+    #Kubeadm usage is deprecated in v1,0,0 version
     #install_kubernetes
-    install_k8s_single_node
-    check_cni_network $1
-    create_k8s_regular_user
-    check_k8s_node_status
-    remove_k8s_noschedule_taint
+    #install_k8s_single_node
+    #check_cni_network $1
+    #create_k8s_regular_user
+    #check_k8s_node_status
+    #remove_k8s_noschedule_taint
 
     #install_podman
     #Todo - error handling mechanism
-    install_podman
+    install_ironic_container
     install_dhcp
 }
 
