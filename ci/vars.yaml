@@ -6,4 +6,3 @@ jenkins_plugins:
   - gerrit-trigger
   - git
   - postbuildscript
-  - config-file-provider

@@ -41,7 +41,7 @@ jenkins-jobs test ci-management/jjb:icn/ci/jjb icn-master-verify
 jenkins-jobs update ci-management/jjb:icn/ci/jjb icn-master-verify
 ```
 
-A sample of jjb config file
+A sample of jjb config file located at `~/.config/jenkins_jobs/jenkins_jobs.ini`
 ```
 [job_builder]
 ignore_cache=True
