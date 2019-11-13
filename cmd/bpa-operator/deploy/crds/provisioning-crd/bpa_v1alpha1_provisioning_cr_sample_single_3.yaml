@@ -11,5 +11,3 @@ spec:
         mac-address: 90:e2:ba:cd:df:bd
   workers:
      - master-1:     #colon must be put even if MAC address is not specified
-  kudInstallerPath: /root/icn/deploy/kud/multicloud-k8s/kud/hosting_providers/vagrant #Path to directory containing KUD installer script, must be unique for each BPA CR
-  dhcpLeaseFile: "/var/lib/dhcp/dhcpd.leases"
