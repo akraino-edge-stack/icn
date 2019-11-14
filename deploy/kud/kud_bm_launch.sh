@@ -90,6 +90,14 @@ function kud_install {
     popd
 }
 
+function kud_reset {
+    pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
+    ansible-playbook -i inventory/hosts.ini /opt/kubespray-2.10.4/reset.yml \
+        --become --become-user=root -e reset_confirmation=yes
+    popd
+}
+
+
 function verifier {
     APISERVER=$(kubectl config view --minify -o \
                     jsonpath='{.clusters[0].cluster.server}')
@@ -99,6 +107,11 @@ function verifier {
         base64 --decode )
   call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
 }
+
+if [ "$1" == "reset" ] ; then
+    kud_reset
+    exit 0
+fi
 
 get_kud_repo
 set_ssh_key

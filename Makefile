@@ -7,6 +7,7 @@ BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
 BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
+BOOTLOADER_ENV:=$(CURDIR)/env/ubuntu/bootloader-env
 
 help:
 	@echo "  Targets:"
@@ -16,19 +17,30 @@ help:
 	@echo "  unit             -- run the unit tests"
 	@echo "  help             -- this help output"
 
-install: bmh_all
+install: package_prerequisite \
+	kud_bm_deploy_mini \
+	bmh_all \
+	bpa_op_bmh_verifier
+
+package_prerequisite:
+	 pushd $(BMDIR) && ./01_install_package.sh && popd
 
 bmh_preinstall:
 	source user_config.sh && env && \
-	pushd $(BMDIR) && ./01_install_package.sh && ./02_configure.sh && \
+	pushd $(BMDIR) && ./02_configure.sh && \
 	./03_launch_prereq.sh && popd
 
 bmh_clean:
 	pushd $(METAL3DIR) && ./01_metal3.sh deprovision && \
-	./03_verify_deprovisioning.sh && ./01_metal3.sh clean popd
+	./03_verify_deprovisioning.sh && ./01_metal3.sh clean && \
+        ./01_metal3.sh remove && popd
 
 bmh_clean_host:
 	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
+
+clean_packages:
+	pushd $(BOOTLOADER_ENV) && \
+	./02_clean_bootloader_package_req.sh --only-packages && popd
 
 bmh_install:
 	source user_config.sh && env && \
@@ -37,13 +49,19 @@ bmh_install:
 
 bmh_all: bmh_preinstall bmh_install
 
-bmh_clean_all: bmh_clean bmh_clean_host
+clean_all: bmh_clean \
+	bmh_clean_host \
+	kud_bm_reset \
+	clean_packages
 
 kud_bm_deploy_mini:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
 
 kud_bm_deploy:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh all && popd
+
+kud_bm_reset:
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
 
 metal3_prerequisite:
 	pushd $(METAL3VMDIR) && make bmh_install && popd

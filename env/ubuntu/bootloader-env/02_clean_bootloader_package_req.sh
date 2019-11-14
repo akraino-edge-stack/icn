@@ -123,6 +123,14 @@ function clean_dir {
     popd
 }
 
+if [ "$1" == "--only-packages" ]; then
+    check_prerequisite
+    clean_docker_packages
+    clean_ironic_packages
+    clean_essential_packages
+    exit 0
+fi
+
 check_prerequisite
 clean_apt_cache
 check_dir $LOCAL_APT_REPO

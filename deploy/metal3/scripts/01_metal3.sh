@@ -99,7 +99,25 @@ function launch_baremetal_operator {
     fi
 
     pushd $GOPATH/src/github.com/metal3-io/baremetal-operator
+    docker pull quay.io/metal3-io/baremetal-operator:master
     make deploy
+    popd
+}
+
+function remove_baremetal_operator {
+    if [ ! -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
+        go get github.com/metal3-io/baremetal-operator
+        git checkout 3d40caa29dce82878d83aeb7f8dab4dc4a856160
+    fi
+
+    pushd $GOPATH/src/github.com/metal3-io/baremetal-operator
+        kubectl delete -f deploy/operator.yaml -n metal3
+        kubectl delete -f deploy/crds/metal3_v1alpha1_baremetalhost_crd.yaml
+        kubectl delete -f deploy/role_binding.yaml
+        kubectl delete -f deploy/role.yaml -n metal3
+        kubectl delete -f deploy/service_account.yaml -n metal3
+        kubectl delete ns metal3
+        docker rmi quay.io/metal3-io/baremetal-operator:master
     popd
 }
 
@@ -230,11 +248,17 @@ if [ "$1" == "clean" ]; then
     exit 0
 fi
 
+if [ "$1" == "remove" ]; then
+    remove_baremetal_operator
+    exit 0
+fi
+
 echo "Usage: metal3.sh"
 echo "launch      - Launch the metal3 operator"
 echo "provision   - provision baremetal node as specified in common.sh"
 echo "deprovision - deprovision baremetal node as specified in common.sh"
-echo "clean       - clean all the resources"
+echo "clean       - clean all the bmh resources"
+echo "remove      - remove baremetal operator"
 exit 1
 
 #Following code is tested for the offline mode
