@@ -20,7 +20,8 @@ help:
 install: package_prerequisite \
 	kud_bm_deploy_mini \
 	bmh_all \
-	bpa_op_bmh_verifier
+	bpa_op_install \
+	bpa_rest_api_install
 
 package_prerequisite:
 	 pushd $(BMDIR) && ./01_install_package.sh && popd
@@ -105,13 +106,21 @@ bpa_rest_api_verifier:
 bpa_rest_api_unit:
 	pushd $(BPA_REST_API) && make unit_test && popd
 
+unit: prerequisite \
+	bashate \
+	bpa_op_unit \
+	bpa_rest_api_unit
+
 bashate:
 	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name *.sh`
 
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
 
-bm_verifer: install
+bm_verifer: package_prerequisite \
+        kud_bm_deploy_mini \
+        bmh_all \
+	bpa_op_bmh_verifier
 
 verify_all: prerequisite \
 	metal3_prerequisite \

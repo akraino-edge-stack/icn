@@ -45,6 +45,7 @@ while [[ $cur_status != "Running" ]]; do
     if [[ $cur_status != "Running" ]]; then
         echo "$(date +%H:%M:%S) - BPA-RESTful-API Pod status: $cur_status"
     else
+        echo "$(date +%H:%M:%S) - BPA-RESTful-API Pod status: $cur_status"
         break
 
     fi

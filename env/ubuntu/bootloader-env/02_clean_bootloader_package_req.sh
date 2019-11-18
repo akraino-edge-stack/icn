@@ -14,6 +14,11 @@ if [[ $(lsb_release -d | cut -f2) != $UBUNTU_BIONIC ]]; then
     exit 1
 fi
 
+function autoremove {
+    apt-get autoremove -y
+    rm -rf /etc/apt/sources.list.d/*
+}
+
 function clean_essential_packages {
     apt-get update
     for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
@@ -21,8 +26,7 @@ function clean_essential_packages {
         apt-get remove $package -y
     done
 
-    apt-get autoremove -y
-    rm -rf /etc/apt/sources.list.d/*
+    autoremove
 }
 
 function check_prerequisite {
@@ -40,9 +44,9 @@ function check_prerequisite {
 }
 
 function clean_ironic_packages {
-    for package in jq nodejs python-ironicclient \
-        python-ironic-inspector-client python-lxml python-netaddr \
-        python-openstackclient unzip genisoimage; do
+    for package in python-ironicclient \
+        python-ironic-inspector-client \
+        python-openstackclient genisoimage; do
         apt-get remove $package -y
     done
 }
@@ -127,7 +131,7 @@ if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages
     clean_ironic_packages
-    clean_essential_packages
+    autoremove
     exit 0
 fi
 
