@@ -130,7 +130,7 @@ function clean_dir {
 if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages
-    clean_ironic_packages
+    #clean_ironic_packages
     autoremove
     exit 0
 fi
