@@ -15,7 +15,7 @@ if [[ $(lsb_release -d | cut -f2) != $UBUNTU_BIONIC ]]; then
 fi
 
 function autoremove {
-    apt-get autoremove -y
+    #apt-get autoremove -y
     rm -rf /etc/apt/sources.list.d/*
 }
 
@@ -59,10 +59,10 @@ function clean_docker_packages {
         stable"
     apt-get update
     apt-get remove docker-ce -y
-    for package in apt-transport-https ca-certificates gnupg-agent \
-            software-properties-common; do
-        apt-get remove $package -y
-    done
+    #for package in apt-transport-https ca-certificates gnupg-agent \
+    #        software-properties-common; do
+    #    apt-get remove $package -y
+    #done
 
     apt-get remove -y docker \
         docker-engine \
@@ -130,7 +130,7 @@ function clean_dir {
 if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages
-    clean_ironic_packages
+    #clean_ironic_packages
     autoremove
     exit 0
 fi
