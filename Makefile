@@ -120,7 +120,8 @@ prerequisite:
 bm_verifer: package_prerequisite \
         kud_bm_deploy_mini \
         bmh_all \
-	bpa_op_bmh_verifier
+	bpa_op_bmh_verifier \
+	make clean_all
 
 verify_all: prerequisite \
 	metal3_prerequisite \
