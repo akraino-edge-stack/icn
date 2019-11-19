@@ -38,6 +38,13 @@ else
 fi
 
 
+#Print logs of Job Pod
+jobPod=$(kubectl get pods|grep kud-test-bmh-cluster)
+podName=$(echo $jobPod | cut -d " " -f 1)
+printf "\nNow Printing Job pod logs\n"
+kubectl logs $podName
+
+#Tear down setup
 printf "\n\nBeginning BMH E2E Test Teardown\n\n"
 kubectl delete -f e2etest/test_bmh_provisioning_cr.yaml
 kubectl delete job kud-test-bmh-cluster
