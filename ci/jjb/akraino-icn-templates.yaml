@@ -58,6 +58,18 @@
           - shell/vagrant-verify.sh
 
     publishers:
+      - postbuildscript:
+          builders:
+            - role: BOTH
+              build-on:
+                - ABORTED
+                - FAILURE
+                - NOT_BUILT
+                - SUCCESS
+                - UNSTABLE
+              build-steps:
+                # all files should be owned by jenkins, for cleanup
+                - shell: 'sudo chown jenkins -R .'
       - icn-infra-publish
 #      - email:
 #          recipients: icn.jenkins@intel.com
@@ -121,6 +133,18 @@
           - shell/bm-verify.sh
 
     publishers:
+      - postbuildscript:
+          builders:
+            - role: BOTH
+              build-on:
+                - ABORTED
+                - FAILURE
+                - NOT_BUILT
+                - SUCCESS
+                - UNSTABLE
+              build-steps:
+                # all files should be owned by jenkins, for cleanup
+                - shell: 'sudo chown jenkins -R .'
       - icn-infra-publish
 #      - email:
 #          recipients: icn.jenkins@intel.com

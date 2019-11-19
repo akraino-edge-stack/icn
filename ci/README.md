@@ -55,3 +55,6 @@ user=admin
 password=admin
 url=http://localhost:8080
 ```
+
+4. There is [a bug](https://issues.jenkins-ci.org/browse/JENKINS-28466) of jenkins
+which makes some environemtn variables not usable. To fix the bug, we need 'Manage Jenkins' > 'Configure System' > 'click save without any changes'.
