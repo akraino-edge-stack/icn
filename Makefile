@@ -76,6 +76,9 @@ sdwan_verifier:
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
 
+bpa_op_install_bmh_e2e:
+	pushd $(BPA_OPERATOR) && make docker_bmh_e2e && make deploy && popd
+
 bpa_op_delete:
 	pushd $(BPA_OPERATOR) && make delete && popd
 
@@ -90,7 +93,7 @@ bpa_op_unit:
 
 bpa_op_vm_verifier: bpa_op_install bpa_op_e2e_vm
 
-bpa_op_bmh_verifier: bpa_op_install bpa_op_e2e_bmh
+bpa_op_bmh_verifier: bpa_op_install_bmh_e2e bpa_op_e2e_bmh
 
 bpa_op_all: bm_all bpa_op_install
 
