@@ -112,7 +112,7 @@ unit: prerequisite \
 	bpa_rest_api_unit
 
 bashate:
-	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name *.sh`
+	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name "*.sh"`
 
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd

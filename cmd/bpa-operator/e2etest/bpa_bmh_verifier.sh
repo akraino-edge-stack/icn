@@ -1,6 +1,6 @@
 #!/bin/bash
 
-kubectl create -f e2etest/test_bmh_provisioning_cr.yaml 
+kubectl create -f e2etest/test_bmh_provisioning_cr.yaml
 sleep 5
 
 #Check Status of kud job pod
