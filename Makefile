@@ -139,5 +139,9 @@ verify_nestedk8s: prerequisite \
 	kud_bm_deploy \
 	sdwan_verifier
 
+bm_verify_nestedk8s: prerequisite \
+       kud_bm_deploy \
+       sdwan_verifier
+
 .PHONY: all bm_preinstall bm_install bashate
 
