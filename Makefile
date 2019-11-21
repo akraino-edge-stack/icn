@@ -124,6 +124,7 @@ bm_verifer: package_prerequisite \
         kud_bm_deploy_mini \
         bmh_all \
 	bpa_op_bmh_verifier \
+	bpa_rest_api_verifier \
 	clean_all
 
 verify_all: prerequisite \
