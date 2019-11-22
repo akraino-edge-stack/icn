@@ -87,7 +87,31 @@ function kud_install {
         sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
     fi
     ./installer.sh | tee kud_deploy.log
+
+    if [ "$1" == "bm" ]; then
+        pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
+            sleep 15
+            bash sriov.sh
+        popd
+    fi
     popd
+}
+
+function clean_all {
+    apt-get remove -y openvswitch-switch openvswitch-common ovn-central \
+        ovn-common ovn-host
+    rm -rf /var/run/openvswitch
+    rm -rf /var/lib/openvswitch
+    rm -rf /var/log/openvswitch
+    apt-get purge -y libvirt*
+    rm -rf /var/lib/libvirt
+    rm -rf /etc/libvirt
+    rm -rf /var/lib/virtlet
+    rm -rf /var/run/libvirt
+    rm -rf virtlet.sock
+    rm -rf virtlet-diag.sock
+    rm -rf criproxy.sock
+    rm -rf /etc/apt/sources.list.d/*
 }
 
 function kud_reset {
@@ -110,6 +134,7 @@ function verifier {
 
 if [ "$1" == "reset" ] ; then
     kud_reset
+    clean_all
     exit 0
 fi
 

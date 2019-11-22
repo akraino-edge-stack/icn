@@ -61,6 +61,9 @@ kud_bm_deploy_mini:
 kud_bm_deploy:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh all && popd
 
+kud_bm_deploy_e2e:
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm && popd
+
 kud_bm_reset:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
 
@@ -141,8 +144,9 @@ verify_nestedk8s: prerequisite \
 	sdwan_verifier
 
 bm_verify_nestedk8s: prerequisite \
-       kud_bm_deploy \
-       sdwan_verifier
+        kud_bm_deploy_e2e \
+        sdwan_verifier \
+        kud_bm_reset
 
 .PHONY: all bm_preinstall bm_install bashate
 
