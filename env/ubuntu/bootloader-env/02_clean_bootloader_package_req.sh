@@ -90,6 +90,22 @@ EOF'
     apt-get remove kubelet kubeadm kubectl -y
 }
 
+function clean_all {
+    apt-get remove -y openvswitch-switch openvswitch-common ovn-central \
+        ovn-common ovn-host
+    rm -rf /var/run/openvswitch
+    rm -rf /var/lib/openvswitch
+    rm -rf /var/log/openvswitch
+    apt-get purge -y libvirt*
+    rm -rf /var/lib/libvirt
+    rm -rf /etc/libvirt
+    rm -rf /var/lib/virtlet
+    rm -rf /var/run/libvirt
+    rm -rf virtlet.sock
+    rm -rf virtlet-diag.sock
+    rm -rf criproxy.sock
+}
+
 function clean_apt_cache {
     shopt -s extglob
     pushd /var/cache/apt/archives
@@ -131,6 +147,12 @@ if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages
     #clean_ironic_packages
+    autoremove
+    exit 0
+fi
+
+if [ "$1" == "--bm-cleanall" ]; then
+    clean_all
     autoremove
     exit 0
 fi
