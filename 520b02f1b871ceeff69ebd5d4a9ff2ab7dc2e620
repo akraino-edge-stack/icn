@@ -25,6 +25,53 @@
     },
     {
       "key": {
+        "uuid": "c61ec2c8_8eb4a2c6",
+        "filename": "Makefile",
+        "patchSetId": 29
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-22T21:06:41Z",
+      "side": 1,
+      "message": "kud_vm_deploy:\n\tpushd $(KUD_PATH) \u0026\u0026 ./kud_bm_launch.sh vm \u0026\u0026 popd",
+      "parentUuid": "7ef19abb_85259bc9",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 52
+      },
+      "revId": "520b02f1b871ceeff69ebd5d4a9ff2ab7dc2e620",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "088429dc_33377bd9",
+        "filename": "Makefile",
+        "patchSetId": 29
+      },
+      "lineNbr": 144,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-22T21:06:41Z",
+      "side": 1,
+      "message": "kud_vm_deploy",
+      "range": {
+        "startLine": 144,
+        "startChar": 1,
+        "endLine": 144,
+        "endChar": 14
+      },
+      "revId": "520b02f1b871ceeff69ebd5d4a9ff2ab7dc2e620",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "486dd665_62e273d8",
         "filename": "deploy/kud/kud_bm_launch.sh",
         "patchSetId": 29
