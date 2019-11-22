@@ -87,6 +87,13 @@ function kud_install {
         sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
     fi
     ./installer.sh | tee kud_deploy.log
+
+    if [ "$1" == "bm" ]; then
+        pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
+            sleep 15
+            bash sriov.sh
+        popd
+    fi
     popd
 }
 

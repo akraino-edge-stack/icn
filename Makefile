@@ -43,6 +43,10 @@ clean_packages:
 	pushd $(BOOTLOADER_ENV) && \
 	./02_clean_bootloader_package_req.sh --only-packages && popd
 
+clean_bm_packages:
+	pushd $(BOOTLOADER_ENV) && \
+        ./02_clean_bootloader_package_req.sh --bm-cleanall && popd
+
 bmh_install:
 	source user_config.sh && env && \
 	pushd $(METAL3DIR) && ./01_metal3.sh launch && \
@@ -60,6 +64,9 @@ kud_bm_deploy_mini:
 
 kud_bm_deploy:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh all && popd
+
+kud_bm_deploy_e2e:
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm && popd
 
 kud_bm_reset:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
@@ -141,8 +148,10 @@ verify_nestedk8s: prerequisite \
 	sdwan_verifier
 
 bm_verify_nestedk8s: prerequisite \
-       kud_bm_deploy \
-       sdwan_verifier
+        kud_bm_deploy_e2e \
+        sdwan_verifier \
+        kud_bm_reset \
+	clean_bm_packages
 
 .PHONY: all bm_preinstall bm_install bashate
 
