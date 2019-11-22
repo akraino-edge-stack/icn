@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ef19abb_85259bc9",
+        "filename": "Makefile",
+        "patchSetId": 29
+      },
+      "lineNbr": 62,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-22T20:32:34Z",
+      "side": 1,
+      "message": "kud_bm_deploy:\n\tpushd $(KUD_PATH) \u0026\u0026 ./kud_bm_launch.sh vm \u0026\u0026 popd",
+      "range": {
+        "startLine": 61,
+        "startChar": 0,
+        "endLine": 62,
+        "endChar": 52
+      },
+      "revId": "520b02f1b871ceeff69ebd5d4a9ff2ab7dc2e620",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "486dd665_62e273d8",
+        "filename": "deploy/kud/kud_bm_launch.sh",
+        "patchSetId": 29
+      },
+      "lineNbr": 86,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-22T20:32:34Z",
+      "side": 1,
+      "message": "\"$1\" \u003d\u003d \"all\" || \"$1\" \u003d\u003d \"vm\"",
+      "range": {
+        "startLine": 86,
+        "startChar": 9,
+        "endLine": 86,
+        "endChar": 22
+      },
+      "revId": "520b02f1b871ceeff69ebd5d4a9ff2ab7dc2e620",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ac78841d_194c560f",
+        "filename": "deploy/kud/kud_bm_launch.sh",
+        "patchSetId": 29
+      },
+      "lineNbr": 88,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2019-11-22T20:32:34Z",
+      "side": 1,
+      "message": "Remove the line 88 and add them in a new if statement\nif [ \"$1\" \u003d\u003d \"vm\" ]; then\n        sed -i -e \u0027s/^kube_pods_subnet.*/kube_pods_subnet: 172.21.64.0\\/18/g\u0027 inventory/group_vars/k8s-cluster.yml\n\t\tfi",
+      "range": {
+        "startLine": 88,
+        "startChar": 8,
+        "endLine": 88,
+        "endChar": 114
+      },
+      "revId": "520b02f1b871ceeff69ebd5d4a9ff2ab7dc2e620",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
