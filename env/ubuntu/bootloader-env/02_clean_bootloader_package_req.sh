@@ -91,7 +91,6 @@ function clean_all {
     rm -rf /var/run/openvswitch
     rm -rf /var/lib/openvswitch
     rm -rf /var/log/openvswitch
-    apt-get purge -y libvirt*
     rm -rf /var/lib/libvirt
     rm -rf /etc/libvirt
     rm -rf /var/lib/virtlet
@@ -99,6 +98,13 @@ function clean_all {
     rm -rf virtlet.sock
     rm -rf virtlet-diag.sock
     rm -rf criproxy.sock
+    systemctl stop dockershim
+    systemctl stop criproxy
+    systemctl disable kubelet
+    systemctl disable dockershim
+    systemctl disable criproxy
+    ip link delete virbr0-nic
+    ip link delete virbr0
 }
 
 function clean_apt_cache {

@@ -154,7 +154,9 @@ verifier: verify_all
 verify_nestedk8s: prerequisite \
 	kud_vm_deploy \
 	sdwan_verifier \
-	bpa_op_virtletvm_verifier
+	bpa_op_virtletvm_verifier \
+	kud_bm_reset \
+	clean_bm_packages
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
