@@ -80,24 +80,40 @@ function install_ironic_container {
     # set password for mariadb
     mariadb_password=$(echo $(date;hostname)|sha256sum |cut -c-20)
 
+    # Start image downloader container
+    docker run -d --net host --privileged --name ipa-downloader \
+        --env-file "${PWD}/ironic.env" \
+        -v "$IRONIC_DATA_DIR:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
+
+    docker wait ipa-downloader
+
     # Start dnsmasq, http, mariadb, and ironic containers using same image
+    # See this file for env vars you can set, like IP, DHCP_RANGE, INTERFACE
     docker run -d --net host --privileged --name dnsmasq \
-        -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/rundnsmasq ${IRONIC_IMAGE}
+        --env-file "${PWD}/ironic.env" \
+        -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/rundnsmasq "${IRONIC_IMAGE}"
 
+    # For available env vars, see:
     docker run -d --net host --privileged --name httpd \
-        -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/runhttpd ${IRONIC_IMAGE}
+        --env-file "${PWD}/ironic.env" \
+        -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/runhttpd "${IRONIC_IMAGE}"
 
+    # https://github.com/metal3-io/ironic/blob/master/runmariadb.sh
     docker run -d --net host --privileged --name mariadb \
-        -v $IRONIC_DATA_DIR:/shared --entrypoint /bin/runmariadb \
-        --env MARIADB_PASSWORD=$mariadb_password ${IRONIC_IMAGE}
+        --env-file "${PWD}/ironic.env" \
+        -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/runmariadb \
+        --env "MARIADB_PASSWORD=$mariadb_password" "${IRONIC_IMAGE}"
 
+    # See this file for additional env vars you may want to pass, like IP and INTERFACE
     docker run -d --net host --privileged --name ironic \
-        --env MARIADB_PASSWORD=$mariadb_password \
-        -v $IRONIC_DATA_DIR:/shared ${IRONIC_IMAGE}
+        --env-file "${PWD}/ironic.env" \
+        --env "MARIADB_PASSWORD=$mariadb_password" \
+        -v "$IRONIC_DATA_DIR:/shared" "${IRONIC_IMAGE}"
 
     # Start Ironic Inspector
     docker run -d --net host --privileged --name ironic-inspector \
-        "${IRONIC_INSPECTOR_IMAGE}"
+        --env-file "${PWD}/ironic.env" \
+        -v "$IRONIC_DATA_DIR:/shared" "${IRONIC_INSPECTOR_IMAGE}"
 }
 
 function remove_k8s_noschedule_taint {
@@ -131,6 +147,19 @@ function install_dhcp {
     kubectl create -f $PWD/04_dhcp.yaml
 }
 
+function create_ironic_env {
+    cat <<EOF > ${PWD}/ironic.env
+PROVISIONING_INTERFACE=provisioning
+DHCP_RANGE=172.22.0.10,172.22.0.100
+DEPLOY_KERNEL_URL=http://172.22.0.1/images/ironic-python-agent.kernel
+DEPLOY_RAMDISK_URL=http://172.22.0.1/images/ironic-python-agent.initramfs
+IRONIC_ENDPOINT=http://172.22.0.1:6385/v1/
+IRONIC_INSPECTOR_ENDPOINT=http://172.22.0.1:5050/v1/
+CACHEURL=http://172.22.0.1/images
+IRONIC_FAST_TRACK=false
+EOF
+}
+
 function install {
     #Kubeadm usage is deprecated in v1,0,0 version
     #install_kubernetes
@@ -142,6 +171,7 @@ function install {
 
     #install_podman
     #Todo - error handling mechanism
+    create_ironic_env
     install_ironic_container
     install_dhcp
 }

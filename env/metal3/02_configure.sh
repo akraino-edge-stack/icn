@@ -131,18 +131,20 @@ function configure_ironic {
 	return
     fi
 
-    #Podman usage is deprecated for v1.0.0 release
-    #podman pull $IRONIC_IMAGE
+    for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
+        sudo docker ps | \
+            grep -w "$name$" && sudo docker kill "$name"
+        sudo docker ps --all | \
+            grep -w "$name$" && sudo docker rm "$name" -f
+    done
+    rm -rf "$IRONIC_DATA_DIR"
+
     docker pull $IRONIC_IMAGE
-    #podman pull $IRONIC_INSPECTOR_IMAGE
     docker pull $IRONIC_INSPECTOR_IMAGE
+    docker pull $IPA_DOWNLOADER_IMAGE
 
     mkdir -p "$IRONIC_DATA_DIR/html/images"
     pushd $IRONIC_DATA_DIR/html/images
-
-    if [ ! -f ironic-python-agent.initramfs ]; then
-	curl --insecure --compressed -L https://images.rdoproject.org/master/rdo_trunk/current-tripleo-rdo/ironic-python-agent.tar | tar -xf -
-    fi
 
     if [[ "$BM_IMAGE_URL" && "$BM_IMAGE" ]]; then
     	curl -o ${BM_IMAGE} --insecure --compressed -O -L ${BM_IMAGE_URL}

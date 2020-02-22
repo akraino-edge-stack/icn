@@ -29,6 +29,7 @@ PROVIDER_NETWORK_DNS=${PROVIDER_NETWORK_DNS:-}
 IRONIC_IMAGE=${IRONIC_IMAGE:-"quay.io/metal3-io/ironic:master"}
 IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"quay.io/metal3-io/ironic-inspector"}
 IRONIC_BAREMETAL_IMAGE=${IRONIC_BAREMETAL_IMAGE:-"quay.io/metal3-io/baremetal-operator:master"}
+IPA_DOWNLOADER_IMAGE=${IPA_DOWNLOADER_IMAGE:-"quay.io/metal3-io/ironic-ipa-downloader:master"}
 IRONIC_BAREMETAL_SOCAT_IMAGE=${IRONIC_BAREMETAL_SOCAT_IMAGE:-"alpine/socat:latest"}
 
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
