@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Create apt.conf if it doesn't exit
+  file:
+    path: /etc/apt/apt.conf
+    state: touch
+
+- name: Add proxy to /etc/apt/apt.conf
+  lineinfile:
+    path: /etc/apt/apt.conf
+    line: Acquire::http::Proxy "{{ proxy_apt_url }}";
+  when: proxy_apt_url|bool

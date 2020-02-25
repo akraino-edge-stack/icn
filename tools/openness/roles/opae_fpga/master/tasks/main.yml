@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Build RSU kubectl plugin
+  shell: source /etc/profile && go build -o kubectl-rsu
+  args:
+    chdir: "{{ git_repo_dest }}/fpga/kube-rsu/"
+
+- name: Install RSU kubectl plugin
+  shell: mv kubectl-rsu "{{ rsu_plugin_dest }}"
+  args:
+    chdir: "{{ git_repo_dest }}/fpga/kube-rsu/"

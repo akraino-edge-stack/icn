@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+docker_version: "19.03.2"
+#docker_ce: "docker-ce={{ docker_version }}"
+#docker_ce_cli: "docker-ce-cli={{ docker_version }}"
+docker_ce: "docker-ce"
+docker_ce_cli: "docker-ce-cli"
+containerd: "containerd.io"
+
+docker_compose_version: "1.24.1"
+docker_compose_package: "docker-compose=={{ docker_compose_version }}"
+
+docker_gpg_key: "https://download.docker.com/linux/ubuntu/gpg"
+docker_repository_url: "deb [arch=amd64] https://download.docker.com/linux/ubuntu"
+
+docker_packages_to_remove: "docker,docker-client,docker-client-latest,docker-common,docker-latest,docker-latest-logrotate,docker-logrotate,docker-engine,docker-ce,docker-ce-cli,containerd.io"
+
+docker_audit_files:
+- "/usr/bin/docker"
+- "/var/lib/docker"
+- "/etc/docker"
+- "/usr/lib/systemd/system/docker.service"
+- "/usr/lib/systemd/system/docker.socket"
+- "/etc/default/docker"
+- "/etc/docker/daemon.json"
+- "/usr/bin/docker-containerd"
+- "/usr/bin/docker-runc"

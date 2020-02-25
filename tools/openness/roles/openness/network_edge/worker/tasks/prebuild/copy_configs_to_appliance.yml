@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: create config directory
+  file:
+    path: "{{ configs_dest }}"
+    state: directory
+
+- name: copy configs
+  copy:
+    src: "{{ git_repo_dest }}/configs/{{ item }}"
+    dest: "{{ configs_dest }}/"
+    directory_mode: yes
+    remote_src: yes
+  with_items:
+  - appliance.json
+  - eaa.json
+  - interfaceservice.json
+
+- name: customize eaa.json
+  block:
+  - name: change validation endpoint for EAA
+    shell: jq '.ValidationEndpoint=""' '{{ configs_dest }}/eaa.json' | sponge '{{ configs_dest }}/eaa.json'
+  - name: change EAA common name
+    shell: jq '.Certs.CommonName="eaa.openness"' '{{ configs_dest }}/eaa.json' | sponge '{{ configs_dest }}/eaa.json'
+
+- name: copy logrotate config
+  copy:
+    src: logrotate_edgenode
+    dest: /etc/logrotate.d/edgenode
+    remote_src: no
+
+

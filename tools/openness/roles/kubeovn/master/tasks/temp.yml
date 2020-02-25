@@ -1,0 +1,53 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+#- name: check if packages installed in proper version
+#  shell: dpkg -s openvswitch ovn ovn-common | grep {{ ovn_version }} | wc -l
+#  args:
+#    warn: false
+#  register: dpkg_grep
+
+# name: (re)install openvswitch tools if needed
+#block:
+          #- name: remove old packages
+          #apt:
+          #name: "{{ ovn_packages_to_remove }}"
+          #state: absent
+- name: install OVN tools dependencies
+  apt:
+    name: "{{ ovn_packages_apt }}"
+    update_cache: yes
+
+- name: install openvswitch and OVN tools
+  apt:
+    pkg:
+    - "{{ openvswitch }}"
+    - "{{ ovn-common }}"
+    - "{{ ovn-central }}"
+    - "{{ ovn-host }}"
+    update_cache: yes
+
+        #- name: open kube-ovn firewall rules
+        #ignore_errors: yes
+        #firewalld:
+        #port: "{{ item }}"
+        #permanent: yes
+        #state: enabled
+        #immediate: yes
+        #with_items:
+        #- 6641/tcp
+        #- 6642/tcp
+        #- 6081/udp
+
+- name: apply kube-ovn
+  command: "kubectl apply -f {{ item }}"
+  with_items: "{{ kubeovn_yamls }}"
+
+- name: Wait till k8s master starts
+  shell: kubectl get nodes {{ ansible_hostname }} | awk '$2=="Ready"'
+  register: k8s_master_init_start
+  retries: 30
+  delay: 10
+  until: k8s_master_init_start.rc == 0
