@@ -1,0 +1,38 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: remove binaries
+  file:
+    path: "{{ dpdk_install_dir }}"
+    state: absent
+
+- name: remove download folder
+  file:
+    path: "{{ dpdk_download_dest }}"
+    state: absent
+
+- name: remove ansible fact file
+  file:
+    path: /etc/ansible/facts.d/dpdk.fact
+    state: absent
+
+- name: unload modules
+  modprobe:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+  - "igb_uio"
+  - "rte_kni"
+  - "uio"
+
+- name: remove dpdk kernel modules file
+  file:
+    path: /etc/modules-load.d/dpdk.conf
+    state: absent
+
+- name: remove dpdk kni kernel modules file
+  file:
+    path: /etc/modprobe.d/dpdk0kni.conf
+    state: absent

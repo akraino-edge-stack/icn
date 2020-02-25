@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: create temp dir
+  tempfile:
+    state: directory
+    suffix: -cmk
+  register: tmp_dir
+
+- name: download CMK yamls
+  get_url:
+    url: "{{ cmk_base_url }}/{{ item }}"
+    dest: "{{ tmp_dir.path }}"
+  with_items: "{{ cmk_yamls }}"
+
+- name: create kustomization.yml
+  copy:
+    src: kustomization.yml
+    dest: "{{ tmp_dir.path }}/kustomization.yml"
+
+- name: create rewrite_args.yml
+  template:
+    src: rewrite_args.yml.j2
+    dest: "{{ tmp_dir.path }}/rewrite_args.yml"
+
+- name: setup CMK
+  shell: kubectl kustomize . | kubectl apply -f -
+  args:
+    chdir: "{{ tmp_dir.path }}"
+
+- name: remove temp directory
+  file:
+    path: "{{ tmp_dir.path }}"
+    state: absent
+  when: tmp_dir.path is defined

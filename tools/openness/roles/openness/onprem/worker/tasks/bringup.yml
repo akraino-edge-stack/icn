@@ -1,0 +1,94 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- include_tasks: subtasks/download_root_ca_from_controller.yml
+
+# Stop and stop selected containers
+- name: remove syslog container
+  docker_container:
+    name: "{{ docker_syslog_container_name }}"
+    state: absent
+
+- name: remove appliance container
+  docker_container:
+    name: "{{ docker_appliance_container_name }}"
+    state: absent
+
+- name: remove eaa container
+  docker_container:
+    name: "{{ docker_eaa_container_name }}"
+    state: absent
+
+- name: remove edgednssvr container
+  docker_container:
+    name: "{{ docker_edgednssvr_container_name }}"
+    state: absent
+
+- name: remove nts container
+  docker_container:
+    name: "{{ docker_nts_container_name }}"
+    state: absent
+
+# Bring up containers
+- name: up syslog container
+  shell: "REMOTE_SYSLOG_IP={{ remote_syslog_ip }} VER={{ docker_containers_ver }} docker-compose up -d --no-build syslog-ng"
+  args:
+    chdir: "{{ git_repo_dest }}"
+
+- name: up edgednssvr container
+  shell: "LOCAL_SYSLOG_IP=192.168.122.1 VER={{ docker_containers_ver }} docker-compose up --no-start --no-build edgednssvr"
+  args:
+    chdir: "{{ git_repo_dest }}"
+
+- name: set OVS-disabled default values
+  set_fact:
+    ovs_enabled: false
+    ovs_bridge_name: ""
+  when: ovs_version is not defined
+
+- name: set OVS-enabled default values
+  set_fact:
+    ovs_enabled: true
+  when: ovs_version is defined
+
+- name: up nts container
+  shell: "VER={{ docker_containers_ver }} OVSE={{ ovs_enabled }} OVS_BRIDGE_NAME={{ ovs_bridge_name }} NTS_MEM_MB_S0={{ docker_nts_mem_mb_s0 }} NTS_MEM_MB_S1={{ docker_nts_mem_mb_s1 }} docker-compose up --no-start --no-build nts"
+  args:
+    chdir: "{{ git_repo_dest }}"
+
+- name: up EAA container
+  shell: "VER={{ docker_containers_ver }} docker-compose up -d --no-build eaa"
+  args:
+    chdir: "{{ git_repo_dest }}"
+
+- name: up appliance container
+  shell: "VER={{ docker_containers_ver }} docker-compose up -d --no-build appliance"
+  args:
+    chdir: "{{ git_repo_dest }}"
+
+# Certificates and keys exchange
+- name: Wait for default key file
+  shell: while true; do [ -s /var/lib/appliance/certs/key.pem ] && break; done
+
+- name: Generate key for controller
+  shell: openssl pkey -pubout -in /var/lib/appliance/certs/key.pem -inform pem -outform der | md5sum | xxd -r -p | openssl enc -a | tr -d '=' | tr '/+' '_-'
+  register: key_msg
+
+- set_fact: verification_key="{{ key_msg.stdout }}"
+
+- debug:
+    msg: "THIS IS YOUR VERIFICATION KEY: {{ verification_key }}"
+
+- name: store verification key in folder repository folder
+  copy:
+    content: "{{ verification_key }}"
+    dest: "{{ git_repo_dest }}/verification_key.txt"
+
+# Restart containers
+- name: restart syslog_ng container
+  docker_container:
+    name: "{{ docker_syslog_container_name }}"
+    state: started
+    restart: yes

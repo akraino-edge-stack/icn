@@ -1,0 +1,23 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: "[k8s master] drain the node"
+  command: kubectl drain {{ k8s_worker_node_name }} --ignore-daemonsets --timeout=60s
+  delegate_to: "{{ groups['controller_group'][0] }}"
+  ignore_errors: yes
+
+- name: "[k8s master] delete the node"
+  command: kubectl delete node {{ k8s_worker_node_name }}
+  delegate_to: "{{ groups['controller_group'][0] }}"
+  ignore_errors: yes
+
+- name: check if kubeadm is installed
+  shell: command -v kubeadm >/dev/null 2>&1
+  register: kubeadm_exec
+  ignore_errors: yes
+
+- name: reset kubeadm
+  command: kubeadm reset --force
+  when: kubeadm_exec.rc == 0

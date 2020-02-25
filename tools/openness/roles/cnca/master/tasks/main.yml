@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Build kube-cnca plugin
+  shell: source /etc/profile && go build -o "{{ cnca_plugin_name }}"
+  args:
+    chdir: "{{ git_repo_dest }}/cnca/"
+
+- name: Install kube-cnca plugin
+  shell: mv "{{ cnca_plugin_name }}" "{{ cnca_plugin_dest }}"
+  args:
+    chdir: "{{ git_repo_dest }}/cnca/"

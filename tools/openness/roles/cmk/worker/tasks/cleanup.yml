@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: remove CPU Manager download dir
+  file:
+    path: "{{ cmk_download_dir }}"
+    state: absent

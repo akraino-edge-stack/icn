@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: copy files to /var/lib/appliance
+  copy:
+    src: "{{ git_repo_dest }}/configs"
+    dest: /var/lib/appliance/
+    directory_mode: yes
+    remote_src: yes
+
+- name: copy nts.cfg file
+  copy:
+    src: "{{ git_repo_dest }}/internal/nts/nts.cfg"
+    dest: /var/lib/appliance/nts/nts.cfg
+    remote_src: yes
+

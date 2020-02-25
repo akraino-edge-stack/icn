@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- include_tasks: subtasks/remove_containers.yml
+
+- name: Reseting ela confing
+  shell: jq '.PCIBlacklist =  []'  {{ git_repo_dest }}/configs/ela.json | sponge {{ git_repo_dest }}/configs/ela.json
+
+- include_tasks: subtasks/remove_additional_folder_structure.yml
+- include_tasks: subtasks/remove_certificates_and_keys.yml
+- include_tasks: subtasks/create_custom_docker_daemon_config_file.yml

@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: remove temporary gitconfig
+  file:
+    path: /root/.openness_gitconfig
+    state: absent
+
+- name: remove include in gitconfig
+  blockinfile:
+    path: /root/.gitconfig
+    state: absent
+    block: |
+      [include]
+        path = /root/.openness_gitconfig
