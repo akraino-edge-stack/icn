@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+kubernetes_env_file: "/etc/default/kubelet"
+kubernetes_config_file: "/usr/lib/systemd/system/kubelet.service.d/kubelet_config.yml"
+
+cpu:
+  policy: "static" # Options: none (disabled), static (default)
+  reserved_cpus: 1
+
+topology_manager:
+  policy: "best-effort" # Options: none (disabled), best-effort (default), restricted, single-numa-node

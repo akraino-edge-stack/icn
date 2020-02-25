@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: install ovs if needed
+  block:
+  - name: installing OVS tool dependencies
+    apt:
+      name: "{{ ovs_dependencies_apt }}"
+      update_cache: yes
+  - name: installing OVS tool
+    apt:
+      name: openvswitch-switch
+      update_cache: yes
+
+- name: Open ufw ports
+  ignore_errors: yes
+  ufw:
+    state: enabled
+    policy: allow
+      #- 10250/tcp
+      #- 30000-32767/tcp
+      #- 8285/udp
+      #- 8472/udp
+
+- name: waiting for OVS DB on the node
+  wait_for:
+    path: /var/run/openvswitch/db.sock
+    timeout: 2000
+
+- name: configure OVS
+  shell: |
+    ovs-vsctl set open . external-ids:ovn-bridge-mappings=local-network:br-local
+    ovs-vsctl --may-exist add-br br-local
+  register: result
+  until: not result.failed
+  retries: 20
+  delay: 60

@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+ovn_version: "2.11.4-1"
+
+ovs_dependencies_apt: "unbound"
+ovs_packages_to_remove: "openvswitch,unbound"
+
+kubeovn_cleanup_paths:
+- /var/run/openvswitch
+- /etc/origin/openvswitch/
+- /etc/openvswitch
+- /etc/cni/net.d/00-kube-ovn.conflist

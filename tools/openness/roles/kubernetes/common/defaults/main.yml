@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+kubernetes_version: "1.16.2-00"
+
+kubernetes_packages: "kubelet-{{ kubernetes_version }},kubeadm-{{ kubernetes_version }},kubectl-{{ kubernetes_version }}"
+kubelet: "kubelet={{ kubernetes_version }}"
+kubeadm: "kubeadm={{ kubernetes_version }}"
+kubectl: "kubectl={{ kubernetes_version }}"
+
+kubernetes_deb: "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+kubernetes_repository_key: "https://packages.cloud.google.com/apt/doc/apt-key.gpg"
+
+kubernetes_packages_to_remove: "kubelet,kubeadm,kubectl"

@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: update apt packages
+  apt:
+    update_cache: yes
+
+- name: install required package
+  apt:
+    pkg:
+    - apt-transport-https
+    - ca-certificates
+    - curl
+    - gnupg-agent
+    - software-properties-common
+
+- name: add docker offical gpg key
+  apt_key:
+    url: "{{docker_gpg_key}}"
+    state: present
+
+- name: get lsb_release
+  shell: echo $(lsb_release -cs)
+  register: lsb_output
+
+- name: add Docker repository
+  apt_repository:
+    repo: "{{ docker_repository_url }} {{ lsb_output.stdout }} stable"
+    state: present
+
+- name: install Docker CE
+  apt:
+    pkg:
+    - "{{docker_ce}}"
+    - "{{docker_ce_cli}}"
+    - "{{containerd}}"
+    update_cache: yes
+  notify:
+  - enable and start docker service
+
+- name: set up proxy
+  include_tasks: proxy.yml
+  when: proxy_os_enable
+
+- name: install docker-compose
+  pip:
+    name: "{{ docker_compose_package }}"
+    state: present
+  when: not offline_mode
+
+- name: offline | install docker-compose
+  pip:
+    name: "{{ docker_compose_package }}"
+    state: present
+    extra_args: "--no-index --find-links {{ offline_pip_path }}"
+  when: offline_mode
+
+  #- name: set cgroups driver to systemd
+  #block:
+  #- name: make sure /etc/docker/ exists
+  #  file:
+  #    path: /etc/docker/
+  #    state: directory
+  #- name: set cgroups driver to systemd
+  #  copy:
+  #    src: daemon.json
+  #    dest: /etc/docker/daemon.json
+  #  notify:
+  #  - enable and start docker service
+
+- name: restart services if needed
+  meta: flush_handlers
+
+- name: install auditd
+  apt:
+    pkg:
+    - auditd
+    - audispd-plugins
+
+- name:  Find docker audit files
+  stat:
+    path: "{{ item }}"
+  with_items: " {{ docker_audit_files }} "
+  register: stats
+
+- name: Add audit rules for docker
+  lineinfile:
+    path: /etc/audit/rules.d/docker.rules
+    line: "-w {{ item.item }} -k docker"
+    create: yes
+  when: item.stat.exists
+  with_items: "{{ stats.results }}"
+
+- name: Restart auditd
+  shell: service auditd restart

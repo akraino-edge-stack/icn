@@ -1,0 +1,137 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: offline | copy DPDK archive for offline
+  copy:
+    src: "{{ offline_archives_path }}/{{ dpdk_name }}.tar.xz"
+    dest: "{{ dpdk_download_dest }}"
+    remote_src: yes
+  when: offline_mode
+
+- name: get current kernel
+  shell: uname -r
+  register: unamer
+
+- name: install kernel-devel for non-RT environment
+  block:
+  - set_fact:
+      kernel_devel_to_install: "{{ non_rt_kernel_devel_download_url }}"
+  - set_fact:
+      kernel_devel_to_install: "kernel-devel-uname-r == {{ unamer.stdout }}"
+    when: '"3.10.0-1062" in unamer.stdout'
+
+  - name: install kernel-devel for non-RT environment
+    yum:
+      name: "{{ kernel_devel_to_install }}"
+      state: present
+      disable_excludes: all
+      allow_downgrade: yes
+  when: os_kernel_rt_package_version is not defined
+
+- name: check if already installed
+  stat:
+    path: "{{ dpdk_install_dir }}"
+  register: dpdk_dest_dir
+
+- name: download
+  get_url:
+    url: "{{ dpdk_download_url }}"
+    dest: "{{ dpdk_download_dest }}"
+    checksum: "md5:{{ dpdk_checksum }}"
+  when: dpdk_dest_dir.stat.exists == False
+
+- name: ensure install dir exists
+  file:
+    path: "{{ dpdk_install_dir }}"
+    state: directory
+
+- name: extract
+  unarchive:
+    src: "{{ dpdk_download_dest }}"
+    dest: "{{ dpdk_install_dir }}"
+    extra_opts: "--strip-components=1"
+    remote_src: yes
+    creates: "{{ dpdk_install_dir }}/README"
+
+- name: check if already compiled
+  stat:
+    path: "{{ dpdk_install_dir }}/x86_64-native-linuxapp-gcc/kmod/igb_uio.ko"
+  register: igb_uio_module
+
+- name: remove old dpdk path to compiled DPDK
+  file:
+    path: /etc/ansible/facts.d/dpdk.fact
+    state: absent
+  when: igb_uio_module.stat.exists == False
+
+- name: detect amount of cores
+  shell: nproc
+  register: nproc_out
+
+- name: compile
+  make:
+    chdir: "{{ dpdk_install_dir }}"
+    target: install
+    params:
+      T: x86_64-native-linuxapp-gcc
+  environment:
+    "MAKEFLAGS": "-j{{ nproc_out.stdout|int + 1 }}"
+  when: igb_uio_module.stat.exists == False
+
+- name: create Ansible dpdk facts.d folder
+  file:
+    path: /etc/ansible/facts.d
+    state: directory
+
+- name: save dpdk path to local fact file
+  template:
+    src: dpdk.fact.j2
+    dest: /etc/ansible/facts.d/dpdk.fact
+
+- name: copy kernel modules
+  copy:
+    src: "{{ dpdk_install_dir }}/x86_64-native-linuxapp-gcc/kmod/{{ item }}"
+    dest: "/lib/modules/{{ unamer.stdout }}/kernel/drivers/"
+    remote_src: yes
+  with_items:
+    - "igb_uio.ko"
+    - "rte_kni.ko"
+
+- name: depmod
+  command: depmod -a
+
+- name: copy list of modules to load at boot
+  copy:
+    src: dpdk.conf
+    dest: /etc/modules-load.d/dpdk.conf
+
+- name: copy list of modules to modprobe at boot
+  copy:
+    src: dpdk0kni.conf
+    dest: /etc/modprobe.d/dpdk0kni.conf
+
+- name: unload modules
+  modprobe:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+  - "igb_uio"
+  - "rte_kni"
+  - "uio_pci_generic"
+  - "uio"
+
+- name: load uio and igb_uio modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+  with_items:
+  - "uio"
+  - "igb_uio"
+
+- name: load rte_kni module
+  modprobe:
+    name: "rte_kni"
+    state: present
+    params: 'carrier=on'

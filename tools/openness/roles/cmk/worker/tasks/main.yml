@@ -1,0 +1,16 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: download CPU Manager plugin
+  git:
+    repo: "{{ cmk_url }}"
+    dest: "{{ cmk_download_dir }}"
+    version: "{{ cmk_commit }}"
+    update: no
+
+- name: build CPU Manager image
+  shell: source /etc/profile && make
+  args:
+    chdir: "{{ cmk_download_dir }}"

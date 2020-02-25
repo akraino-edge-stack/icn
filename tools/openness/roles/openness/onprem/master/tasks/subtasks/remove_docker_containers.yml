@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: check Docker service
+  shell: systemctl status docker
+  ignore_errors: true
+  changed_when: false
+  args:
+    warn: false
+  register: docker_service_status
+
+- name: check if repository folder exists
+  command: "stat {{ git_repo_dest }}"
+  ignore_errors: true
+  register: repo_folder_result
+
+- name: remove all Docker containers
+  shell: docker-compose rm --stop -f
+  args:
+    chdir: "{{ git_repo_dest }}"
+  when: 
+    - docker_service_status.rc == 0
+    - repo_folder_result.rc == 0
+

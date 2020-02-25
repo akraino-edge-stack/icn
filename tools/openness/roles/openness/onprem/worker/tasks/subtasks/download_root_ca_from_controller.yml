@@ -1,0 +1,36 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: download rootCA from controller
+  block:
+    - name: extract controller rootCA
+      shell: docker cp edgecontroller_cce_1:/artifacts/certificates/ca/cert.pem /tmp/controller-root-ca.pem
+      delegate_to: "{{ hostvars[groups['controller_group'][0]]['ansible_host'] }}"
+
+    - name: get rootCA content
+      slurp:
+        src: /tmp/controller-root-ca.pem
+      register: controller_rootca
+      delegate_to: "{{ hostvars[groups['controller_group'][0]]['ansible_host'] }}"
+
+    - debug:
+        msg: "{{ controller_rootca['content'] | b64decode }}"
+
+    - name: save rootCA on node
+      copy:
+        content: "{{ controller_rootca['content'] | b64decode }}"
+        dest: /etc/pki/tls/certs/controller-root-ca.pem
+
+    - name: update CA database on node
+      shell: update-ca-trust
+
+  always:
+    - name: remove temporary cert file
+      file:
+        path: /tmp/controller-root-ca.pem
+        state: absent
+      delegate_to: "{{ hostvars[groups['controller_group'][0]]['ansible_host'] }}"
+
+  when: download_root_ca_from_controller|bool
