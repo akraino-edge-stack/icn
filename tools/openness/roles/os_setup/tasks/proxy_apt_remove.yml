@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Remove apt.conf proxy settings
+  lineinfile:
+    dest: /etc/apt/apt.conf
+    regexp: "^Acquire::http::Proxy.*"
+    state: absent
+  when: not proxy_apt_url

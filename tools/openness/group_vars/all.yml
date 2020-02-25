@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+proxy_apt_url: "http://proxy.example.org:3128"
+
+proxy_os_enable: true
+proxy_os_remove_old: true
+proxy_os_http: "http://proxy.example.org:3128"
+proxy_os_https: "http://proxy.example.org:3128"
+proxy_os_ftp: "http://proxy.example.org:3128"
+proxy_os_noproxy: "localhost,127.0.0.1,10.244.0.0/16,10.96.0.0/24,10.16.0.0/16,192.168.0.1/16,10.0.0.1/8,192.168.122.1"
+
+os_remove_yum_plugins: true
+
+git_repo_token: ""
+
+# Controller settings
+mysql_root_password: "pass"
+cce_admin_password: "pass"
+
+## Offline On Premise mode
+
+# offline_mode setting:
+# - False - regular online mode,
+# - True - offline mode - RPMs, Python packages, etc. are installed from cache, Internet is not accessed
+offline_mode: False
+
+offline_path_common: "/opt/openness-offline"
+offline_archives_path: "{{ offline_path }}/archives"
+offline_pip_path: "{{ offline_path }}/pip"
+offline_yum_path: "{{ offline_path }}/yum"
+offline_docker_images_path: "{{ offline_path }}/docker_images"
+offline_experience_kits_path: "{{ offline_path_common }}/openness-experience-kits"
+
+offline_always_redownload_packages: false

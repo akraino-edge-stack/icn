@@ -1,0 +1,37 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+- name: Remove auditd docker rules
+  file:
+    name: "/etc/audit/rules.d/docker.rules"
+    state: absent
+
+- name: Restart auditd
+  shell: service auditd restart
+
+- name: disable docker service
+  systemd:
+    name: docker
+    enabled: no
+    state: stopped
+  ignore_errors: yes
+
+- name: uninstall
+  apt:
+    name: "{{ docker_packages_to_remove }}"
+    state: absent
+
+- name: remove dirs
+  file:
+    name: "{{ item }}"
+    state: absent
+  with_items:
+  - /root/.docker
+  - /etc/systemd/system/docker.service.d
+  - /etc/docker
+
+- name: remove repository
+  yum_repository:
+    name: docker
+    state: absent

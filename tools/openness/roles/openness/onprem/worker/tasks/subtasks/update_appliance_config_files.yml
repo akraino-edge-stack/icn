@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Update appliance config file
+  shell: jq '.Enrollment.Endpoint="{{ enrollment_endpoint }}" | .UseSyslog=true | .SyslogAddr="192.168.122.1:514"' /var/lib/appliance/configs/appliance.json | sponge /var/lib/appliance/configs/appliance.json
+
+- name: Update EVA config file
+  shell: jq '.ControllerEndpoint="{{ enrollment_endpoint }}"' /var/lib/appliance/configs/eva.json | sponge /var/lib/appliance/configs/eva.json
+
+- name: Update ELA config file
+  shell: jq '.ControllerEndpoint="{{ enrollment_endpoint }}"' /var/lib/appliance/configs/ela.json | sponge /var/lib/appliance/configs/ela.json

@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+dpdk_version: "19.11"
+dpdk_checksum: "bdcc9395656df89bc4578f1771e0a761"
+
+dpdk_name: "dpdk-{{ dpdk_version }}"
+dpdk_install_dir: "/opt/{{ dpdk_name }}"
+
+dpdk_download_url: "http://fast.dpdk.org/rel/{{ dpdk_name }}.tar.xz"
+dpdk_download_dest: "/tmp/{{ dpdk_name }}.tar.xz"

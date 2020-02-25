@@ -1,0 +1,76 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: Install packages
+  apt:
+    pkg:
+      - apt-transport-https
+      - curl
+    update_cache: yes
+
+- name: Add apg key for kubernetes
+  apt_key:
+    url: "{{ kubernetes_repository_key }}"
+    state: present
+
+- name: Create file kubernetes.list
+  file:
+    path: /etc/apt/sources.list.d/kubernetes.list
+    state: touch
+
+- name: Add deb to /etc/apt/sources.list.d/kubernetes.list
+  lineinfile:
+    path: /etc/apt/sources.list.d/kubernetes.list
+    line: "{{ kubernetes_deb }}"
+    state: present
+
+- name: install kuberntes packages 
+  apt:
+    pkg:
+      - "{{ kubelet }}"
+      - "{{ kubeadm }}"
+      - "{{ kubectl }}"
+    update_cache: yes
+  notify:
+  - enable and restart kubelet
+
+- name: Hold kubelet kubeadm kubectl not upgrading
+  shell: apt-mark hold kubelet kubeadm kubectl
+
+- name: Set up proxy
+  include_tasks: proxy.yml
+  when: proxy_os_enable
+
+- name: Allow bridged packets to traverse iptables rules
+  block:
+    - name: load br_netfiler module
+      modprobe:
+        name: br_netfilter
+        state: present
+    - name: copy net.bridge.bridge-nf-call-ip(6)tables settings
+      copy:
+        src: sysctl_k8s.conf
+        dest: /etc/sysctl.d/sysctl_k8s.conf
+    - name: get current sysctl vars
+      shell: grep 0 /proc/sys/net/bridge/bridge-nf-call-iptables /proc/sys/net/bridge/bridge-nf-call-ip6tables
+      register: sysctl_out
+      ignore_errors: yes
+    - name: refresh sysctl only if desired vars are disabled
+      command: sysctl --system
+      when: sysctl_out.rc == 0
+
+- name: Open common ufw ports
+  ignore_errors: yes
+  ufw:
+    state: enabled
+    policy: allow
+          #  port: "{{ item }}"
+          #with_items:
+          #- 6443/tcp
+          #- 2379-2380/tcp
+          #- 10250-10252/tcp
+
+- name: Restart services if needed
+  meta: flush_handlers

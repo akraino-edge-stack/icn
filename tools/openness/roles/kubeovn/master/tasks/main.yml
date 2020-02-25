@@ -1,0 +1,27 @@
+# SPDX-License-Identifier: Apache-2.0
+# Copyright (c) 2019 Intel Corporation
+
+---
+
+- name: install OVN tools dependencies
+  apt:
+    name: "{{ ovn_packages_apt }}"
+    update_cache: yes
+
+- name: install openvswitch and OVN tools
+  apt:
+    pkg:
+    - openvswitch-switch
+    - ovn-common
+    update_cache: yes
+
+- name: apply kube-ovn
+  command: "kubectl apply -f {{ item }}"
+  with_items: "{{ kubeovn_yamls }}"
+
+- name: Wait till k8s master starts
+  shell: kubectl get nodes {{ ansible_hostname }} | awk '$2=="Ready"'
+  register: k8s_master_init_start
+  retries: 30
+  delay: 10
+  until: k8s_master_init_start.rc == 0
