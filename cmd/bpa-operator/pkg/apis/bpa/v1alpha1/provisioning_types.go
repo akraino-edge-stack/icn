@@ -16,6 +16,7 @@ type ProvisioningSpec struct {
 	Masters []map[string]Master  `json:"masters,omitempty"`
 	Workers []map[string]Worker  `json:"workers,omitempty"`
 	KUDPlugins []string `json:"KUDPlugins,omitempty"`
+	PodSubnet string `json:"PodSubnet,omitempty"`
 }
 
 // ProvisioningStatus defines the observed state of Provisioning
