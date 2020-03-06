@@ -192,7 +192,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         mastersList := provisioningInstance.Spec.Masters
         workersList := provisioningInstance.Spec.Workers
         kudPlugins := provisioningInstance.Spec.KUDPlugins
-
+        podSubnet := provisioningInstance.Spec.PodSubnet
 
         bareMetalHostList, _ := listBareMetalHosts(r.bmhClient)
         virtletVMList, _ := listVirtletVMs(r.clientset)
@@ -254,11 +254,11 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                err = fmt.Errorf("IP address not found for host with MAC address %s \n", masterMAC)
                                return reconcile.Result{}, err
                            }
+                           allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
 		       }
 
-                       allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
                        if clusterType == "virtlet-vm" {
-                           allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                           allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
                        }
                        masterString += masterLabel + "\n"
                        clusterData[masterTag + masterLabel] = hostIPaddress
@@ -337,12 +337,12 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                                    fmt.Errorf("IP address not found for host with MAC address %s \n", workerMAC)
                                                    return reconcile.Result{}, err
                                                }
+                                               allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
 					   }
                                            fmt.Printf("%s : %s \n", hostIPaddress, workerMAC)
 
-                                           allString += workerLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + "\n"
                                            if clusterType == "virtlet-vm" {
-                                               allString = masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
+                                               allString += masterLabel + "  ansible_ssh_host="  + hostIPaddress + " ansible_ssh_port=22" + " ansible_ssh_user=root" + " ansible_ssh_pass=root" + "\n"
                                            }
                                            workerString += workerLabel + "\n"
 					   clusterData[workerTag + workerLabel] = hostIPaddress
@@ -414,6 +414,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
            return reconcile.Result{}, err
         }
 
+        if clusterType != "virtlet-vm" {
         _, err = hostFile.NewRawSection("ovn-central", masterString)
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
@@ -431,7 +432,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
            fmt.Printf("Error occured while creating section \n %v", err)
            return reconcile.Result{}, err
         }
-
+        }
         _, err = hostFile.NewRawSection("k8s-cluster:children", "kube-node\n" + "kube-master")
         if err != nil {
            fmt.Printf("Error occured while creating section \n %v", err)
@@ -443,7 +444,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         hostFile.SaveTo(iniHostFilePath)
 
         //Install KUD
-        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, kudPlugins,  r.clientset)
+        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel,  podSubnet, kudPlugins,  r.clientset)
         if err != nil {
            fmt.Printf("Error occured while creating KUD Installer job for cluster %v\n ERROR: %v", clusterName, err)
            return reconcile.Result{}, err
@@ -624,12 +625,12 @@ func getConfigMapData(namespace, clusterName string, clientset kubernetes.Interf
 }
 
 //Function to create job for KUD installation
-func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, kudPlugins []string, clientset kubernetes.Interface) error{
+func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, podSubnet string, kudPlugins []string, clientset kubernetes.Interface) error{
 
     var backOffLimit int32 = 0
     var privi bool = true
 
-    installerString := " ./installer --cluster " + clusterName
+    installerString := " ./installer --cluster " + clusterName + " --network " + podSubnet
 
     // Check if any plugin was specified
     if len(kudPlugins) > 0 {
