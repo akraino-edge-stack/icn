@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "68189013_8648e6e4",
+        "filename": "tools/openness/group_vars/all.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 247
+      },
+      "writtenOn": "2020-03-07T03:01:29Z",
+      "side": 1,
+      "message": "env special proxy should not be in the public repo.",
+      "range": {
+        "startLine": 6,
+        "startChar": 16,
+        "endLine": 6,
+        "endChar": 46
+      },
+      "revId": "d7938badcd5c0dd267a62e3ea671beea067059f5",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
