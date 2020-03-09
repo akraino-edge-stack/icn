@@ -22,6 +22,30 @@
       "revId": "d7938badcd5c0dd267a62e3ea671beea067059f5",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "91cc98c1_0ae288f4",
+        "filename": "tools/openness/group_vars/all.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 319
+      },
+      "writtenOn": "2020-03-09T02:31:44Z",
+      "side": 1,
+      "message": "Done",
+      "parentUuid": "68189013_8648e6e4",
+      "range": {
+        "startLine": 6,
+        "startChar": 16,
+        "endLine": 6,
+        "endChar": 46
+      },
+      "revId": "d7938badcd5c0dd267a62e3ea671beea067059f5",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
