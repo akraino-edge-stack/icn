@@ -22,6 +22,30 @@
       "revId": "7dc0804eb20521d6491a1a41892848a20d78a8fd",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "18a4d4f2_4d4c0029",
+        "filename": "cmd/bpa-operator/e2etest/bpa_remote_virtletvm_cr.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 267
+      },
+      "writtenOn": "2020-03-18T23:25:25Z",
+      "side": 1,
+      "message": "Yes",
+      "parentUuid": "98157b51_52339301",
+      "range": {
+        "startLine": 6,
+        "startChar": 13,
+        "endLine": 6,
+        "endChar": 26
+      },
+      "revId": "7dc0804eb20521d6491a1a41892848a20d78a8fd",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
