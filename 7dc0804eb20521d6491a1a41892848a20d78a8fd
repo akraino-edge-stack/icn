@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "98157b51_52339301",
+        "filename": "cmd/bpa-operator/e2etest/bpa_remote_virtletvm_cr.yaml",
+        "patchSetId": 3
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-03-18T23:17:43Z",
+      "side": 1,
+      "message": "This is the same folder cluster name ?",
+      "range": {
+        "startLine": 6,
+        "startChar": 13,
+        "endLine": 6,
+        "endChar": 26
+      },
+      "revId": "7dc0804eb20521d6491a1a41892848a20d78a8fd",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
