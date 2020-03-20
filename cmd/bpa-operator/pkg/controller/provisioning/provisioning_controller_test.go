@@ -2,14 +2,12 @@ package provisioning
 
 import (
 
-       "context"
        "testing"
        "io/ioutil"
        "os"
 
        bpav1alpha1 "github.com/bpa-operator/pkg/apis/bpa/v1alpha1"
        metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-       batchv1 "k8s.io/api/batch/v1"
        logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
        "k8s.io/apimachinery/pkg/runtime"
        "k8s.io/apimachinery/pkg/types"
@@ -18,6 +16,7 @@ import (
        "sigs.k8s.io/controller-runtime/pkg/client/fake"
        "sigs.k8s.io/controller-runtime/pkg/reconcile"
        fakedynamic "k8s.io/client-go/dynamic/fake"
+       fakeclientset "k8s.io/client-go/kubernetes/fake"
 )
 
 func TestProvisioningController(t *testing.T) {
@@ -56,11 +55,12 @@ func TestProvisioningController(t *testing.T) {
 
     sc.AddKnownTypes(bpav1alpha1.SchemeGroupVersion, provisioning, provisioning2, provisioning3)
 
-    // Create Fake Clients
+    // Create Fake Clients and Clientset
     fakeClient := fake.NewFakeClient(objs...)
     fakeDyn := fakedynamic.NewSimpleDynamicClient(sc, bmhList,)
+    fakeClientSet := fakeclientset.NewSimpleClientset()
 
-    r := &ReconcileProvisioning{client: fakeClient, scheme: sc, bmhClient: fakeDyn}
+    r := &ReconcileProvisioning{client: fakeClient, scheme: sc, clientset: fakeClientSet, bmhClient: fakeDyn}
 
     // Mock request to simulate Reconcile() being called on an event for a watched resource 
     req := simulateRequest(provisioning)
@@ -70,8 +70,9 @@ func TestProvisioningController(t *testing.T) {
     }
 
    // Test 1: Check the job was created with the expected name
-    job := &batchv1.Job{}
-    err = r.client.Get(context.TODO(), types.NamespacedName{Name: "kud-test-cluster", Namespace: namespace}, job)
+   jobClient := r.clientset.BatchV1().Jobs(namespace)
+   job, err := jobClient.Get("kud-test-cluster", metav1.GetOptions{})
+
     if err != nil {
         t.Fatalf("Error occured while getting job: (%v)", err)
     }
