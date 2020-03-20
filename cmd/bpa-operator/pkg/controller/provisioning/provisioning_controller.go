@@ -19,13 +19,12 @@ import (
         "k8s.io/apimachinery/pkg/runtime/schema"
         "k8s.io/apimachinery/pkg/api/errors"
         "k8s.io/apimachinery/pkg/runtime"
-        "k8s.io/apimachinery/pkg/types"
         "k8s.io/client-go/dynamic"
 
+        "k8s.io/client-go/kubernetes"
         "sigs.k8s.io/controller-runtime/pkg/client"
         "sigs.k8s.io/controller-runtime/pkg/client/config"
         "sigs.k8s.io/controller-runtime/pkg/controller"
-        "sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
         "sigs.k8s.io/controller-runtime/pkg/handler"
         "sigs.k8s.io/controller-runtime/pkg/manager"
         "sigs.k8s.io/controller-runtime/pkg/reconcile"
@@ -70,13 +69,17 @@ func newReconciler(mgr manager.Manager) reconcile.Reconciler {
            fmt.Printf("Could not get kube config, Error: %v\n", err)
         }
 
+       clientSet, err := kubernetes.NewForConfig(config)
+        if err != nil {
+           fmt.Printf("Could not create clientset, Error: %v\n", err)
+        }
        bmhDynamicClient, err := dynamic.NewForConfig(config)
 
        if err != nil {
           fmt.Printf("Could not create dynamic client for bareMetalHosts, Error: %v\n", err)
        }
 
-       return &ReconcileProvisioning{client: mgr.GetClient(), scheme: mgr.GetScheme(), bmhClient: bmhDynamicClient }
+       return &ReconcileProvisioning{client: mgr.GetClient(), scheme: mgr.GetScheme(), clientset: clientSet, bmhClient: bmhDynamicClient }
 }
 
 // add adds a new Controller to mgr with r as the reconcile.Reconciler
@@ -132,6 +135,7 @@ type ReconcileProvisioning struct {
         // that reads objects from the cache and writes to the apiserver
         client client.Client
         scheme *runtime.Scheme
+        clientset kubernetes.Interface
         bmhClient dynamic.Interface
 }
 
@@ -183,15 +187,16 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         ///////////////////////////////////////////////////////////////////////////////////////////////
         ////////////////         Provisioning CR was created so install KUD          /////////////////
         //////////////////////////////////////////////////////////////////////////////////////////////
-        provisioningVersion := provisioningInstance.ResourceVersion
 	clusterName := provisioningInstance.Labels["cluster"]
 	clusterType := provisioningInstance.Labels["cluster-type"]
         mastersList := provisioningInstance.Spec.Masters
         workersList := provisioningInstance.Spec.Workers
+        kudPlugins := provisioningInstance.Spec.KUDPlugins
 
 
         bareMetalHostList, _ := listBareMetalHosts(r.bmhClient)
-        virtletVMList, _ := listVirtletVMs(r.client)
+        virtletVMList, _ := listVirtletVMs(r.clientset)
+
 
 
 
@@ -207,8 +212,9 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 	os.MkdirAll(clusterDir, os.ModePerm)
 
 	//Create Maps to be used for cluster ip address to label configmap
+	clusterLabel := make(map[string]string)
+        clusterLabel["cluster"] = clusterName
 	clusterData := make(map[string]string)
-	clusterMACData := make(map[string]string)
 
 
 
@@ -224,25 +230,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                       return reconcile.Result{}, err
                    }
 
-
-                   // Check if master MAC address has already been used
-                   usedMAC, err := r.macAddressUsed(provisioningInstance.Namespace, masterMAC, clusterName)
-
-
-                   if err != nil {
-
-                      fmt.Printf("Error occured while checking if mac Address has already been used\n %v", err)
-                      return reconcile.Result{}, err
-                   }
-
-                   if usedMAC {
-
-                      err = fmt.Errorf("MAC address %s has already been used, check and update provisioning CR", masterMAC)
-                      return reconcile.Result{}, err
-
-                   }
-
-                   // Check if Baremetal host with specified MAC address exist
                    containsMac, bmhCR := checkMACaddress(bareMetalHostList, masterMAC)
 
 		   //Check 'cluster-type' label for Virtlet VMs
@@ -256,7 +243,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                        containsMac = true
 		   }
 
-                   if containsMac {
+                   if containsMac{
 
 		       if clusterType != "virtlet-vm" {
                            fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, masterMAC)
@@ -275,12 +262,9 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                        }
                        masterString += masterLabel + "\n"
                        clusterData[masterTag + masterLabel] = hostIPaddress
-                       clusterMACData[strings.ReplaceAll(masterMAC, ":", "-")] = masterTag + masterLabel
 
                        fmt.Printf("%s : %s \n", hostIPaddress, masterMAC)
 
-
-                       // Check if any worker MAC address was specified
                        if len(workersList) != 0 {
 
                            //Iterate through workersList and get all the mac addresses
@@ -330,22 +314,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                           return reconcile.Result{}, err
                                          }
 
-                                        // Check if worker MAC address has already been used
-                                        usedMAC, err = r.macAddressUsed(provisioningInstance.Namespace, workerMAC, clusterName)
-
-                                        if err != nil {
-
-                                           fmt.Printf("Error occured while checking if mac Address has already been used\n %v", err)
-                                           return reconcile.Result{}, err
-                                        }
-
-                                        if usedMAC {
-
-                                           err = fmt.Errorf("MAC address %s has already been used, check and update provisioning CR", workerMAC)
-                                           return reconcile.Result{}, err
-
-                                        }
-
                                         containsMac, bmhCR := checkMACaddress(bareMetalHostList, workerMAC)
 
 					if clusterType == "virtlet-vm" {
@@ -378,7 +346,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
                                            }
                                            workerString += workerLabel + "\n"
 					   clusterData[workerTag + workerLabel] = hostIPaddress
-					   clusterMACData[strings.ReplaceAll(workerMAC, ":", "-")] = workerTag + workerLabel
 
                                        //No host found that matches the worker MAC
                                        } else {
@@ -407,6 +374,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         }
 
         //Create host.ini file
+        //iniHostFilePath := kudInstallerScript + "/inventory/hosts.ini"
         iniHostFilePath := clusterDir + "/hosts.ini"
         newFile, err := os.Create(iniHostFilePath)
         defer newFile.Close()
@@ -474,42 +442,8 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 	//Create host.ini file for KUD
         hostFile.SaveTo(iniHostFilePath)
 
-        // Create configmap to store MAC address info for the cluster
-        cmName := provisioningInstance.Labels["cluster"] + "-mac-addresses"
-        foundConfig := &corev1.ConfigMap{}
-        err = r.client.Get(context.TODO(), types.NamespacedName{Name: cmName, Namespace: provisioningInstance.Namespace}, foundConfig)
-
-        // Configmap was found but the provisioning CR was updated so update configMap
-        if err == nil && foundConfig.Labels["provisioning-version"] != provisioningVersion {
-
-           foundConfig.Data = clusterMACData
-           foundConfig.Labels =  provisioningInstance.Labels
-           foundConfig.Labels["configmap-type"] = "mac-address"
-           foundConfig.Labels["provisioning-version"] = provisioningVersion
-           err = r.client.Update(context.TODO(), foundConfig)
-           if err != nil {
-              fmt.Printf("Error occured while updating mac address configmap for provisioningCR %s\n ERROR: %v\n", provisioningInstance.Name,
-              err)
-              return reconcile.Result{}, err
-           }
-
-        }  else if err != nil && errors.IsNotFound(err) {
-           labels :=  provisioningInstance.Labels
-           labels["configmap-type"] = "mac-address"
-           labels["provisioning-version"] = provisioningVersion
-           err = r.createConfigMap(provisioningInstance, clusterMACData, labels, cmName)
-           if err != nil {
-              fmt.Printf("Error occured while creating MAC address configmap for cluster %v\n ERROR: %v", clusterName, err)
-              return reconcile.Result{}, err
-            }
-
-        } else if err != nil {
-            fmt.Printf("ERROR occured in Create MAC address Config map section: %v\n", err)
-            return reconcile.Result{}, err
-          }
-
         //Install KUD
-        err = r.createKUDinstallerJob(provisioningInstance)
+        err = createKUDinstallerJob(clusterName, request.Namespace, clusterLabel, kudPlugins,  r.clientset)
         if err != nil {
            fmt.Printf("Error occured while creating KUD Installer job for cluster %v\n ERROR: %v", clusterName, err)
            return reconcile.Result{}, err
@@ -517,7 +451,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 
         //Start separate thread to keep checking job status, Create an IP address configmap
         //for cluster if KUD is successfully installed
-        go r.checkJob(provisioningInstance, clusterData)
+        go checkJob(clusterName, request.Namespace, clusterData, clusterLabel, r.clientset)
 
         return reconcile.Result{}, nil
 
@@ -532,8 +466,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
         defaultSSHPrivateKey := "/root/.ssh/id_rsa"
 
         //Get IP address configmap for the cluster
-        configmapName :=  softwareInstance.Labels["cluster"] + "-configmap"
-        clusterConfigMapData, err := r.getConfigMapData(softwareInstance.Namespace, configmapName)
+        clusterConfigMapData, err := getConfigMapData(request.Namespace, softwareClusterName, r.clientset)
         if err != nil {
            fmt.Printf("Error occured while retrieving IP address Data for cluster %s, ERROR: %v\n", softwareClusterName, err)
            return reconcile.Result{}, err
@@ -603,45 +536,6 @@ func checkMACaddress(bareMetalHostList *unstructured.UnstructuredList, macAddres
 
 }
 
-//Function to check if MAC address has been used in another provisioning CR
-//Returns true if MAC address has already been used
-func (r *ReconcileProvisioning) macAddressUsed(namespace, macAddress, provisioningCluster string) (bool, error) {
-
-     macKey := strings.ReplaceAll(macAddress, ":", "-")
-
-     //Get configmap List
-     cmList := &corev1.ConfigMapList{}
-     label := map[string]string{"configmap-type": "mac-address"}
-     listOpts :=  client.MatchingLabels(label)
-
-     err := r.client.List(context.TODO(), listOpts, cmList)
-     if err != nil {
-        return false, err
-     }
-
-     for _, configmap := range cmList.Items {
-
-        cmCluster := configmap.Labels["cluster"]
-        if cmCluster != provisioningCluster {
-            cmData, err := r.getConfigMapData(namespace, configmap.Name)
-            if err != nil {
-               return false, err
-
-            }
-
-            if _, exist := cmData[macKey]; exist {
-
-               return exist, nil
-            }
-       }
-
-     }
-
-     return false, nil
-
-}
-
-
 
 //Function to get the IP address of a host from the DHCP file
 func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, error) {
@@ -691,38 +585,36 @@ func getHostIPaddress(macAddress string, dhcpLeaseFilePath string ) (string, err
      return "", nil
 }
 
-//Function to create configmap
-func (r *ReconcileProvisioning) createConfigMap(p *bpav1alpha1.Provisioning, data, labels map[string]string, cmName string) error{
+//Function to create configmap 
+func createConfigMap(data, labels map[string]string, namespace string, clientset kubernetes.Interface) error{
 
-         // Configmap has not been created, create it
-          configmap := &corev1.ConfigMap{
+     configmapClient := clientset.CoreV1().ConfigMaps(namespace)
 
-              ObjectMeta: metav1.ObjectMeta{
-                        Name: cmName,
-			Namespace: p.Namespace,
+     configmap := &corev1.ConfigMap{
+
+        ObjectMeta: metav1.ObjectMeta{
+                        Name: labels["cluster"] + "-configmap",
                         Labels: labels,
-                      },
-              Data: data,
-          }
+                },
+        Data: data,
+     }
 
 
-         // Set provisioning instance as the owner of the job
-         controllerutil.SetControllerReference(p, configmap, r.scheme)
-         err := r.client.Create(context.TODO(), configmap)
-         if err != nil {
-             return err
+      _, err := configmapClient.Create(configmap)
+      if err != nil {
+         return err
 
-         }
-
-     return nil
+      }
+      return nil
 
 }
 
 //Function to get configmap Data
-func (r *ReconcileProvisioning) getConfigMapData(namespace, configmapName string) (map[string]string, error) {
+func getConfigMapData(namespace, clusterName string, clientset kubernetes.Interface) (map[string]string, error) {
 
-     clusterConfigmap := &corev1.ConfigMap{}
-     err := r.client.Get(context.TODO(), types.NamespacedName{Name: configmapName, Namespace: namespace}, clusterConfigmap)
+     configmapClient := clientset.CoreV1().ConfigMaps(namespace)
+     configmapName := clusterName + "-configmap"
+     clusterConfigmap, err := configmapClient.Get(configmapName, metav1.GetOptions{})
      if err != nil {
         return nil, err
      }
@@ -732,59 +624,37 @@ func (r *ReconcileProvisioning) getConfigMapData(namespace, configmapName string
 }
 
 //Function to create job for KUD installation
-func (r *ReconcileProvisioning) createKUDinstallerJob(p *bpav1alpha1.Provisioning) error{
+func createKUDinstallerJob(clusterName, namespace string, labels map[string]string, kudPlugins []string, clientset kubernetes.Interface) error{
 
     var backOffLimit int32 = 0
     var privi bool = true
 
+    installerString := " ./installer --cluster " + clusterName
 
-    kudPlugins := p.Spec.KUDPlugins
-
-    jobLabel := p.Labels
-    jobLabel["provisioning-version"] = p.ResourceVersion
-    jobName := "kud-" + jobLabel["cluster"]
-
-    // Check if the job already exist
-    foundJob := &batchv1.Job{}
-    err := r.client.Get(context.TODO(), types.NamespacedName{Name: jobName, Namespace: p.Namespace}, foundJob)
-
-    if (err == nil && foundJob.Labels["provisioning-version"] != jobLabel["provisioning-version"]) || (err != nil && errors.IsNotFound(err)) {
-
-       // If err == nil and its in this statement, then provisioning CR was updated, delete job
-       if err == nil {
-          err = r.client.Delete(context.TODO(), foundJob, client.PropagationPolicy(metav1.DeletePropagationForeground))
-          if err != nil {
-             fmt.Printf("Error occured while deleting kud install job for updated provisioning CR %v\n", err)
-             return err
-          }
-       }
-
-       // Job has not been created, create a new kud job
-       installerString := " ./installer --cluster " + p.Labels["cluster"]
-
-       // Check if any plugin was specified
-       if len(kudPlugins) > 0 {
+    // Check if any plugin was specified
+    if len(kudPlugins) > 0 {
 	    plugins := " --plugins"
 
 	    for _, plug := range kudPlugins {
-	        plugins += " " + plug
+	       plugins += " " + plug
 	    }
 
 	   installerString += plugins
-       }
+    }
 
-       // Define new job
-       job := &batchv1.Job{
+
+    jobClient := clientset.BatchV1().Jobs("default")
+
+        job := &batchv1.Job{
 
         ObjectMeta: metav1.ObjectMeta{
-                       Name: jobName,
-                       Namespace: p.Namespace,
-                       Labels: jobLabel,
+                        Name: "kud-" + clusterName,
+                       Labels: labels,
                 },
                 Spec: batchv1.JobSpec{
                       Template: corev1.PodTemplateSpec{
                                 ObjectMeta: metav1.ObjectMeta{
-                                        Labels: p.Labels,
+                                        Labels: labels,
                                 },
 
 
@@ -833,36 +703,27 @@ func (r *ReconcileProvisioning) createKUDinstallerJob(p *bpav1alpha1.Provisionin
                              BackoffLimit : &backOffLimit,
                              },
 
-       }
-
-       // Set provisioning instance as the owner and controller of the job
-       controllerutil.SetControllerReference(p, job, r.scheme)
-       err = r.client.Create(context.TODO(), job)
-       if err != nil {
-          fmt.Printf("ERROR occured while creating job to install KUD\n ERROR:%v", err)
-          return err
-          }
-
-    } else if err != nil {
-         return err
-    }
-
-   return nil
+                         }
+                    _, err := jobClient.Create(job)
+                    if err != nil {
+                       fmt.Printf("ERROR occured while creating job to install KUD\n ERROR:%v", err)
+                       return err
+                    }
+                    return nil
 
 }
 
-
 //Function to Check if job succeeded
-func (r *ReconcileProvisioning) checkJob(p *bpav1alpha1.Provisioning, data map[string]string) {
+func checkJob(clusterName, namespace string, data, labels map[string]string, clientset kubernetes.Interface) {
 
-     clusterName := p.Labels["cluster"]
      fmt.Printf("\nChecking job status for cluster %s\n", clusterName)
      jobName := "kud-" + clusterName
-     job := &batchv1.Job{}
+     jobClient := clientset.BatchV1().Jobs(namespace)
 
      for {
+         time.Sleep(2 * time.Second)
 
-         err := r.client.Get(context.TODO(), types.NamespacedName{Name: jobName, Namespace: p.Namespace}, job)
+         job, err := jobClient.Get(jobName, metav1.GetOptions{})
          if err != nil {
             fmt.Printf("ERROR: %v occured while retrieving job: %s", err, jobName)
             return
@@ -874,51 +735,24 @@ func (r *ReconcileProvisioning) checkJob(p *bpav1alpha1.Provisioning, data map[s
             fmt.Printf("\n Job succeeded, KUD successfully installed in Cluster %s\n", clusterName)
 
             //KUD was installed successfully create configmap to store IP address info for the cluster
-            labels := p.Labels
-            labels["provisioning-version"] = p.ResourceVersion
-            cmName := labels["cluster"] + "-configmap"
-            foundConfig := &corev1.ConfigMap{}
-            err := r.client.Get(context.TODO(), types.NamespacedName{Name: cmName, Namespace: p.Namespace}, foundConfig)
-
-            // Check if provisioning CR was updated
-            if err == nil && foundConfig.Labels["provisioning-version"] != labels["provisioning-version"] {
-
-               foundConfig.Data = data
-               foundConfig.Labels =  labels
-               err = r.client.Update(context.TODO(), foundConfig)
-               if err != nil {
-                  fmt.Printf("Error occured while updating IP address configmap for provisioningCR %s\n ERROR: %v\n", p.Name, err)
-                  return
-                }
-
-            } else if err != nil && errors.IsNotFound(err) {
-               err = r.createConfigMap(p, data, labels, cmName)
-               if err != nil {
-                  fmt.Printf("Error occured while creating IP address configmap for cluster %v\n ERROR: %v", clusterName, err)
-                  return
-               }
+            err = createConfigMap(data, labels, namespace, clientset)
+            if err != nil {
+               fmt.Printf("Error occured while creating Ip address configmap for cluster %v\n ERROR: %v", clusterName, err)
                return
-
-            } else if err != nil {
-              fmt.Printf("ERROR occured while checking if IP address configmap %v already exists: %v\n", cmName, err)
-              return
-              }
-
-
-           return
+            }
+            return
          }
 
         if jobFailed == 1 {
            fmt.Printf("\n Job Failed, KUD not installed in Cluster %s, check pod logs\n", clusterName)
-
            return
         }
 
-        time.Sleep(5 * time.Second)
      }
     return
 
 }
+
 //Function to get software list from software CR
 func getSoftwareList(softwareCR *bpav1alpha1.Software) (string, []interface{}, []interface{}) {
 
@@ -1010,14 +844,11 @@ func sshInstaller(softwareString, sshPrivateKey, ipAddress string) error {
 
 }
 
-
-// List virtlet VMs
-func listVirtletVMs(vmClient client.Client) ([]VirtletVM, error) {
+func listVirtletVMs(clientset kubernetes.Interface) ([]VirtletVM, error) {
 
         var vmPodList []VirtletVM
 
-        pods := &corev1.PodList{}
-        err := vmClient.List(context.TODO(), &client.ListOptions{}, pods)
+        pods, err := clientset.CoreV1().Pods("").List(metav1.ListOptions{})
         if err != nil {
                 fmt.Printf("Could not get pod info, Error: %v\n", err)
                 return []VirtletVM{}, err
