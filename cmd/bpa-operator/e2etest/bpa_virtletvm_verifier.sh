@@ -50,7 +50,7 @@ spec:
           }'
 EOF
 
-cat <<EOF > $BPA_DIR/virtlet_test_vm.yaml
+cat <<'EOF' > $BPA_DIR/virtlet_test_vm.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
