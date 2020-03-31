@@ -93,32 +93,44 @@ function create_userdata {
 }
 
 function launch_baremetal_operator {
-    if [ ! -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
-        go get github.com/metal3-io/baremetal-operator
-        git checkout 3d40caa29dce82878d83aeb7f8dab4dc4a856160
+    if [ -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
+        rm -rf $GOPATH/src/github.com/metal3-io/baremetal-operator
     fi
 
-    pushd $GOPATH/src/github.com/metal3-io/baremetal-operator
-    docker pull quay.io/metal3-io/baremetal-operator:master
-    make deploy
+    docker pull integratedcloudnative/baremetal-operator:v1.0-icn
+    docker tag integratedcloudnative/baremetal-operator:v1.0-icn \
+        quay.io/metal3-io/baremetal-operator:master
+
+    mkdir -p $GOPATH/src/github.com/metal3-io
+    pushd $GOPATH/src/github.com/metal3-io
+    git clone --single-branch --branch v1.0-icn \
+        https://github.com/akraino-icn/baremetal-operator.git
+    kubectl apply -f baremetal-operator/deploy/namespace/namespace.yaml
+    kubectl apply -f baremetal-operator/deploy/rbac/service_account.yaml -n metal3
+    kubectl apply -f baremetal-operator/deploy/rbac/role.yaml -n metal3
+    kubectl apply -f baremetal-operator/deploy/rbac/role_binding.yaml
+    kubectl apply -f baremetal-operator/deploy/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl apply -f baremetal-operator/deploy/operator/no_ironic/operator.yaml -n metal3
     popd
 }
 
 function remove_baremetal_operator {
     if [ ! -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
-        go get github.com/metal3-io/baremetal-operator
-        git checkout 3d40caa29dce82878d83aeb7f8dab4dc4a856160
+        pushd $GOPATH/src/github.com/metal3-io
+        git clone --single-branch --branch v1.0-icn \
+		https://github.com/akraino-icn/baremetal-operator.git
+        popd
     fi
 
-    pushd $GOPATH/src/github.com/metal3-io/baremetal-operator
-        kubectl delete -f deploy/operator.yaml -n metal3
-        kubectl delete -f deploy/crds/metal3_v1alpha1_baremetalhost_crd.yaml
-        kubectl delete -f deploy/role_binding.yaml
-        kubectl delete -f deploy/role.yaml -n metal3
-        kubectl delete -f deploy/service_account.yaml -n metal3
-        kubectl delete ns metal3
-        docker rmi quay.io/metal3-io/baremetal-operator:master
+    pushd $GOPATH/src/github.com/metal3-io
+    kubectl delete -f baremetal-operator/deploy/operator/no_ironic/operator.yaml -n metal3
+    kubectl delete -f baremetal-operator/deploy/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl delete -f baremetal-operator/deploy/rbac/role_binding.yaml
+    kubectl delete -f baremetal-operator/deploy/rbac/role.yaml -n metal3
+    kubectl delete -f baremetal-operator/deploy/rbac/service_account.yaml -n metal3
+    kubectl delete -f baremetal-operator/deploy/namespace/namespace.yaml
     popd
+    rm -rf $GOPATH/src/github.com/metal3-io/baremetal-operator
 }
 
 function network_config_files {
@@ -210,11 +222,25 @@ function cleanup {
         kubectl delete bmh $name -n metal3
         kubectl delete secrets $name-bmc-secret -n metal3
         kubectl delete secrets $name-user-data -n metal3
+        if [ -f $name-bm-node.yaml ]; then
+            rm -rf $name-bm-node.yaml
+        fi
+
+        if [ -f $name-user-data-credential.yaml ]; then
+            rm -rf $name-user-data-credential.yaml
+        fi
+
+        if [ -f $name-userdata.yaml ]; then
+            rm -rf $name-userdata.yaml
+        fi
     done
 }
 
 function clean_all {
     list_nodes | cleanup
+    if [ -f $IRONIC_DATA_DIR/nodes.json ]; then
+        rm -rf $IRONIC_DATA_DIR/nodes.json
+    fi
 }
 
 function apply_bm_hosts {
