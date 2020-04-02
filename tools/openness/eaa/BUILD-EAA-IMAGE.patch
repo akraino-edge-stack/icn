@@ -1,0 +1,59 @@
+diff -Naur edgenode-openness-19.12.01/build/eaa/configs/appliance.json icn-edgenode/build/eaa/configs/appliance.json
+--- edgenode-openness-19.12.01/build/eaa/configs/appliance.json	1970-01-01 08:00:00.000000000 +0800
++++ icn-edgenode/build/eaa/configs/appliance.json	2020-04-02 14:43:22.291040126 +0800
+@@ -0,0 +1,17 @@
++{
++    "LogLevel": "info",
++    "UseSyslog": false,
++    "SyslogAddr": "",
++    "Enrollment": {
++        "Endpoint": "",
++        "CertsDirectory": "certs",
++        "ConnectionTimeout": "2s"
++    },
++    "Services": {
++        "github.com/open-ness/edgenode/pkg/eaa": "configs/eaa.json",
++        "github.com/open-ness/edgenode/pkg/ela": "configs/ela.json",
++        "github.com/open-ness/edgenode/pkg/eda": "configs/eda.json",
++        "github.com/open-ness/edgenode/pkg/eva": "configs/eva.json",
++        "github.com/open-ness/edgenode/pkg/interfaceservice": "configs/interfaceservice.json"
++    }
++}
+diff -Naur edgenode-openness-19.12.01/build/eaa/configs/eaa.json icn-edgenode/build/eaa/configs/eaa.json
+--- edgenode-openness-19.12.01/build/eaa/configs/eaa.json	1970-01-01 08:00:00.000000000 +0800
++++ icn-edgenode/build/eaa/configs/eaa.json	2020-04-02 14:43:22.291040126 +0800
+@@ -0,0 +1,13 @@
++{
++  "TlsEndpoint": ":443",
++  "OpenEndpoint": ":80",
++  "ValidationEndpoint": "",
++  "HeartbeatInterval": "60s",
++  "Certs": {
++    "CaRootKeyPath": "certs/eaa/rootCA.key",
++    "CaRootPath": "certs/eaa/rootCA.pem",
++    "ServerCertPath": "certs/eaa/server.pem",
++    "ServerKeyPath": "certs/eaa/server.key",
++    "CommonName": "eaa.openness"
++  }
++}
+diff -Naur edgenode-openness-19.12.01/build/eaa/configs/interfaceservice.json icn-edgenode/build/eaa/configs/interfaceservice.json
+--- edgenode-openness-19.12.01/build/eaa/configs/interfaceservice.json	1970-01-01 08:00:00.000000000 +0800
++++ icn-edgenode/build/eaa/configs/interfaceservice.json	2020-04-02 14:43:22.291040126 +0800
+@@ -0,0 +1,5 @@
++{
++    "Endpoint": ":42101",
++    "HeartbeatInterval": "60s",
++    "CertsDirectory": "certs"
++}
+diff -Naur edgenode-openness-19.12.01/build/eaa/Dockerfile icn-edgenode/build/eaa/Dockerfile
+--- edgenode-openness-19.12.01/build/eaa/Dockerfile	2019-12-21 01:28:24.000000000 +0800
++++ icn-edgenode/build/eaa/Dockerfile	2020-04-02 14:43:40.395040468 +0800
+@@ -19,6 +19,8 @@
+ USER $username
+ WORKDIR $user_dir
+
++RUN mkdir configs
++ADD ./configs ./configs/
+ COPY ./eaa ./
+ COPY ./entrypoint_eaa.sh ./
+
