@@ -1,0 +1,7 @@
+diff -Naur edgeapps-openness-19.12.01_1/sample-app/go.mod icn-edgeapps/sample-app/go.mod
+--- edgeapps-openness-19.12.01_1/sample-app/go.mod	1970-01-01 08:00:00.000000000 +0800
++++ icn-edgeapps/sample-app/go.mod	2020-04-09 17:09:15.382653161 +0800
+@@ -0,0 +1,3 @@
++module github.com/open-ness/edgeapps/sample-app
++
++go 1.12
