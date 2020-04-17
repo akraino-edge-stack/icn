@@ -149,3 +149,45 @@
 #      - email:
 #          recipients: icn.jenkins@intel.com
 
+- job-template:
+    id: icn-bluval-run-daily-tests
+    name: 'icn-bluval-daily-{stream}'
+    concurrent: true
+    node: '{build-node}'
+    parameters:
+      - lf-infra-parameters: *validation_lf_infra_parameters
+      - string:
+          name: DEPLOY_SCENARIO
+          default: ''
+      - {'bluval-defaults'}
+
+    scm:
+      - lf-infra-github-scm:
+          jenkins-ssh-credential: '{jenkins-ssh-credential}'
+          url: '{git-url}/{project}.git'
+          refspec: '$GERRIT_REFSPEC'
+          branch: '$GERRIT_BRANCH'
+          submodule-recursive: false
+          submodule-timeout: '{submodule-timeout}'
+          submodule-disable: true
+          choosing-strategy: default
+
+    builders:
+      - description-setter:
+          description: "POD: $NODE_NAME<br/>BLUEPRINT: $BLUEPRINT<br/>LAB: $LAB_SILO<br/>LAYER: $LAYER"
+      - shell: !include-raw-escape:
+          shell/bluval.sh
+
+    publishers:
+      - robot:
+          output-path: 'results'
+          report-html: '**/report.html'
+          log-html: '**/log.html'
+          output-xml: '**/output.xml'
+      - logparser:
+          use-project-rules: true
+          parse-rules: "./bluval/rules.txt"
+          unstable-on-warning: false
+          fail-on-error: true
+          show-graphs: true
+
