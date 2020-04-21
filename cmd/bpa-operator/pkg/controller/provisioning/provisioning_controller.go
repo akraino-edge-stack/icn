@@ -630,7 +630,10 @@ func createKUDinstallerJob(clusterName, namespace string, labels map[string]stri
     var backOffLimit int32 = 0
     var privi bool = true
 
-    installerString := " ./installer --cluster " + clusterName + " --network " + podSubnet
+    installerString := " ./installer --cluster " + clusterName
+    if len(podSubnet) > 0 {
+       installerString += " --network " + podSubnet
+    }
 
     // Check if any plugin was specified
     if len(kudPlugins) > 0 {
