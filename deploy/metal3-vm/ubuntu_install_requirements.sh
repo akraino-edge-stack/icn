@@ -130,11 +130,11 @@ sudo pip install \
   ansible==2.8.2 \
   lolcat \
   yq \
-  virtualbmc \
+  virtualbmc==1.6.0 \
   python-ironicclient \
   python-ironic-inspector-client \
   lxml \
   netaddr \
   requests \
   setuptools \
-  libvirt-python \
+  libvirt-python==5.7.0 \

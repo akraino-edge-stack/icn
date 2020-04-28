@@ -23,8 +23,8 @@ M3PATH="${GOPATH}/src/github.com/metal3-io"
 BMOPATH="${M3PATH}/baremetal-operator"
 
 BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
-BMOBRANCH="${BMOBRANCH:-3d40caa29dce82878d83aeb7f8dab4dc4a856160}"
-FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"
+BMOBRANCH="${BMOBRANCH:-10eb5aa3e614d0fdc6315026ebab061cbae6b929}"
+FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
 
 BMO_RUN_LOCAL="${BMO_RUN_LOCAL:-false}"
 COMPUTE_NODE_PASSWORD="${COMPUTE_NODE_PASSWORD:-mypasswd}"
@@ -49,15 +49,29 @@ function clone_repos {
 }
 
 function launch_baremetal_operator {
+    docker pull integratedcloudnative/baremetal-operator:v1.0-icn
+    docker tag integratedcloudnative/baremetal-operator:v1.0-icn \
+        quay.io/metal3-io/baremetal-operator:master
+
     pushd "${BMOPATH}"
     if [ "${BMO_RUN_LOCAL}" = true ]; then
-      touch bmo.out.log
-      touch bmo.err.log
-      make deploy
-      kubectl scale deployment metal3-baremetal-operator -n metal3 --replicas=0
-      nohup make run >> bmo.out.log 2>>bmo.err.log &
+        touch bmo.out.log
+        touch bmo.err.log
+        kubectl apply -f deploy/namespace/namespace.yaml
+        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
+        kubectl apply -f deploy/rbac/role.yaml -n metal3
+        kubectl apply -f deploy/rbac/role_binding.yaml
+        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
+        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
+        kubectl scale deployment metal3-baremetal-operator -n metal3 --replicas=0
+        nohup make run >> bmo.out.log 2>>bmo.err.log &
     else
-      make deploy
+        kubectl apply -f deploy/namespace/namespace.yaml
+        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
+        kubectl apply -f deploy/rbac/role.yaml -n metal3
+        kubectl apply -f deploy/rbac/role_binding.yaml
+        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
+        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
     fi
     popd
 }

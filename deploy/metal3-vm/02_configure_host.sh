@@ -145,11 +145,14 @@ if [[ "$MANAGE_BR_BRIDGE" == "y" && $OS == "centos" ]] ; then
   fi
 fi
 
+for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do                  
+    sudo "${CONTAINER_RUNTIME}" ps | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" kill $name
+    sudo "${CONTAINER_RUNTIME}" ps --all | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" rm $name -f
+done
+rm -rf "$IRONIC_DATA_DIR"
+
 mkdir -p "$IRONIC_DATA_DIR/html/images"
 pushd "$IRONIC_DATA_DIR/html/images"
-if [ ! -f ironic-python-agent.initramfs ]; then
-    curl --insecure --compressed -L https://images.rdoproject.org/master/rdo_trunk/current-tripleo-rdo/ironic-python-agent.tar | tar -xf -
-fi
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 if [ ! -f ${BM_IMAGE} ] ; then
@@ -158,19 +161,13 @@ if [ ! -f ${BM_IMAGE} ] ; then
 fi
 popd
 
-for IMAGE_VAR in IRONIC_IMAGE IRONIC_INSPECTOR_IMAGE ; do
+for IMAGE_VAR in IRONIC_IMAGE IRONIC_INSPECTOR_IMAGE IPA_DOWNLOADER_IMAGE; do
     IMAGE=${!IMAGE_VAR}
     sudo "${CONTAINER_RUNTIME}" pull "$IMAGE"
 done
 
-for name in ironic ironic-inspector dnsmasq httpd mariadb; do
-    sudo "${CONTAINER_RUNTIME}" ps | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" kill $name
-    sudo "${CONTAINER_RUNTIME}" ps --all | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" rm $name -f
-done
-
 # set password for mariadb
 mariadb_password="$(echo "$(date;hostname)"|sha256sum |cut -c-20)"
-
 
 if [[ "${CONTAINER_RUNTIME}" == "podman" ]]; then
   # Remove existing pod
@@ -184,22 +181,48 @@ else
   POD_NAME=""
 fi
 
-mkdir -p "$IRONIC_DATA_DIR"
+cat <<EOF > ${PWD}/ironic.env                                                 
+PROVISIONING_INTERFACE=provisioning                                               
+DHCP_RANGE=172.22.0.10,172.22.0.100                                               
+DEPLOY_KERNEL_URL=http://172.22.0.1/images/ironic-python-agent.kernel             
+DEPLOY_RAMDISK_URL=http://172.22.0.1/images/ironic-python-agent.initramfs         
+IRONIC_ENDPOINT=http://172.22.0.1:6385/v1/                                        
+IRONIC_INSPECTOR_ENDPOINT=http://172.22.0.1:5050/v1/                              
+CACHEURL=http://172.22.0.1/images                                                 
+IRONIC_FAST_TRACK=false                                                           
+EOF
+
+# Start image downloader container
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ipa-downloader \
+    --env-file "${PWD}/ironic.env" \
+    -v "$IRONIC_DATA_DIR:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
+
+sudo "${CONTAINER_RUNTIME}" wait ipa-downloader
 
 # Start dnsmasq, http, mariadb, and ironic containers using same image
-sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name dnsmasq  ${POD_NAME} \
-     -v "$IRONIC_DATA_DIR":/shared --entrypoint /bin/rundnsmasq "${IRONIC_IMAGE}"
+# See this file for env vars you can set, like IP, DHCP_RANGE, INTERFACE
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name dnsmasq \
+    --env-file "${PWD}/ironic.env" \
+    -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/rundnsmasq "${IRONIC_IMAGE}"
 
-sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name httpd ${POD_NAME} \
-     -v "$IRONIC_DATA_DIR":/shared --entrypoint /bin/runhttpd "${IRONIC_IMAGE}"
+# For available env vars, see:
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name httpd \
+    --env-file "${PWD}/ironic.env" \
+    -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/runhttpd "${IRONIC_IMAGE}"
 
-sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name mariadb ${POD_NAME} \
-     -v "$IRONIC_DATA_DIR":/shared --entrypoint /bin/runmariadb \
-     --env MARIADB_PASSWORD="$mariadb_password" "${IRONIC_IMAGE}"
+# https://github.com/metal3-io/ironic/blob/master/runmariadb.sh
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name mariadb \
+    --env-file "${PWD}/ironic.env" \
+    -v "$IRONIC_DATA_DIR:/shared" --entrypoint /bin/runmariadb \
+    --env "MARIADB_PASSWORD=$mariadb_password" "${IRONIC_IMAGE}"
 
-sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ironic ${POD_NAME} \
-     --env MARIADB_PASSWORD="$mariadb_password" \
-     -v "$IRONIC_DATA_DIR":/shared "${IRONIC_IMAGE}"
+# See this file for additional env vars you may want to pass, like IP and INTERFACE
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ironic \
+    --env-file "${PWD}/ironic.env" \
+    --env "MARIADB_PASSWORD=$mariadb_password" \
+    -v "$IRONIC_DATA_DIR:/shared" "${IRONIC_IMAGE}"
 
 # Start Ironic Inspector
-sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ironic-inspector ${POD_NAME} "${IRONIC_INSPECTOR_IMAGE}"
+sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ironic-inspector \
+    --env-file "${PWD}/ironic.env" \
+    -v "$IRONIC_DATA_DIR:/shared" "${IRONIC_INSPECTOR_IMAGE}"

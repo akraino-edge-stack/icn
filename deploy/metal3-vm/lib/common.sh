@@ -36,7 +36,8 @@ ROOT_DISK_NAME=${ROOT_DISK_NAME-"/dev/sda"}
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"}
 
 export EXTERNAL_SUBNET="192.168.111.0/24"
-
+#Ironic data directory
+IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 export SSH_PUB_KEY=~/.ssh/id_rsa.pub
 
 FILESYSTEM=${FILESYSTEM:="/"}
@@ -50,9 +51,10 @@ export NUM_WORKERS=${NUM_WORKERS:-"1"}
 export VM_EXTRADISKS=${VM_EXTRADISKS:-"false"}
 
 # Ironic vars
-export IRONIC_IMAGE=${IRONIC_IMAGE:-"quay.io/metal3-io/ironic:master"}
-export IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"quay.io/metal3-io/ironic-inspector"}
-export IRONIC_DATA_DIR="$WORKING_DIR/ironic"
+export IRONIC_IMAGE=${IRONIC_IMAGE:-"integratedcloudnative/ironic:v1.0-icn"}
+export IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"integratedcloudnative/ironic-inspector:v1.0-icn"}
+export IRONIC_BAREMETAL_IMAGE=${IRONIC_BAREMETAL_IMAGE:-"integratedcloudnative/baremetal-operator:v1.0-icn"}
+export IPA_DOWNLOADER_IMAGE=${IPA_DOWNLOADER_IMAGE:-"integratedcloudnative/ironic-ipa-downloader:v1.0-icn"}
 
 # Verify requisites/permissions
 # Connect to system libvirt

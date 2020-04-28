@@ -7,7 +7,7 @@ source lib/logging.sh
 source lib/common.sh
 
 # Kill and remove the running ironic containers
-for name in ironic ironic-inspector dnsmasq httpd mariadb; do
+for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
     sudo "${CONTAINER_RUNTIME}" ps | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" kill $name
     sudo "${CONTAINER_RUNTIME}" ps --all | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" rm $name -f
 done
@@ -53,3 +53,6 @@ if [ "$MANAGE_BR_BRIDGE" == "y" ]; then
     sudo ifdown baremetal || true
     sudo rm -f /etc/sysconfig/network-scripts/ifcfg-baremetal || true
 fi
+
+rm -rf $WORKING_DIR
+rm -rf $IRONIC_DATA_DIR
