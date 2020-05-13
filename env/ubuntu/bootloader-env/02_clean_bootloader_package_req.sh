@@ -103,8 +103,9 @@ function clean_all {
     systemctl disable kubelet
     systemctl disable dockershim
     systemctl disable criproxy
-    ip link delete virbr0-nic
-    ip link delete virbr0
+    if ip link show | grep virbr0-nic > /dev/null; then ip link delete virbr0-nic; fi
+    if ip link show | grep virbr0 > /dev/null; then ip link delete virbr0; fi
+
 }
 
 function clean_apt_cache {

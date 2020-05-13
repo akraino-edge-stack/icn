@@ -96,6 +96,10 @@ function kud_install {
             sleep 15
             bash sriov.sh
         popd
+        pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
+            sleep 15
+            bash optane.sh
+        popd
     fi
     popd
 }
