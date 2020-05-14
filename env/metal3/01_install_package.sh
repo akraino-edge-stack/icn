@@ -32,7 +32,7 @@ function install_essential_packages {
 
     add-apt-repository -y ppa:longsleep/golang-backports
     apt-get update
-    apt-get install golang-go
+    apt-get install golang-go -y
 }
 
 function install_ironic_packages {

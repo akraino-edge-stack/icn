@@ -16,7 +16,6 @@ brctl delbr provisioning
 ip link set dhcp0 down
 brctl delbr dhcp0
 
-rm -rf ${BS_DHCP_DIR}
 rm -rf ${IRONIC_DATA_DIR}
 
 #Kubeadm usage is deprecated in v1.0.0

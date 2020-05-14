@@ -147,6 +147,13 @@ function install_dhcp {
     kubectl create -f $PWD/04_dhcp.yaml
 }
 
+function reset_dhcp {
+    kubectl delete -f $PWD/04_dhcp.yaml
+    if [ -d $BS_DHCP_DIR ]; then
+        rm -rf $BS_DHCP_DIR
+    fi
+}
+
 function create_ironic_env {
     cat <<EOF > ${PWD}/ironic.env
 PROVISIONING_INTERFACE=provisioning
@@ -173,11 +180,24 @@ function install {
     #Todo - error handling mechanism
     create_ironic_env
     install_ironic_container
-    install_dhcp
 }
 
 if [ "$1" == "-o" ]; then
     install offline
+    exit 0
+fi
+
+if [ "$1" == "--dhcp-start" ]; then
+    install_dhcp
+    echo "wait for 320s for nodes to be assigned"
+    sleep 6m
+    exit 0
+fi
+
+if [ "$1" == "--dhcp-reset" ]; then
+    reset_dhcp
+    echo "wait for 320s for nodes to be re-assigned"
+    sleep 6m
     exit 0
 fi
 
