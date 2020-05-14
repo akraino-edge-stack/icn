@@ -16,6 +16,7 @@ brctl delbr provisioning
 ip link set dhcp0 down
 brctl delbr dhcp0
 
+kubectl delete deployment bootstrap-cluster-dhcp
 rm -rf ${BS_DHCP_DIR}
 rm -rf ${IRONIC_DATA_DIR}
 

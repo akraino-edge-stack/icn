@@ -93,44 +93,22 @@ function create_userdata {
 }
 
 function launch_baremetal_operator {
-    if [ -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
-        rm -rf $GOPATH/src/github.com/metal3-io/baremetal-operator
-    fi
-
     docker pull integratedcloudnative/baremetal-operator:v1.0-icn
-    docker tag integratedcloudnative/baremetal-operator:v1.0-icn \
-        quay.io/metal3-io/baremetal-operator:master
-
-    mkdir -p $GOPATH/src/github.com/metal3-io
-    pushd $GOPATH/src/github.com/metal3-io
-    git clone --single-branch --branch v1.0-icn \
-        https://github.com/akraino-icn/baremetal-operator.git
-    kubectl apply -f baremetal-operator/deploy/namespace/namespace.yaml
-    kubectl apply -f baremetal-operator/deploy/rbac/service_account.yaml -n metal3
-    kubectl apply -f baremetal-operator/deploy/rbac/role.yaml -n metal3
-    kubectl apply -f baremetal-operator/deploy/rbac/role_binding.yaml
-    kubectl apply -f baremetal-operator/deploy/crds/metal3.io_baremetalhosts_crd.yaml
-    kubectl apply -f baremetal-operator/deploy/operator/no_ironic/operator.yaml -n metal3
-    popd
+    kubectl apply -f bmo/namespace/namespace.yaml
+    kubectl apply -f bmo/rbac/service_account.yaml -n metal3
+    kubectl apply -f bmo/rbac/role.yaml -n metal3
+    kubectl apply -f bmo/rbac/role_binding.yaml
+    kubectl apply -f bmo/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl apply -f bmo/operator/no_ironic/operator.yaml -n metal3
 }
 
 function remove_baremetal_operator {
-    if [ ! -d $GOPATH/src/github.com/metal3-io/baremetal-operator ]; then
-        pushd $GOPATH/src/github.com/metal3-io
-        git clone --single-branch --branch v1.0-icn \
-		https://github.com/akraino-icn/baremetal-operator.git
-        popd
-    fi
-
-    pushd $GOPATH/src/github.com/metal3-io
-    kubectl delete -f baremetal-operator/deploy/operator/no_ironic/operator.yaml -n metal3
-    kubectl delete -f baremetal-operator/deploy/crds/metal3.io_baremetalhosts_crd.yaml
-    kubectl delete -f baremetal-operator/deploy/rbac/role_binding.yaml
-    kubectl delete -f baremetal-operator/deploy/rbac/role.yaml -n metal3
-    kubectl delete -f baremetal-operator/deploy/rbac/service_account.yaml -n metal3
-    kubectl delete -f baremetal-operator/deploy/namespace/namespace.yaml
-    popd
-    rm -rf $GOPATH/src/github.com/metal3-io/baremetal-operator
+    kubectl delete -f bmo/operator/no_ironic/operator.yaml -n metal3
+    kubectl delete -f bmo/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl delete -f bmo/rbac/role_binding.yaml
+    kubectl delete -f bmo/rbac/role.yaml -n metal3
+    kubectl delete -f bmo/rbac/service_account.yaml -n metal3
+    kubectl delete -f bmo/namespace/namespace.yaml
 }
 
 function network_config_files {
