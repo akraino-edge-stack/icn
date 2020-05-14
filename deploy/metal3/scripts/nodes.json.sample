@@ -18,7 +18,7 @@
       "ipmi_driver_info": {
         "username": "root",
         "password": "root",
-        "address": "10.10.110.13"
+        "address": "10.10.110.14"
       },
       "os": {
         "image_name": "bionic-server-cloudimg-amd64.img",
