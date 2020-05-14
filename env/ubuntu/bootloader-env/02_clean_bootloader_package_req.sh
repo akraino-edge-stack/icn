@@ -53,19 +53,15 @@ function clean_docker_packages {
         $(lsb_release -cs) \
         stable"
     apt-get update
+    docker rmi -f $(docker image ls -a -q)
     apt-get remove docker-ce -y
-    #for package in apt-transport-https ca-certificates gnupg-agent \
-    #        software-properties-common; do
-    #    apt-get remove $package -y
-    #done
-
     apt-get remove -y docker \
         docker-engine \
         docker.io \
         containerd \
         runc \
         docker-ce
-
+    apt-get purge docker-* -y --allow-change-held-packages
     apt-get update
 }
 
@@ -146,7 +142,7 @@ function clean_dir {
 
 if [ "$1" == "--only-packages" ]; then
     check_prerequisite
-    clean_docker_packages
+    clean_docker_packages || true
     #clean_ironic_packages
     autoremove
     exit 0
