@@ -89,6 +89,7 @@ function kud_install {
     if [ "$1" == "vm" ]; then
         sed -i -e 's/^kube_pods_subnet.*/kube_pods_subnet: 172.21.64.0\/18/g' inventory/group_vars/k8s-cluster.yml
     fi
+    echo "docker_version: "\""latest"\""" >> inventory/group_vars/k8s-cluster.yml
     ./installer.sh | tee kud_deploy.log
 
     if [ "$1" == "bm" ]; then
