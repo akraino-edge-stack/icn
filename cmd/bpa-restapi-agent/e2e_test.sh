@@ -55,7 +55,7 @@ while [[ $cur_status != "Running" ]]; do
     sleep 10
 done
 
-sleep 10
+sleep 30
 
 #Get CLusterIP
 IP=$(kubectl get services | grep bpa-api-service | awk '{print $3}')

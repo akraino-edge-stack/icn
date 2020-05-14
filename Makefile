@@ -39,6 +39,12 @@ bmh_clean:
 bmh_clean_host:
 	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
 
+dhcp_start:
+	pushd $(BMDIR) && ./03_launch_prereq.sh --dhcp-start && popd
+
+dhcp_reset:
+	pushd $(BMDIR) && ./03_launch_prereq.sh --dhcp-reset && popd
+
 clean_packages:
 	pushd $(BOOTLOADER_ENV) && \
 	./02_clean_bootloader_package_req.sh --only-packages && popd
@@ -138,8 +144,10 @@ prerequisite:
 bm_verifer: package_prerequisite \
         kud_bm_deploy_mini \
         bmh_all \
+	dhcp_start \
 	bpa_op_bmh_verifier \
 	bpa_rest_api_verifier \
+	dhcp_reset \
 	clean_all
 
 verify_all: prerequisite \

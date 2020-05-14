@@ -145,7 +145,7 @@ if [[ "$MANAGE_BR_BRIDGE" == "y" && $OS == "centos" ]] ; then
   fi
 fi
 
-for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do                  
+for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
     sudo "${CONTAINER_RUNTIME}" ps | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" kill $name
     sudo "${CONTAINER_RUNTIME}" ps --all | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" rm $name -f
 done
