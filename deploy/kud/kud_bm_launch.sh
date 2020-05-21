@@ -12,7 +12,11 @@ function get_kud_repo {
 
     mkdir -p $DOWNLOAD_PATH
     pushd $DOWNLOAD_PATH
-    git clone https://github.com/onap/multicloud-k8s.git
+    if [ "$1" == "v1" ] ; then
+        git clone --branch v1.0-icn https://github.com/akraino-icn/multicloud-k8s.git
+    else
+        git clone https://github.com/onap/multicloud-k8s.git
+    fi
     popd
 }
 
@@ -123,7 +127,7 @@ if [ "$1" == "reset" ] ; then
     exit 0
 fi
 
-get_kud_repo
+get_kud_repo $2
 set_ssh_key
 set_bm_kud $1
 kud_install $1
