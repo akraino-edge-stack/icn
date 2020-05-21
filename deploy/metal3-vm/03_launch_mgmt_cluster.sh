@@ -6,8 +6,8 @@ source lib/logging.sh
 # shellcheck disable=SC1091
 source lib/common.sh
 
-eval "$(go env)"
-export GOPATH
+DEPLOYDIR="$(dirname "$PWD")"
+BMODIR=$DEPLOYDIR/metal3/scripts/bmo
 
 # Environment variables
 # M3PATH : Path to clone the metal3 dev env repo
@@ -49,31 +49,12 @@ function clone_repos {
 }
 
 function launch_baremetal_operator {
-    docker pull integratedcloudnative/baremetal-operator:v1.0-icn
-    docker tag integratedcloudnative/baremetal-operator:v1.0-icn \
-        quay.io/metal3-io/baremetal-operator:master
-
-    pushd "${BMOPATH}"
-    if [ "${BMO_RUN_LOCAL}" = true ]; then
-        touch bmo.out.log
-        touch bmo.err.log
-        kubectl apply -f deploy/namespace/namespace.yaml
-        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
-        kubectl apply -f deploy/rbac/role.yaml -n metal3
-        kubectl apply -f deploy/rbac/role_binding.yaml
-        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
-        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
-        kubectl scale deployment metal3-baremetal-operator -n metal3 --replicas=0
-        nohup make run >> bmo.out.log 2>>bmo.err.log &
-    else
-        kubectl apply -f deploy/namespace/namespace.yaml
-        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
-        kubectl apply -f deploy/rbac/role.yaml -n metal3
-        kubectl apply -f deploy/rbac/role_binding.yaml
-        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
-        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
-    fi
-    popd
+    kubectl apply -f $BMODIR/namespace/namespace.yaml
+    kubectl apply -f $BMODIR/rbac/service_account.yaml -n metal3
+    kubectl apply -f $BMODIR/rbac/role.yaml -n metal3
+    kubectl apply -f $BMODIR/rbac/role_binding.yaml
+    kubectl apply -f $BMODIR/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
 network_config_files() {
@@ -158,7 +139,6 @@ function make_bm_hosts {
 function apply_bm_hosts {
     list_nodes | make_bm_hosts
 }
-
 
 clone_repos
 launch_baremetal_operator
