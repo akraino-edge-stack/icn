@@ -66,19 +66,19 @@ clean_all: bmh_clean \
 	clean_packages
 
 kud_bm_deploy_mini:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal v1 && popd
 
 kud_bm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh all && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh all v2 && popd
 
 kud_bm_deploy_e2e:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm v2 && popd
 
 kud_vm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh vm && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh vm v1 && popd
 
 kud_bm_reset:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset v1 && popd
 
 metal3_prerequisite:
 	pushd $(METAL3VMDIR) && make bmh_install && popd
@@ -161,14 +161,12 @@ verifier: verify_all
 
 verify_nestedk8s: prerequisite \
 	kud_vm_deploy \
-	sdwan_verifier \
 	bpa_op_virtletvm_verifier \
 	kud_bm_reset \
 	clean_bm_packages
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
-        sdwan_verifier \
         kud_bm_reset \
 	clean_bm_packages
 
