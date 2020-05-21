@@ -6,74 +6,22 @@ source lib/logging.sh
 # shellcheck disable=SC1091
 source lib/common.sh
 
-eval "$(go env)"
-export GOPATH
+DEPLOYDIR="$(dirname "$PWD")"
+BMODIR=$DEPLOYDIR/metal3/scripts/bmo
 
 # Environment variables
-# M3PATH : Path to clone the metal3 dev env repo
-# BMOPATH : Path to clone the baremetal operator repo
-#
-# BMOREPO : Baremetal operator repository URL
-# BMOBRANCH : Baremetal operator repository branch to checkout
-# FORCE_REPO_UPDATE : discard existing directories
-#
-# BMO_RUN_LOCAL : run the baremetal operator locally (not in Kubernetes cluster)
-
-M3PATH="${GOPATH}/src/github.com/metal3-io"
-BMOPATH="${M3PATH}/baremetal-operator"
-
-BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
-BMOBRANCH="${BMOBRANCH:-10eb5aa3e614d0fdc6315026ebab061cbae6b929}"
-FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
-
-BMO_RUN_LOCAL="${BMO_RUN_LOCAL:-false}"
 COMPUTE_NODE_PASSWORD="${COMPUTE_NODE_PASSWORD:-mypasswd}"
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
 IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
 
-function clone_repos {
-    mkdir -p "${M3PATH}"
-    if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
-      rm -rf "${BMOPATH}"
-    fi
-    if [ ! -d "${BMOPATH}" ] ; then
-        pushd "${M3PATH}"
-        git clone "${BMOREPO}"
-        popd
-    fi
-    pushd "${BMOPATH}"
-    git checkout "${BMOBRANCH}"
-    git pull -r || true
-    popd
-}
-
 function launch_baremetal_operator {
-    docker pull integratedcloudnative/baremetal-operator:v1.0-icn
-    docker tag integratedcloudnative/baremetal-operator:v1.0-icn \
-        quay.io/metal3-io/baremetal-operator:master
-
-    pushd "${BMOPATH}"
-    if [ "${BMO_RUN_LOCAL}" = true ]; then
-        touch bmo.out.log
-        touch bmo.err.log
-        kubectl apply -f deploy/namespace/namespace.yaml
-        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
-        kubectl apply -f deploy/rbac/role.yaml -n metal3
-        kubectl apply -f deploy/rbac/role_binding.yaml
-        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
-        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
-        kubectl scale deployment metal3-baremetal-operator -n metal3 --replicas=0
-        nohup make run >> bmo.out.log 2>>bmo.err.log &
-    else
-        kubectl apply -f deploy/namespace/namespace.yaml
-        kubectl apply -f deploy/rbac/service_account.yaml -n metal3
-        kubectl apply -f deploy/rbac/role.yaml -n metal3
-        kubectl apply -f deploy/rbac/role_binding.yaml
-        kubectl apply -f deploy/crds/metal3.io_baremetalhosts_crd.yaml
-        kubectl apply -f deploy/operator/no_ironic/operator.yaml -n metal3
-    fi
-    popd
+    kubectl apply -f $BMODIR/namespace/namespace.yaml
+    kubectl apply -f $BMODIR/rbac/service_account.yaml -n metal3
+    kubectl apply -f $BMODIR/rbac/role.yaml -n metal3
+    kubectl apply -f $BMODIR/rbac/role_binding.yaml
+    kubectl apply -f $BMODIR/crds/metal3.io_baremetalhosts_crd.yaml
+    kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
 network_config_files() {
@@ -159,7 +107,5 @@ function apply_bm_hosts {
     list_nodes | make_bm_hosts
 }
 
-
-clone_repos
 launch_baremetal_operator
 apply_bm_hosts
