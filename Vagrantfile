@@ -10,7 +10,7 @@ Vagrant.configure("2") do |config|
     # add random suffix to allow running multiple jobs
     libvirt.random_hostname = 'yes'
     libvirt.cpus = 32
-    libvirt.memory = 55296
+    libvirt.memory = 40960
     libvirt.machine_virtual_size = 400
   end
 end
