@@ -37,6 +37,8 @@ git clone --recursive "https://gerrit.akraino.org/r/ci-management"
 git clone "https://gerrit.akraino.org/r/icn"
 # create the jjb config file before moving on
 # https://docs.releng.linuxfoundation.org/en/latest/jenkins-sandbox.html
+# To install jenkins-job-builder, run 'pip install jenkins-job-builder' instead of 'apt install',
+# because the verions in apt repo is too old to work for icn
 jenkins-jobs test ci-management/jjb:icn/ci/jjb icn-master-verify
 jenkins-jobs update ci-management/jjb:icn/ci/jjb icn-master-verify
 ```
