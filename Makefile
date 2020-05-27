@@ -170,5 +170,10 @@ bm_verify_nestedk8s: prerequisite \
         kud_bm_reset \
 	clean_bm_packages
 
+kud_bm_verifier: prerequisite \
+	kud_bm_deploy_e2e \
+	kud_bm_reset \
+	clean_bm_packages
+
 .PHONY: all bm_preinstall bm_install bashate
 
