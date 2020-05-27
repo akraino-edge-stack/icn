@@ -21,6 +21,7 @@
     target:
       - bm_verifer
       - bm_verify_nestedk8s
+      - kud_bm_verifier
     stream:
       - master:
           branch: master
