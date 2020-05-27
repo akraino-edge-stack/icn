@@ -15,7 +15,9 @@ function get_kud_repo {
     if [ "$1" == "v1" ] ; then
         git clone --branch v1.0-icn https://github.com/akraino-icn/multicloud-k8s.git
     else
-        git clone https://github.com/onap/multicloud-k8s.git
+        #git clone https://github.com/onap/multicloud-k8s.git
+        git clone "https://gerrit.onap.org/r/multicloud/k8s"
+        cd k8s && git fetch "https://gerrit.onap.org/r/multicloud/k8s" refs/changes/76/107676/25 && git checkout FETCH_HEAD && cd .. && mv k8s multicloud-k8s
     fi
     popd
 }
@@ -96,7 +98,7 @@ function kud_install {
     ./installer.sh | tee kud_deploy.log
 
     if [ "$1" == "bm" ]; then
-        for addon in ${KUD_ADDONS:-multus ovn4nfv nfd sriov qat cmk}; do
+        for addon in ${KUD_ADDONS:-multus ovn4nfv nfd sriov qat optane cmk}; do
             pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
                 bash ${addon}.sh
             popd
