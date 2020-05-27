@@ -6,6 +6,7 @@ METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
+SDWAN_E2E_VERIFIER_PATH:=$(CURDIR)/sdwan/e2e-test
 BPA_REST_API:=$(CURDIR)/cmd/bpa-restapi-agent
 BOOTLOADER_ENV:=$(CURDIR)/env/ubuntu/bootloader-env
 
@@ -140,6 +141,9 @@ bashate:
 
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
+
+sdwan_e2e_verifier:
+	pushd $(SDWAN_E2E_VERIFIER_PATH) && git clone https://gerrit.akraino.org/r/icn/sdwan && cd sdwan/platform/test/e2e-test && ./test.sh && popd
 
 bm_verifer: package_prerequisite \
         kud_bm_deploy_mini \
