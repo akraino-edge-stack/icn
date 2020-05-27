@@ -96,10 +96,11 @@ function kud_install {
     ./installer.sh | tee kud_deploy.log
 
     if [ "$1" == "bm" ]; then
-        pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
-            sleep 15
-            bash sriov.sh
-        popd
+        for addon in ${KUD_ADDONS:-multus ovn4nfv nfd sriov qat cmk}; do
+            pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
+                bash ${addon}.sh
+            popd
+        done
     fi
     popd
 }
