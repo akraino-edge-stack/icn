@@ -149,7 +149,7 @@ if [ "$1" == "--only-packages" ]; then
 fi
 
 if [ "$1" == "--bm-cleanall" ]; then
-    clean_all
+    clean_all || true
     autoremove
     exit 0
 fi
