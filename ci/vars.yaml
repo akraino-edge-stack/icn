@@ -6,3 +6,6 @@ jenkins_plugins:
   - gerrit-trigger
   - git
   - postbuildscript
+proxy_env:
+  - http_proxy: http://child-prc.intel.com:913
+  - https_proxy: http://child-prc.intel.com:913
