@@ -4,7 +4,7 @@ build:
 
 docker:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
-	git clone https://github.com/onap/multicloud-k8s.git
+	git clone https://github.com/rkamudhan/multicloud-k8s.git
 	cd multicloud-k8s && \
 	docker build  --network=host --rm \
          	--build-arg http_proxy=${http_proxy} \
@@ -18,7 +18,7 @@ docker:
 
 docker_bmh_e2e:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
-	git clone https://github.com/onap/multicloud-k8s.git
+	git clone https://github.com/rkamudhan/multicloud-k8s.git
 	cd multicloud-k8s && \
         docker build  --network=host --rm \
         	--build-arg http_proxy=${http_proxy} \
