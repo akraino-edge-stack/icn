@@ -18,9 +18,11 @@ docker:
 
 docker_bmh_e2e:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
-	git clone https://github.com/onap/multicloud-k8s.git
-	cd multicloud-k8s && \
-        docker build  --network=host --rm \
+	git clone "https://gerrit.onap.org/r/multicloud/k8s"
+	cd k8s && \
+	git fetch "https://gerrit.onap.org/r/multicloud/k8s" refs/changes/69/106869/44 && \
+	git checkout FETCH_HEAD && \
+	docker build  --network=host --rm \
         	--build-arg http_proxy=${http_proxy} \
         	--build-arg HTTP_PROXY=${HTTP_PROXY} \
         	--build-arg https_proxy=${https_proxy} \
@@ -30,7 +32,7 @@ docker_bmh_e2e:
         	--build-arg KUD_ENABLE_TESTS=true \
         	--build-arg KUD_PLUGIN_ENABLED=true \
         	-t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
-	rm -rf multicloud-k8s
+	rm -rf k8s
 
 .PHONY: deploy
 deploy:
