@@ -1,6 +1,6 @@
 ---
 jenkins_hostname: "{{ ansible_default_ipv4.address }}"
-jenkins_version: 2.192
+jenkins_version: "2.241"
 jenkins_plugin_timeout: 360
 jenkins_plugins:
   - gerrit-trigger
