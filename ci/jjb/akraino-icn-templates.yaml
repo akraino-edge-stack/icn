@@ -154,12 +154,48 @@
     name: 'icn-bluval-daily-{stream}'
     concurrent: true
     node: '{build-node}'
+    defaults: icn
     parameters:
       - lf-infra-parameters: *validation_lf_infra_parameters
       - string:
           name: DEPLOY_SCENARIO
-          default: ''
-      - {'bluval-defaults'}
+          default: '{bluval-deploy-scenario}'
+      - string:
+          name: CLUSTER_MASTER_IP
+          default: '{bluval-cluster-master-ip}'
+          description: 'IP address to connect to the cluster master'
+      - string:
+          name: CLUSTER_SSH_USER
+          default: '{bluval-cluster-ssh-user}'
+          description: 'SSH username to connect to the cluster master '
+      - string:
+          name: CLUSTER_SSH_KEY
+          default: '{bluval-cluster-ssh-key}'
+          description: 'SSH key to connect to the cluster master'
+      - string:
+          name: BLUEPRINT
+          default: '{bluval-blueprint}'
+          description: 'Blueprint used'
+      - string:
+          name: LAYER
+          default: '{bluval-layer}'
+          description: 'Layer ("os", "k8s" or blank to run all)'
+      - string:
+          name: VERSION
+          default: '{bluval-version}'
+          description: 'Version or branch'
+      - string:
+          name: OPTIONAL
+          default: '{bluval-optional}'
+          description: 'If set to yes run optional tests'
+      - string:
+          name: PULL
+          default: '{bluval-pull}'
+          description: 'If set to yes pull docker images before run'
+      - string:
+          name: LAB_SILO
+          default: '{bluval-lab-silo}'
+          description: 'Name of silo in Nexus'
 
     scm:
       - lf-infra-github-scm:
@@ -171,6 +207,9 @@
           submodule-timeout: '{submodule-timeout}'
           submodule-disable: true
           choosing-strategy: default
+
+    triggers:
+      - timed: "@midnight"
 
     builders:
       - description-setter:
