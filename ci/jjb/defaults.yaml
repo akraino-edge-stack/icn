@@ -18,3 +18,14 @@
     # Sonarcloud
     sonarcloud_project_organization: akraino-edge-stack
     sonarcloud_api_token: 6864256050596cb8f0cb689d599687f5de46f414
+
+    # Bluval
+    bluval-cluster-master-ip: localhost
+    bluval-cluster-ssh-user: root
+    bluval-cluster-ssh-key: '/var/lib/jenkins/jenkins-rsa'
+    bluval-blueprint: icn
+    bluval-layer: ""
+    bluval-version: master
+    bluval-optional: false
+    bluval-pull: true
+    bluval-lab-silo: intel
