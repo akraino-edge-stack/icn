@@ -226,3 +226,13 @@
           unstable-on-warning: false
           fail-on-error: true
           show-graphs: true
+      - postbuildscript:
+          mark-unstable-if-failed: true
+          builders:
+              - build-on:
+                    - SUCCESS
+                    - UNSTABLE
+                    - FAILURE
+                build-steps:
+                    - shell: !include-raw-escape:
+                        shell/bluval-postbuild.sh
