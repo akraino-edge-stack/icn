@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "48a789ec_cb8156a3",
+        "filename": "ci/jjb/shell/bluval.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 264
+      },
+      "writtenOn": "2020-06-06T20:25:25Z",
+      "side": 1,
+      "message": "These 2 files need to be provided to jenkins home directory by the jenkins admin. Instructions on the Bluval ICN wiki: https://wiki.akraino.org/display/AK/Deploy+ICN+Bluval.",
+      "revId": "dedfb1a12ebc27f15f126c98364669b9ba33f4d0",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    }
+  ]
+}
