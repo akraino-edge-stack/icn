@@ -2,4 +2,5 @@
 #
 0706f97cf3b2243094a8f24452092769b1065db0                               	GitHub Replication
 1cf4cef0f874deb436be4908ae82e188e2590721                               	icn Non-Interactive Users
+cc622ba9e0807b8d8b7a626c6fa540c560aff53f                               	saml/akraino-gerrit-icn-committers
 ldap:cn=akraino-gerrit-icn-committers,ou=Groups,dc=freestandards,dc=org	ldap/akraino-gerrit-icn-committers
