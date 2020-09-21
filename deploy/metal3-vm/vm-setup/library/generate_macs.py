@@ -15,6 +15,7 @@
 # generate_baremetal_macs method ripped from
 # openstack/tripleo-incubator/scripts/configure-vm
 
+import marshal
 import math
 import random
 
@@ -49,6 +50,10 @@ def generate_baremetal_macs(nodes, networks):
     if count > MAX_NUM_MACS:
         raise ValueError("The MAX num of MACS supported is %i  "
                          "(you specified %i)." % (MAX_NUM_MACS, count))
+
+    # See the random number generator with the input so that MAC
+    # generation is idempotent.
+    random.seed(marshal.dumps(nodes + networks))
 
     base_nums = [0x00,
                  random.randint(0x00, 0xff),
