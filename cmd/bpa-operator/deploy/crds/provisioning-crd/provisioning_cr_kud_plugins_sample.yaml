@@ -10,4 +10,4 @@ spec:
     - master-1:
         mac-address: 00:e1:ba:ce:df:bd
   KUDPlugins:
-    - onap4k8s
+    - emco
