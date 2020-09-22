@@ -61,6 +61,8 @@ spec:
   workers:
     - worker-0:
         mac-address: ${workerMAC}
+  KUDPlugins:
+    - emco
 EOF
 kubectl apply -f e2etest/e2e_test_provisioning_cr.yaml
 sleep 5
