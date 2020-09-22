@@ -13,4 +13,4 @@ spec:
     - worker-1:
          mac-address: 00:1e:67:f8:6a:58
   KUDPlugins:
-    - onap4k8s
+    - emco
