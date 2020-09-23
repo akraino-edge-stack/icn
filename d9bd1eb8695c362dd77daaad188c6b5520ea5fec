@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "a29ae0eb_42e7d6ec",
+        "filename": "cmd/bpa-operator/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 17,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-09-23T22:04:06Z",
+      "side": 1,
+      "message": "This is only to run the plugin_fw_v2.sh test.  I\u0027m not sure this belongs here long term.",
+      "range": {
+        "startLine": 16,
+        "startChar": 0,
+        "endLine": 17,
+        "endChar": 47
+      },
+      "revId": "d9bd1eb8695c362dd77daaad188c6b5520ea5fec",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
