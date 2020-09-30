@@ -1,0 +1,13 @@
+apiVersion: bpa.akraino.org/v1alpha1
+kind: Provisioning
+metadata:
+  name: cluster101
+  labels:
+    cluster: cluster101
+    owner: tester
+spec:
+  masters:
+    - master-1:
+        mac-address: <pn4-IF2-mac>
+  KUDPlugins:
+    - emco
