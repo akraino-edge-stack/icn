@@ -10,7 +10,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-function check_inteface_ip {
+function check_interface_ip {
     local interface=$1
     local ipaddr=$2
 
@@ -62,13 +62,13 @@ function configure_ironic_interfaces {
     #Todo later to change the CNI networking for podman networking
     # Add firewall rules to ensure the IPA ramdisk can reach httpd, Ironic and the Inspector API on the host
     if [ "$IRONIC_PROVISIONING_INTERFACE" ]; then
-        check_inteface_ip $IRONIC_PROVISIONING_INTERFACE $IRONIC_PROVISIONING_INTERFACE_IP
+        check_interface_ip $IRONIC_PROVISIONING_INTERFACE $IRONIC_PROVISIONING_INTERFACE_IP
     else
         exit 1
     fi
 
     if [ "$IRONIC_IPMI_INTERFACE" ]; then
-        check_inteface_ip $IRONIC_IPMI_INTERFACE $IRONIC_IPMI_INTERFACE_IP
+        check_interface_ip $IRONIC_IPMI_INTERFACE $IRONIC_IPMI_INTERFACE_IP
     else
         exit 1
     fi

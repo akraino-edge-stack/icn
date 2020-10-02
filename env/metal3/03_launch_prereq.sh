@@ -11,7 +11,7 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-function get_default_inteface_ipaddress {
+function get_default_interface_ipaddress {
     local _ip=$1
     local _default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
     local _ipv4address=$(ip addr show dev $_default_interface | awk '$1 == "inet" { sub("/.*", "", $2); print $2 }')
@@ -125,7 +125,7 @@ function remove_k8s_noschedule_taint {
 }
 
 function install_k8s_single_node {
-    get_default_inteface_ipaddress apiserver_advertise_addr
+    get_default_interface_ipaddress apiserver_advertise_addr
     kubeadm_init="kubeadm init --kubernetes-version=$KUBE_VERSION \
         --pod-network-cidr=$POD_NETWORK_CIDR \
         --apiserver-advertise-address=$apiserver_advertise_addr"
