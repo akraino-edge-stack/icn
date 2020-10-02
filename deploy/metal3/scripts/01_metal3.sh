@@ -15,7 +15,7 @@ fi
 IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
 IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
 
-function get_default_inteface_ipaddress {
+function get_default_interface_ipaddress {
     local _ip=$1
     local _default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
     local _ipv4address=$(ip addr show dev $_default_interface | awk '$1 == "inet" { sub("/.*", "", $2); print $2 }')
@@ -48,7 +48,7 @@ function deprovision_compute_node {
 }
 
 function set_compute_ssh_config {
-    get_default_inteface_ipaddress default_addr
+    get_default_interface_ipaddress default_addr
     cat << EOF
 - path: /root/.ssh/config
     owner: root:root
