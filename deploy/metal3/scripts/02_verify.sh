@@ -19,7 +19,7 @@ function check_provisioned {
         state=$(kubectl get baremetalhosts $name -n metal3 -o json | jq -r '.status.provisioning.state')
         echo "Baremetal host metal3 state - "$name" : "$state
 
-        if [ $state == "provisioned" ];then
+        if [ "$state" == "provisioned" ];then
             current_host_state=1
         fi
 
