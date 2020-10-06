@@ -1,5 +1,7 @@
 #!/bin/bash
 
+CLUSTER_NAME=cluster-test
+
 # Get MAC and IP addresses of VMs provisioned by metal3
 master0=$(virsh net-dhcp-leases baremetal |grep master-0)
 masterMAC=$(echo $master0 | cut -d " " -f 3)
@@ -49,7 +51,7 @@ kind: Provisioning
 metadata:
   name: e2e-test-provisioning
   labels:
-    cluster: cluster-test
+    cluster: ${CLUSTER_NAME}
     owner: c1
 spec:
   masters:
@@ -69,7 +71,7 @@ while [[ $status == "Running" ]]
 do
 	echo "KUD install job still running"
 	sleep 2m
-	stats=$(kubectl get pods |grep -i kud-cluster-test)
+	stats=$(kubectl get pods |grep -i kud-${CLUSTER_NAME})
 	status=$(echo $stats | cut -d " " -f 3)
 done
 
@@ -79,7 +81,6 @@ then
    printf "Checking cluster status\n"
 
    source ../../env/lib/common.sh
-   CLUSTER_NAME=cluster-test
    KUBECONFIG=--kubeconfig=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/admin.conf
    APISERVER=$(kubectl ${KUBECONFIG} config view --minify -o jsonpath='{.clusters[0].cluster.server}')
    TOKEN=$(kubectl ${KUBECONFIG} get secret $(kubectl ${KUBECONFIG} get serviceaccount default -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode )
@@ -98,7 +99,7 @@ fi
 
 
 #Print logs of Job Pod
-jobPod=$(kubectl get pods|grep kud-cluster-test)
+jobPod=$(kubectl get pods|grep kud-${CLUSTER_NAME})
 podName=$(echo $jobPod | cut -d " " -f 1)
 printf "\nNow Printing Job pod logs\n"
 kubectl logs $podName
@@ -106,9 +107,9 @@ kubectl logs $podName
 #Teardown Setup
 printf "\n\nBeginning E2E Test Teardown\n\n"
 kubectl delete -f e2etest/e2e_test_provisioning_cr.yaml
-kubectl delete job kud-cluster-test
-kubectl delete configmap cluster-test-configmap
+kubectl delete job kud-${CLUSTER_NAME}
+kubectl delete configmap ${CLUSTER_NAME}-configmap
 rm e2etest/e2e_test_provisioning_cr.yaml
-rm -rf /opt/kud/multi-cluster/cluster-test
+rm -rf /opt/kud/multi-cluster/${CLUSTER_NAME}
 rm /opt/icn/dhcp/dhcpd.leases
 make delete
