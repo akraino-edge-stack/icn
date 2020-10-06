@@ -15,6 +15,22 @@ fi
 IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
 IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
 
+function clone_repos {
+    mkdir -p "${M3PATH}"
+    if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
+      rm -rf "${BMOPATH}"
+    fi
+    if [ ! -d "${BMOPATH}" ] ; then
+        pushd "${M3PATH}"
+        git clone "${BMOREPO}"
+        popd
+    fi
+    pushd "${BMOPATH}"
+    git checkout "${BMOBRANCH}"
+    git pull -r || true
+    popd
+}
+
 function get_default_interface_ipaddress {
     local _ip=$1
     local _default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
@@ -254,6 +270,7 @@ function deprovision_all_hosts {
 }
 
 if [ "$1" == "launch" ]; then
+    clone_repos
     launch_baremetal_operator
     exit 0
 fi
