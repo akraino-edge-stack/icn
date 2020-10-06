@@ -43,6 +43,17 @@ IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
+#Path to clone the metal3 dev env repo
+M3PATH="${GOPATH}/src/github.com/metal3-io"
+#Path to clone the baremetal operator repo
+BMOPATH="${M3PATH}/baremetal-operator"
+#Baremetal operator repository URL
+BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
+#Baremetal operator repository branch to checkout
+BMOBRANCH="${BMOBRANCH:-10eb5aa3e614d0fdc6315026ebab061cbae6b929}"
+#Discard existing baremetal operator repo directory
+FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
+
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides
