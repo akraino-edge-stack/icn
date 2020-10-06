@@ -22,6 +22,30 @@
       "revId": "54f4ea7b6f4836981a2831a04475d45500ba87b6",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "d7a4c375_94ee0143",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-06T23:40:43Z",
+      "side": 1,
+      "message": "Ahh, thanks for the heads up, I\u0027ll quit doing that.",
+      "parentUuid": "abe21101_536ac66a",
+      "range": {
+        "startLine": 7,
+        "startChar": 48,
+        "endLine": 7,
+        "endChar": 49
+      },
+      "revId": "54f4ea7b6f4836981a2831a04475d45500ba87b6",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
