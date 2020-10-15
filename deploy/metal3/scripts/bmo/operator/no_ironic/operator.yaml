@@ -15,7 +15,7 @@ spec:
       serviceAccountName: metal3-baremetal-operator
       containers:
         - name: baremetal-operator
-          image: integratedcloudnative/baremetal-operator:v1.0-icn
+          image: integratedcloudnative/baremetal-operator:v2.0-icn
           ports:
           - containerPort: 60000
             name: metrics
