@@ -1,0 +1,84 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "61aa2d41_7a87433f",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-19T20:53:11Z",
+      "side": 1,
+      "message": "IF3 is not present in the deployment diagram.  Neither are the VLAN identifiers.",
+      "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c40bcea4_9a9d87bc",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 105,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-19T20:53:11Z",
+      "side": 1,
+      "message": "IF3 is not present in the deployment diagram.  Neither are the VLAN identifiers.",
+      "range": {
+        "startLine": 103,
+        "startChar": 0,
+        "endLine": 105,
+        "endChar": 203
+      },
+      "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "558d6e56_3027d463",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 200,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-19T20:53:11Z",
+      "side": 1,
+      "message": "BS_DHCP_INTERFACE and BS_DHCP_INTERFACE_IP example values are not present in the deployment diagram.",
+      "range": {
+        "startLine": 193,
+        "startChar": 0,
+        "endLine": 200,
+        "endChar": 28
+      },
+      "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a53c821_7318e0b2",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-19T20:53:11Z",
+      "side": 1,
+      "message": "The VM figure will need to be updated similar to the deployment diagram.",
+      "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
