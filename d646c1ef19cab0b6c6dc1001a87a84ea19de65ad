@@ -79,6 +79,24 @@
       "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "3573dfa9_220ec7d8",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 290,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-10-20T00:03:00Z",
+      "side": 1,
+      "message": "Done in patchset 2",
+      "parentUuid": "1a53c821_7318e0b2",
+      "revId": "d646c1ef19cab0b6c6dc1001a87a84ea19de65ad",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
