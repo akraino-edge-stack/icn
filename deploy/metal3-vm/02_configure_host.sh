@@ -184,6 +184,7 @@ fi
 cat <<EOF > ${PWD}/ironic.env                                                 
 PROVISIONING_INTERFACE=provisioning                                               
 DHCP_RANGE=172.22.0.10,172.22.0.100                                               
+IPA_BASEURI=https://images.rdoproject.org/train/rdo_trunk/current-tripleo
 DEPLOY_KERNEL_URL=http://172.22.0.1/images/ironic-python-agent.kernel             
 DEPLOY_RAMDISK_URL=http://172.22.0.1/images/ironic-python-agent.initramfs         
 IRONIC_ENDPOINT=http://172.22.0.1:6385/v1/                                        

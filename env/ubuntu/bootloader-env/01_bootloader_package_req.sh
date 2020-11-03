@@ -101,7 +101,7 @@ function download_build_packages {
     pushd $BUILD_DIR
     if [ ! -f ironic-python-agent.initramfs ]; then
     curl --insecure --compressed \
-        -L https://images.rdoproject.org/master/rdo_trunk/current-tripleo-rdo/ironic-python-agent.tar | tar -xf -
+        -L https://images.rdoproject.org/train/rdo_trunk/current-tripleo/ironic-python-agent.tar | tar -xf -
     fi
 
     if [[ "$BM_IMAGE_URL" && "$BM_IMAGE" ]]; then
