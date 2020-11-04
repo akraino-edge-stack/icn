@@ -78,6 +78,8 @@ runcmd:
 EOF
 }
 
+# documentation for the values below may be found at
+# https://cloudinit.readthedocs.io/en/latest/topics/modules.html
 create_userdata() {
     name="$1"
     COMPUTE_NODE_FQDN="$name.akraino.icn.org"
@@ -120,7 +122,7 @@ EOF
 }
 
 function make_bm_hosts {
-    while read -r name address user password mac; do
+    while IFS=',' read -r name address user password mac; do
         create_userdata $name
         apply_userdata_credential $name
         go run "${BMOPATH}"/cmd/make-bm-worker/main.go \

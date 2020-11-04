@@ -113,17 +113,12 @@ fi
 function list_nodes {
     # Includes -machine and -machine-namespace
     cat $NODES_FILE | \
-        jq '.nodes[] | {
-           name,
-           driver,
-           address:.driver_info.ipmi_address,
-           port:.driver_info.ipmi_port,
-           user:.driver_info.ipmi_username,
-           password:.driver_info.ipmi_password,
-           mac: .ports[0].address
-           } |
-           .name + " " +
-           .driver + "://" + .address + (if .port then ":" + .port else "" end)  + " " +
-           .user + " " + .password + " " + .mac' \
-       | sed 's/"//g'
+        jq -r '.nodes[] | [
+           .name,
+           .driver + "://" + .driver_info.ipmi_address + (if .driver_info.ipmi_port then ":" + .driver_info.ipmi_port else "" end),
+           .driver_info.ipmi_username,
+           .driver_info.ipmi_password,
+           .ports[0].address
+           ] | @csv' | \
+        sed 's/"//g'
 }

@@ -43,10 +43,6 @@ IRONIC_IPMI_INTERFACE_IP=${IRONIC_IPMI_INTERFACE_IP:-}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
-#Todo change into nodes list in json pattern
-COMPUTE_NODE_FQDN=${COMPUTE_NODE_FQDN:-".akraino.org"}
-COMPUTE_NODE_PASSWORD=${COMPUTE_NODE_PASSWORD:-"mypasswd"}
-
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides
@@ -81,21 +77,20 @@ function call_api {
 function list_nodes {
     NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
 
-    if [ ! -f $IRONIC_DATA_DIR/nodes.json ]; then
+    if [ ! -f "$NODES_FILE" ]; then
         exit 1
     fi
 
     cat "$NODES_FILE" | \
-        jq '.nodes[] | {
-           name,
-           username:.ipmi_driver_info.username,
-           password:.ipmi_driver_info.password,
-           address:.ipmi_driver_info.address
-           } |
-           .name + " " +
-           .username + " " +
-           .password + " " +
-           .address' \
-       | sed 's/"//g'
+        jq -r '.nodes[] | [
+           .name,
+           .ipmi_driver_info.username,
+           .ipmi_driver_info.password,
+           .ipmi_driver_info.address,
+           .os.username,
+           .os.password,
+           .os.image_name
+           ] | @csv' | \
+        sed 's/"//g'
 }
 

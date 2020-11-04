@@ -14,7 +14,7 @@ function check_provisioned {
     declare -i prev_host_state=0
     declare -i j=0
     echo "Baremetal state: 1 means provisioned & 0 means not yet provisioned"
-    while read -r name username password address; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
         declare -i current_host_state=0
         state=$(kubectl get baremetalhosts $name -n metal3 -o json | jq -r '.status.provisioning.state')
         echo "Baremetal host metal3 state - "$name" : "$state
