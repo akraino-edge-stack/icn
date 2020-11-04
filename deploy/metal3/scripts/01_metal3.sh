@@ -66,25 +66,49 @@ function set_compute_ssh_config {
 EOF
 }
 
+# documentation for the values below may be found at
+# https://cloudinit.readthedocs.io/en/latest/topics/modules.html
 function create_userdata {
     name="$1"
+    username="$2"
+    password="$3"
     COMPUTE_NODE_FQDN="$name.akraino.icn.org"
+
+    # validate that the user isn't expecting the deprecated
+    # COMPUTE_NODE_PASSWORD to be used
+    if [ "$password" != "${COMPUTE_NODE_PASSWORD:-$password}" ]; then
+        cat <<EOF
+COMPUTE_NODE_PASSWORD "$COMPUTE_NODE_PASSWORD" not equal to nodes.json $name password "$password".
+Unset COMPUTE_NODE_PASSWORD and retry.
+EOF
+        exit 1
+    fi
+
     printf "#cloud-config\n" >  $name-userdata.yaml
-    if [ -n "$COMPUTE_NODE_PASSWORD" ]; then
-    printf "password: ""%s" "$COMPUTE_NODE_PASSWORD" >>  $name-userdata.yaml
-    printf "\nchpasswd: {expire: False}\n" >>  $name-userdata.yaml
-    printf "ssh_pwauth: True\n" >>  $name-userdata.yaml
+    if [ -n "$password" ]; then
+        if [ -n "$username" ]; then
+            passwd=$(mkpasswd --method=SHA-512 --rounds 4096 "$password")
+            printf "users:" >>  $name-userdata.yaml
+            printf "\n  - name: ""%s" "$username" >>  $name-userdata.yaml
+            printf "\n    lock_passwd: False" >>  $name-userdata.yaml # necessary to allow password login
+            printf "\n    passwd: ""%s" "$passwd" >>  $name-userdata.yaml
+            printf "\n    sudo: \"ALL=(ALL) NOPASSWD:ALL\"" >>  $name-userdata.yaml
+        else
+            printf "password: ""%s" "$password" >>  $name-userdata.yaml
+        fi
+        printf "\nchpasswd: {expire: False}\n" >>  $name-userdata.yaml
+        printf "ssh_pwauth: True\n" >>  $name-userdata.yaml
     fi
 
     if [ -n "$COMPUTE_NODE_FQDN" ]; then
-    printf "fqdn: ""%s" "$COMPUTE_NODE_FQDN" >>  $name-userdata.yaml
-    printf "\n" >>  $name-userdata.yaml
+        printf "fqdn: ""%s" "$COMPUTE_NODE_FQDN" >>  $name-userdata.yaml
+        printf "\n" >>  $name-userdata.yaml
     fi
     printf "disable_root: false\n" >>  $name-userdata.yaml
     printf "ssh_authorized_keys:\n  - " >>  $name-userdata.yaml
 
     if [ ! -f $HOME/.ssh/id_rsa.pub ]; then
-    yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
+        yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
     fi
 
     cat $HOME/.ssh/id_rsa.pub >>  $name-userdata.yaml
@@ -158,14 +182,14 @@ EOF
 }
 
 function make_bm_hosts {
-    while read -r name username password address; do
-        create_userdata $name
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
+        create_userdata $name $os_username $os_password
         apply_userdata_credential $name
 
         go run $GOPATH/src/github.com/metal3-io/baremetal-operator/cmd/make-bm-worker/main.go \
-           -address "ipmi://$address" \
-           -password "$password" \
-           -user "$username" \
+           -address "ipmi://$ipmi_address" \
+           -password "$ipmi_password" \
+           -user "$ipmi_username" \
            "$name" > $name-bm-node.yaml
 
         printf "  image:" >> $name-bm-node.yaml
@@ -190,13 +214,13 @@ function configure_nodes {
 }
 
 function remove_bm_hosts {
-    while read -r name username password address; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
         deprovision_compute_node $name
     done
 }
 
 function cleanup {
-    while read -r name username password address; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
         kubectl delete bmh $name -n metal3
         kubectl delete secrets $name-bmc-secret -n metal3
         kubectl delete secrets $name-user-data -n metal3

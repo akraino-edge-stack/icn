@@ -11,7 +11,7 @@ function check_provisioned {
     declare -i prev_host_state=0
     declare -i j=0
     echo "VM state: 1 means provisioned & 0 means not yet provisioned"
-    while read -r name address user password mac; do
+    while IFS=',' read -r name address user password mac; do
         declare -i current_host_state=0
         state=$(kubectl get baremetalhosts $name -n metal3 -o json | jq -r '.status.provisioning.state')
         echo "VM host metal3 state - "$name" : "$state

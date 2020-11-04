@@ -46,7 +46,8 @@ function install_ironic_packages {
     python-netaddr \
     python-openstackclient \
     unzip \
-    genisoimage
+    genisoimage \
+    whois
 
     if [ "$1" == "offline" ]; then
     pip install --no-index
