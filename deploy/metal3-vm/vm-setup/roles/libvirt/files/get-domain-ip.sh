@@ -1,8 +1,7 @@
-#!/bin/sh
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 # This script will attempt to get the ip address of the a given libvirt guest.
-
-set -eu
 
 PATH=$PATH:/usr/sbin:/sbin
 

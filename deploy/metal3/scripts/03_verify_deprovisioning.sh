@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -eu -o pipefail
 
 LIBDIR="$(dirname "$(dirname "$(dirname "$PWD")")")"
 
@@ -26,7 +26,7 @@ function check_deprovisioned {
         echo "Baremetal $name     current_host_state : "$current_host_state
         echo "Previous Baremetals prev_host_state    : "$prev_host_state
 
-         if [ $j -eq 0 ]; then
+        if [ $j -eq 0 ]; then
             prev_host_state=$current_host_state
             ((j+=1))
             continue
@@ -50,14 +50,11 @@ function warm_up_time {
 }
 
 function wait_for_deprovisioned {
-    all_bmh_deprovisioned=1
     declare -i k=1
     while ((timeout > 0)); do
         echo "Try $k iteration : Wait for $interval seconds to check all bmh state"
         sleep $interval
-        list_nodes | check_deprovisioned
-        all_bmh_state=$?
-        if [[ $all_bmh_state -eq $all_bmh_deprovisioned ]]; then
+        if ! list_nodes | check_deprovisioned; then
             echo "All the Baremetal hosts are deprovisioned - success"
             warm_up_time
             exit 0

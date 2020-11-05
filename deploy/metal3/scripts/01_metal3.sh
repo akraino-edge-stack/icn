@@ -1,5 +1,5 @@
-#!/bin/bash
-set +ex
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 LIBDIR="$(dirname "$(dirname "$(dirname "$PWD")")")"
 

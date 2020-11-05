@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
-set -x
+set -eux -o pipefail
 
 # shellcheck disable=SC1091
 source lib/logging.sh
 # shellcheck disable=SC1091
 source lib/common.sh
+
+BMO_RUN_LOCAL="${BMO_RUN_LOCAL:-false}"
+CAPBM_RUN_LOCAL="${CAPBM_RUN_LOCAL:-false}"
 
 # Kill and remove the running ironic containers
 for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do

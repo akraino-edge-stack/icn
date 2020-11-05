@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -eux -o pipefail
 
 LIBDIR="$(dirname "$PWD")"
 
@@ -112,9 +112,10 @@ install() {
     #install_kubernetes_packages $1
 }
 
-if ["$1" == "-o"]; then
+if [ "$#" -eq 0 ]; then
+    install online
+elif [ "$1" == "-o" ]; then
     install offline
-    exit 0
+else
+    exit 1
 fi
-
-install

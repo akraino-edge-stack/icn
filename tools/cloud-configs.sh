@@ -1,4 +1,5 @@
-!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 # This script is called by cloud-init on worker nodes
 # What does this script do:
@@ -25,7 +26,7 @@ for module in $MODULES_LIST; do
     tar xvzf $filename
     if [ -d $module ]; then
         echo "Installing module $module ..."
-    pushd $module
+        pushd $module
         bash ./install.sh
         popd
     rm -rf $module

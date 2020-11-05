@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 # Log output automatically
 # referred from metal3 project

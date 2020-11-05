@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-#set -x
+set -eu -o pipefail
 
 LIBDIR="$(dirname "$(dirname "$(dirname "$PWD")")")"
 
@@ -50,14 +50,11 @@ function warm_up_time {
 }
 
 function wait_for_provisioned {
-    all_bmh_provisioned=1
     declare -i k=1
     while ((timeout > 0)); do
         echo "Try $k iteration : Wait for $interval seconds to check all bmh state"
         sleep $interval
-        list_nodes | check_provisioned
-        all_bmh_state=$?
-        if [[ $all_bmh_state -eq $all_bmh_provisioned ]]; then
+        if ! list_nodes | check_provisioned; then
             echo "All the Baremetal hosts are provisioned - success"
             warm_up_time
             exit 0

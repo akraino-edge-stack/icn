@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
-
-set -ex
+set -eux -o pipefail
 
 source ../../_common.sh
 

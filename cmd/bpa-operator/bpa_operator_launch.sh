@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 #Get Go ENV variables
 eval "$(go env)"

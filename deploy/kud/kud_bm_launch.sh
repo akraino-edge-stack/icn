@@ -1,5 +1,5 @@
-#!/bin/bash
-set +x
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 LIBDIR="$(dirname "$(dirname "$PWD")")"
 
@@ -37,7 +37,7 @@ function set_bm_kud {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
     if [ "$1" == "minimal" ] ; then
-    cat <<EOL > hosts.ini
+        cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
 
@@ -55,7 +55,7 @@ kube-node
 kube-master
 EOL
     else
-    cat <<EOL > hosts.ini
+        cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
 

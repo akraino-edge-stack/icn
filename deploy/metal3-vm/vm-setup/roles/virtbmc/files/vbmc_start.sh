@@ -1,4 +1,5 @@
-#!/bin/bash -x
+#!/usr/bin/env bash
+set -eux -o pipefail
 
 name="$1"
 

@@ -1,5 +1,5 @@
-#!/bin/bash
-set -xe
+#!/usr/bin/env bash
+set -eux -o pipefail
 
 # shellcheck disable=SC1091
 source lib/logging.sh

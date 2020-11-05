@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+set -eu -o pipefail
+
 # Log output automatically
 LOGDIR="$(dirname $0)/logs"
 if [ ! -d "$LOGDIR" ]; then

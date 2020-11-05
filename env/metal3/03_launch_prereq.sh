@@ -1,5 +1,5 @@
-#!/bin/bash
-set -xe
+#!/usr/bin/env bash
+set -eux -o pipefail
 
 LIBDIR="$(dirname "$PWD")"
 
@@ -182,23 +182,18 @@ function install {
     install_ironic_container
 }
 
-if [ "$1" == "-o" ]; then
+if [ "$#" -eq 0 ]; then
+    install online
+elif [ "$1" == "-o" ]; then
     install offline
-    exit 0
-fi
-
-if [ "$1" == "--dhcp-start" ]; then
+elif [ "$1" == "--dhcp-start" ]; then
     install_dhcp
     echo "wait for 320s for nodes to be assigned"
     sleep 6m
-    exit 0
-fi
-
-if [ "$1" == "--dhcp-reset" ]; then
+elif [ "$1" == "--dhcp-reset" ]; then
     reset_dhcp
     echo "wait for 320s for nodes to be re-assigned"
     sleep 6m
-    exit 0
+else
+    exit 1
 fi
-
-install

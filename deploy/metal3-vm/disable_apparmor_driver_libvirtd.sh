@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -eu -o pipefail
 
 selinux="#security_driver = \"selinux\""
 apparmor="security_driver = \"apparmor\""
