@@ -87,6 +87,12 @@ function install_ironic_container {
 
     docker wait ipa-downloader
 
+    if [ ! -e "$IRONIC_DATA_DIR/html/images/ironic-python-agent.kernel" ] ||
+       [ ! -e "$IRONIC_DATA_DIR/html/images/ironic-python-agent.initramfs" ]; then
+        echo "Failed to get ironic-python-agent"
+        exit 1
+    fi
+
     # Start dnsmasq, http, mariadb, and ironic containers using same image
     # See this file for env vars you can set, like IP, DHCP_RANGE, INTERFACE
     docker run -d --net host --privileged --name dnsmasq \
