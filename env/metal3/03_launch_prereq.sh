@@ -81,11 +81,9 @@ function install_ironic_container {
     mariadb_password=$(echo $(date;hostname)|sha256sum |cut -c-20)
 
     # Start image downloader container
-    docker run -d --net host --privileged --name ipa-downloader \
+    docker run --net host --privileged --name ipa-downloader \
         --env-file "${PWD}/ironic.env" \
         -v "$IRONIC_DATA_DIR:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
-
-    docker wait ipa-downloader
 
     # Start dnsmasq, http, mariadb, and ironic containers using same image
     # See this file for env vars you can set, like IP, DHCP_RANGE, INTERFACE
