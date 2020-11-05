@@ -181,16 +181,16 @@ else
   POD_NAME=""
 fi
 
-cat <<EOF > ${PWD}/ironic.env                                                 
-PROVISIONING_INTERFACE=provisioning                                               
-DHCP_RANGE=172.22.0.10,172.22.0.100                                               
+cat <<EOF > ${PWD}/ironic.env
+PROVISIONING_INTERFACE=provisioning
+DHCP_RANGE=172.22.0.10,172.22.0.100
 IPA_BASEURI=https://images.rdoproject.org/train/rdo_trunk/current-tripleo
-DEPLOY_KERNEL_URL=http://172.22.0.1/images/ironic-python-agent.kernel             
-DEPLOY_RAMDISK_URL=http://172.22.0.1/images/ironic-python-agent.initramfs         
-IRONIC_ENDPOINT=http://172.22.0.1:6385/v1/                                        
-IRONIC_INSPECTOR_ENDPOINT=http://172.22.0.1:5050/v1/                              
-CACHEURL=http://172.22.0.1/images                                                 
-IRONIC_FAST_TRACK=false                                                           
+DEPLOY_KERNEL_URL=http://172.22.0.1/images/ironic-python-agent.kernel
+DEPLOY_RAMDISK_URL=http://172.22.0.1/images/ironic-python-agent.initramfs
+IRONIC_ENDPOINT=http://172.22.0.1:6385/v1/
+IRONIC_INSPECTOR_ENDPOINT=http://172.22.0.1:5050/v1/
+CACHEURL=http://172.22.0.1/images
+IRONIC_FAST_TRACK=false
 EOF
 
 # Start image downloader container
@@ -199,6 +199,12 @@ sudo "${CONTAINER_RUNTIME}" run -d --net host --privileged --name ipa-downloader
     -v "$IRONIC_DATA_DIR:/shared" "${IPA_DOWNLOADER_IMAGE}" /usr/local/bin/get-resource.sh
 
 sudo "${CONTAINER_RUNTIME}" wait ipa-downloader
+
+if [ ! -e "$IRONIC_DATA_DIR/html/images/ironic-python-agent.kernel" ] ||
+   [ ! -e "$IRONIC_DATA_DIR/html/images/ironic-python-agent.initramfs" ]; then
+    echo "Failed to get ironic-python-agent"
+    exit 1
+fi
 
 # Start dnsmasq, http, mariadb, and ironic containers using same image
 # See this file for env vars you can set, like IP, DHCP_RANGE, INTERFACE
