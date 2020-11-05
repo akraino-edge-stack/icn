@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-
-
-set -ex
+set -eux -o pipefail
 
 SCRIPT_PATH=`realpath $0`
 TOOL_PATH=`dirname "$SCRIPT_PATH"`

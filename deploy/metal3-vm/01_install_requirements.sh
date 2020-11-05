@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set +x
+set -eu -o pipefail
 
 OS=$(awk -F= '/^ID=/ { print $2 }' /etc/os-release | tr -d '"')
 if [[ $OS == ubuntu ]]; then

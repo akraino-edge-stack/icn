@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -x
+set -eux -o pipefail
+
 LIBDIR="$(dirname "$PWD")"
 
 source $LIBDIR/lib/common.sh

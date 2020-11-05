@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 printf "\n\nStart Remote Virtlet VM provisioning E2E test\n\n"
 
@@ -8,9 +9,7 @@ CLUSTER_NAME=bpa-remote
 KUBECONFIG=--kubeconfig=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/admin.conf
 APISERVER=$(kubectl ${KUBECONFIG} config view --minify -o jsonpath='{.clusters[0].cluster.server}')
 TOKEN=$(kubectl ${KUBECONFIG} get secret $(kubectl ${KUBECONFIG} get serviceaccount default -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode )
-call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
-ret=$?
-if [[ $ret != 0 ]];
+if ! call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure;
 then
   printf "\nRemote Kubernetes Cluster Install did not complete successfully\n"
 else

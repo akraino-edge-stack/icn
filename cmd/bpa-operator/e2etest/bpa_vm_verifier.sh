@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 # Get MAC and IP addresses of VMs provisioned by metal3
 master0=$(virsh net-dhcp-leases baremetal |grep master-0)
@@ -83,9 +84,7 @@ then
    KUBECONFIG=--kubeconfig=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/admin.conf
    APISERVER=$(kubectl ${KUBECONFIG} config view --minify -o jsonpath='{.clusters[0].cluster.server}')
    TOKEN=$(kubectl ${KUBECONFIG} get secret $(kubectl ${KUBECONFIG} get serviceaccount default -o jsonpath='{.secrets[0].name}') -o jsonpath='{.data.token}' | base64 --decode )
-   call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure
-   ret=$?
-   if [[ $ret != 0 ]];
+   if ! call_api $APISERVER/api --header "Authorization: Bearer $TOKEN" --insecure;
    then
      printf "\nKubernetes Cluster Install did not complete successfully\n"
    else

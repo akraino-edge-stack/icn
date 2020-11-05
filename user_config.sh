@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 #Local controller - Bootstrap cluster DHCP connection
 export BS_DHCP_INTERFACE="eno3"

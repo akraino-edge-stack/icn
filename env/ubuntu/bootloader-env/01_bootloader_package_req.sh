@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -eux -o pipefail
 shopt -s extglob
 
 source $(dirname $PWD)/../lib/common.sh

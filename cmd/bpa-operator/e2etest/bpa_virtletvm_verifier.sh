@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -eu -o pipefail
 
 printf "\n\nStart Virtlet VM provisioning E2E test\n\n"
 

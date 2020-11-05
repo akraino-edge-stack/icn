@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -ex
+set -eux -o pipefail
 
 source $(dirname $PWD)/../lib/common.sh
 source $(dirname $PWD)/../lib/logging.sh

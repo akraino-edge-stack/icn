@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -xe
+set -eux -o pipefail
+
 LIBDIR="$(dirname "$PWD")"
 
 source $LIBDIR/lib/logging.sh
@@ -163,9 +164,10 @@ function configure {
     configure_ironic_interfaces
 }
 
-if [ "$1" == "-o" ]; then
+if [ "$#" -eq 0 ]; then
+    configure online
+elif [ "$1" == "-o" ]; then
     configure offline
-    exit 0
+else
+    exit 1
 fi
-
-configure
