@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "be617c06_f1a78170",
+        "filename": "env/metal3/03_launch_prereq.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-11-06T19:21:00Z",
+      "side": 0,
+      "message": "Yes, ipa-downloader failed due to the URL of the IPA tar being removed (last week sometime I think).  However, the build continued instead of failing here.  The issue is that docker wait always returns an exit code of 0 - it prints the exit code of the containers it waited on to stdout.\n\nMaking it run in the foreground returns the exit code of the container, which will get caught via the set -e option above and the build will fail as expected.",
+      "parentUuid": "dff4fb84_0e637e6c",
+      "revId": "0c5e901ad08d3b0dff0b9abf17c5f3cea708857f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf3338c9_272f7093",
         "filename": "env/metal3/03_launch_prereq.sh",
         "patchSetId": 1
