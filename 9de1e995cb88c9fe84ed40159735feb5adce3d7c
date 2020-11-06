@@ -22,6 +22,30 @@
       "revId": "9de1e995cb88c9fe84ed40159735feb5adce3d7c",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "75c3f5af_ff60673c",
+        "filename": "deploy/metal3-vm/02_configure_host.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-11-06T20:00:15Z",
+      "side": 1,
+      "message": "Whitespace is removed in https://gerrit.akraino.org/r/c/icn/+/3876",
+      "parentUuid": "bbc07717_6a362c41",
+      "range": {
+        "startLine": 184,
+        "startChar": 0,
+        "endLine": 194,
+        "endChar": 3
+      },
+      "revId": "9de1e995cb88c9fe84ed40159735feb5adce3d7c",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
