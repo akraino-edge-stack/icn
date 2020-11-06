@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "e99b6583_c288ccd2",
+        "filename": "deploy/metal3-vm/04_verify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-11-06T19:58:07Z",
+      "side": 1,
+      "message": "I tested successfully with both VM deploy (and the equivalent for baremetal).\n\nBeyond that, I see that check_provisioned only returns 1 or 0, and only 1 when the state is \"provisioned\".  So we should only enter this block when provisioned.",
+      "parentUuid": "6e002258_fc0d848e",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "130a300d_67764293",
         "filename": "deploy/metal3/scripts/02_verify.sh",
         "patchSetId": 1
@@ -59,6 +83,30 @@
       "writtenOn": "2020-11-06T19:35:37Z",
       "side": 1,
       "message": "Double check the condition works in all the cases",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 51
+      },
+      "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "ee9dd57c_3b8e866d",
+        "filename": "deploy/metal3/scripts/03_verify_deprovisioning.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2020-11-06T19:58:07Z",
+      "side": 1,
+      "message": "I tested this successfully with baremetal verifier.",
+      "parentUuid": "ca5920df_658abbfb",
       "range": {
         "startLine": 57,
         "startChar": 8,
