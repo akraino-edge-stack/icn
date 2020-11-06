@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "eaa74b1f_1a7bc454",
+        "filename": "deploy/metal3-vm/04_verify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 55,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T23:29:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e99b6583_c288ccd2",
+      "range": {
+        "startLine": 55,
+        "startChar": 8,
+        "endLine": 55,
+        "endChar": 47
+      },
+      "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "130a300d_67764293",
         "filename": "deploy/metal3/scripts/02_verify.sh",
         "patchSetId": 1
@@ -69,6 +93,30 @@
       "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0aef6509_505af218",
+        "filename": "deploy/metal3/scripts/02_verify.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T23:29:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "130a300d_67764293",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 49
+      },
+      "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     },
     {
       "key": {
@@ -116,6 +164,30 @@
       "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "1a089388_7c8f3685",
+        "filename": "deploy/metal3/scripts/03_verify_deprovisioning.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T23:29:16Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "ee9dd57c_3b8e866d",
+      "range": {
+        "startLine": 57,
+        "startChar": 8,
+        "endLine": 57,
+        "endChar": 51
+      },
+      "revId": "99a46d1720c9136a40a6c922c214d9595ff4ec78",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
