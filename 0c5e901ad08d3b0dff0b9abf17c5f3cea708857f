@@ -37,6 +37,24 @@
     },
     {
       "key": {
+        "uuid": "1e3751fd_8cf0e64b",
+        "filename": "env/metal3/03_launch_prereq.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 85,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T23:38:14Z",
+      "side": 0,
+      "message": "Let resolve it in the desk review.",
+      "parentUuid": "be617c06_f1a78170",
+      "revId": "0c5e901ad08d3b0dff0b9abf17c5f3cea708857f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "bf3338c9_272f7093",
         "filename": "env/metal3/03_launch_prereq.sh",
         "patchSetId": 1
