@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "3edd7bd7_cc7504e9",
+        "filename": "deploy/metal3-vm/lib/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T19:45:23Z",
+      "side": 1,
+      "message": "Like to get a desk review on this",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 122,
+        "endChar": 20
+      },
+      "revId": "82992caaf092574862c67769b01d15a07b973119",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d673598c_7235f754",
+        "filename": "deploy/metal3/scripts/01_metal3.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-06T19:45:23Z",
+      "side": 1,
+      "message": "Look like a good methodology. Like to get the concepts during the desk review.",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 99,
+        "endChar": 70
+      },
+      "revId": "82992caaf092574862c67769b01d15a07b973119",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
