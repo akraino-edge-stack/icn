@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "fa0ea352_32cb52b4",
+        "filename": "deploy/metal3-vm/lib/common.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 122,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-07T00:29:52Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "3edd7bd7_cc7504e9",
+      "range": {
+        "startLine": 115,
+        "startChar": 8,
+        "endLine": 122,
+        "endChar": 20
+      },
+      "revId": "82992caaf092574862c67769b01d15a07b973119",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "d673598c_7235f754",
         "filename": "deploy/metal3/scripts/01_metal3.sh",
         "patchSetId": 1
