@@ -69,6 +69,30 @@
       "revId": "82992caaf092574862c67769b01d15a07b973119",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a116d3d2_bf5a63cf",
+        "filename": "deploy/metal3/scripts/01_metal3.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-07T00:38:32Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "d673598c_7235f754",
+      "range": {
+        "startLine": 90,
+        "startChar": 12,
+        "endLine": 99,
+        "endChar": 70
+      },
+      "revId": "82992caaf092574862c67769b01d15a07b973119",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
