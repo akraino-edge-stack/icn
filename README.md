@@ -28,8 +28,8 @@ bare metal servers connect to the network D, the SRIOV network.
 - Net B (internal network) -- Provisioning network used by Ironic to
   do inspection.
 - Net C (internal network) -- IPMI LAN to do IPMI protocol for the OS
-  provisioning. The NICs support IPMI. Use IPMI tool to set the static
-  IP address.
+  provisioning. The NICs support IPMI. The IP address should be
+  statically assigned via the IPMI tool or other means.
 - Net D (internal network) -- Data plane network for the Akraino
   application. Using the SR-IOV networking and fiber cables.  Intel
   25GB and 40GB FLV NICs.
@@ -37,6 +37,9 @@ bare metal servers connect to the network D, the SRIOV network.
 In some deployment models, you can combine Net C and Net A to be the
 same networks, but the developer should take care of IP address
 management between Net A and IPMI address of the server.
+
+Also note that the IPMI NIC may share the same RJ-45 jack with another
+one of the NICs.
 
 # Pre-installation Requirements
 There are two main components in ICN Infra Local Controller - Local
@@ -76,9 +79,10 @@ No prerequisites for ICN blueprint.
 - Bare metal servers: four network interfaces, including one IPMI interface.
 - Four or more hubs, with cabling, to connect four networks.
 
+(Tested as below)
 Hostname | CPU Model | Memory | Storage | 1GbE: NIC#, VLAN, (Connected extreme 480 switch) | 10GbE: NIC# VLAN, Network (Connected with IZ1 switch)
 ---------|-----------|--------|---------|--------------------------------------------------|------------------------------------------------------
-jump0 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110 (DMZ)<br/>eno1: VLAN 111 (Admin) | eno2: VLAN 112 (Private) VLAN 114 (Management)<br/>IF3: VLAN 113 (Storage) VLAN 1115 (Public)
+jump0 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112
 
 #### Jump Server Software Requirements
 ICN supports Ubuntu 18.04. The ICN blueprint installs all required
@@ -100,9 +104,9 @@ Net C to provision the bare metal servers to do the OS provisioning.
 (Tested as below)
 Hostname | CPU Model | Memory | Storage | 1GbE: NIC#, VLAN, (Connected extreme 480 switch) | 10GbE: NIC# VLAN, Network (Connected with IZ1 switch)
 ---------|-----------|--------|---------|--------------------------------------------------|------------------------------------------------------
-node1 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110 (DMZ)<br/>eno1: VLAN 111 (Admin) | eno2: VLAN 112 (Private) VLAN 114 (Management)<br/>IF3: VLAN 113 (Storage) VLAN 1115 (Public)
-node2 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110 (DMZ)<br/>eno1: VLAN 111 (Admin) | eno2: VLAN 112 (Private) VLAN 114 (Management)<br/>IF3: VLAN 113 (Storage) VLAN 1115 (Public)
-node3 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110 (DMZ)<br/>eno1: VLAN 111 (Admin) | eno2: VLAN 112 (Private) VLAN 114 (Management)<br/>IF3: VLAN 113 (Storage) VLAN 1115 (Public)
+node1 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
+node2 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
+node3 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
 
 #### Compute Server Software Requirements
 The Local Controller will install all the software in compute servers
@@ -192,37 +196,30 @@ The user will find the network configuration file named as
 
 #Local Controller - Bootstrap cluster DHCP connection
 #BS_DHCP_INTERFACE defines the interfaces, to which ICN DHCP deployment will bind
-#e.g. export BS_DHCP_INTERFACE="ens513f0"
-export BS_DHCP_INTERFACE=
+export BS_DHCP_INTERFACE="eno3"
 
 #BS_DHCP_INTERFACE_IP defines the IPAM for the ICN DHCP to be managed.
-#e.g. export BS_DHCP_INTERFACE_IP="172.31.1.1/24"
-export BS_DHCP_INTERFACE_IP=
+export BS_DHCP_INTERFACE_IP="172.31.1.1/24"
 
 #Edge Location Provider Network configuration
 #Net A - Provider Network
 #If provider having specific Gateway and DNS server details in the edge location
 #export PROVIDER_NETWORK_GATEWAY="10.10.110.1"
-export PROVIDER_NETWORK_GATEWAY=
 #export PROVIDER_NETWORK_DNS="8.8.8.8"
-export PROVIDER_NETWORK_DNS=
 
 #Ironic Metal3 settings for provisioning network
 #Interface to which Ironic provision network to be connected
 #Net B - Provisioning Network
-#e.g. export IRONIC_INTERFACE="eno1"
-export IRONIC_INTERFACE=
+export IRONIC_INTERFACE="eno2"
 
 #Ironic Metal3 setting for IPMI LAN Network
 #Interface to which Ironic IPMI LAN should bind
 #Net C - IPMI LAN Network
-#e.g. export IRONIC_IPMI_INTERFACE="eno2"
-export IRONIC_IPMI_INTERFACE=
+export IRONIC_IPMI_INTERFACE="eno1"
 
 #Interface IP for the IPMI LAN, ICN verfiy the LAN Connection is active or not
-#e.g. export IRONIC_IPMI_INTERFACE_IP="10.10.10.10"
 #Net C - IPMI LAN Network
-export IRONIC_IPMI_INTERFACE_IP=
+export IRONIC_IPMI_INTERFACE_IP="10.10.10.10"
 ```
 
 #### Running
