@@ -22,6 +22,30 @@
       "revId": "6f1c2169a05be279e3b774c069c11bc9240c9697",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b02c4d26_75cc1b02",
+        "filename": "deploy/metal3-vm/03_launch_mgmt_cluster.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 141,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2020-11-16T18:09:59Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "e5344d51_1be869bf",
+      "range": {
+        "startLine": 141,
+        "startChar": 8,
+        "endLine": 141,
+        "endChar": 67
+      },
+      "revId": "6f1c2169a05be279e3b774c069c11bc9240c9697",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
