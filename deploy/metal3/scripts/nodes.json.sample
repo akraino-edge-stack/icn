@@ -1,11 +1,11 @@
 {
   "nodes": [
     {
-      "name": "edge01-node01",
+      "name": "pod11-node2",
       "ipmi_driver_info": {
         "username": "root",
         "password": "root",
-        "address": "10.10.110.11"
+        "address": "10.10.110.12"
       },
       "os": {
         "image_name": "bionic-server-cloudimg-amd64.img",
@@ -14,11 +14,11 @@
       }
     },
      {
-      "name": "edge01-node02",
+      "name": "pod11-node3",
       "ipmi_driver_info": {
         "username": "root",
         "password": "root",
-        "address": "10.10.110.14"
+        "address": "10.10.110.13"
       },
       "os": {
         "image_name": "bionic-server-cloudimg-amd64.img",
