@@ -48,6 +48,6 @@ kubectl logs $podName
 printf "\n\nBeginning BMH E2E Test Teardown\n\n"
 kubectl delete -f e2etest/test_bmh_provisioning_cr.yaml
 kubectl delete job kud-${CLUSTER_NAME}
-kubectl delete configmap ${CLUSTER_NAME}-configmap
+kubectl delete --ignore-not-found=true configmap ${CLUSTER_NAME}-configmap
 rm -rf /opt/kud/multi-cluster/${CLUSTER_NAME}
 make delete

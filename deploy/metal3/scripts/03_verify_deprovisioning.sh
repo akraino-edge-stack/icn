@@ -16,10 +16,15 @@ function check_deprovisioned {
     echo "Baremetal state: 1 means deprovisioned & 0 means not yet deprovisioned"
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
         declare -i current_host_state=0
-        state=$(kubectl get baremetalhosts $name -n metal3 -o json | jq -r '.status.provisioning.state')
+        if kubectl get baremetalhost $name -n metal3 &>/dev/null; then
+            state=$(kubectl get baremetalhosts $name -n metal3 -o json | jq -r '.status.provisioning.state')
+        else
+            # When the named BareMetalHost is not found, assume its deprovisioned
+            state="ready"
+        fi
         echo "Baremetal host metal3 state - "$name" : "$state
 
-        if [ $state == "ready" ];then
+        if [ "$state" == "ready" ];then
             current_host_state=1
         fi
 

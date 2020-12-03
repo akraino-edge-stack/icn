@@ -109,7 +109,7 @@ kubectl logs $podName
 printf "\n\nBeginning E2E Test Teardown\n\n"
 kubectl delete -f e2etest/e2e_test_provisioning_cr.yaml
 kubectl delete job kud-${CLUSTER_NAME}
-kubectl delete configmap ${CLUSTER_NAME}-configmap
+kubectl delete --ignore-not-found=true configmap ${CLUSTER_NAME}-configmap
 rm e2etest/e2e_test_provisioning_cr.yaml
 rm -rf /opt/kud/multi-cluster/${CLUSTER_NAME}
 rm /opt/icn/dhcp/dhcpd.leases

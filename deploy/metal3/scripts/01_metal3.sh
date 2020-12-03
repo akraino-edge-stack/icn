@@ -59,8 +59,10 @@ EOF
 
 function deprovision_compute_node {
     name="$1"
-    kubectl patch baremetalhost $name -n metal3 --type merge \
-    -p '{"spec":{"image":{"url":"","checksum":""}}}'
+    if kubectl get baremetalhost $name -n metal3 &>/dev/null; then
+        kubectl patch baremetalhost $name -n metal3 --type merge \
+        -p '{"spec":{"image":{"url":"","checksum":""}}}'
+    fi
 }
 
 function set_compute_ssh_config {
@@ -239,9 +241,9 @@ function remove_bm_hosts {
 
 function cleanup {
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
-        kubectl delete bmh $name -n metal3
-        kubectl delete secrets $name-bmc-secret -n metal3
-        kubectl delete secrets $name-user-data -n metal3
+        kubectl delete --ignore-not-found=true bmh $name -n metal3
+        kubectl delete --ignore-not-found=true secrets $name-bmc-secret -n metal3
+        kubectl delete --ignore-not-found=true secrets $name-user-data -n metal3
         if [ -f $name-bm-node.yaml ]; then
             rm -rf $name-bm-node.yaml
         fi

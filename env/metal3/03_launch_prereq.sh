@@ -154,7 +154,7 @@ function install_dhcp {
 }
 
 function reset_dhcp {
-    kubectl delete -f $PWD/04_dhcp.yaml
+    kubectl delete --ignore-not-found=true -f $PWD/04_dhcp.yaml
     if [ -d $BS_DHCP_DIR ]; then
         rm -rf $BS_DHCP_DIR
     fi
