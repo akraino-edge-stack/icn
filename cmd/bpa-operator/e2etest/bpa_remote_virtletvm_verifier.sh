@@ -73,5 +73,5 @@ kubectl ${KUBECONFIG} logs $podName
 
 kubectl ${KUBECONFIG} delete -f bpa_remote_virtletvm_cr.yaml
 kubectl ${KUBECONFIG} delete job kud-remotevvm
-kubectl ${KUBECONFIG} delete configmap remotevvm-configmap
+kubectl ${KUBECONFIG} delete --ignore-not-found=true configmap remotevvm-configmap
 kubectl  ${KUBECONFIG} delete -f bpa_remote_virtletvm.yaml

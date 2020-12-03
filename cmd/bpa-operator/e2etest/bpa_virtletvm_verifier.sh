@@ -211,7 +211,7 @@ printf "\n\nBeginning E2E VM Test Teardown\n\n"
 
 kubectl delete -f e2e_bpa_test.yaml
 kubectl delete job kud-vmcluster110
-kubectl delete configmap vmcluster110-configmap
+kubectl delete --ignore-not-found=true configmap vmcluster110-configmap
 kubectl delete -f virtlet_test_vm.yaml
 rm -rf /opt/kud/multi-cluster/vmcluster110
 rm -rf $BPA_DIR
