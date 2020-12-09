@@ -1,0 +1,12 @@
+diff --git a/tests/variables.yaml b/tests/variables.yaml
+index fa3fe71..c54f37f 100644
+--- a/tests/variables.yaml
++++ b/tests/variables.yaml
+@@ -82,3 +82,7 @@ dns_domain: cluster.local                     # cluster's DNS domain
+ # NONE, WARN, INFO, DEBUG, and TRACE.
+ # Default is INFO
+ loglevel: INFO
++
++kube_hunter:
++  path: 'aquasec'
++  name: 'kube-hunter:edge'

@@ -1,0 +1,56 @@
+diff --git a/kud/hosting_providers/baremetal/aio.sh b/kud/hosting_providers/baremetal/aio.sh
+index e16a082..f5641d6 100755
+--- a/kud/hosting_providers/baremetal/aio.sh
++++ b/kud/hosting_providers/baremetal/aio.sh
+@@ -21,28 +21,18 @@ OVN_CENTRAL_IP_ADDRESS=${OVN_CENTRAL_IP_ADDRESS:-$(hostname -I | cut -d ' ' -f 1
+ echo "Preparing inventory for ansible"
+ cat <<EOL > inventory/hosts.ini
+ [all]
+-localhost ansible_ssh_host=${OVN_CENTRAL_IP_ADDRESS} ansible_ssh_port=22 download_run_once=False download_localhost=False download_cache_dir=/tmp/kubespray_cache retry_stagger=10
++$HOSTNAME ansible_ssh_host=${OVN_CENTRAL_IP_ADDRESS} ansible_user=root
++pod14-node5 ansible_ssh_host=10.10.140.25 ansible_user=root
+ 
+ [kube-master]
+-localhost
++$HOSTNAME
+ 
+ [kube-node]
+-localhost
++$HOSTNAME
++pod14-node5
+ 
+ [etcd]
+-localhost
+-
+-[ovn-central]
+-localhost
+-
+-[ovn-controller]
+-localhost
+-
+-[virtlet]
+-localhost
+-
+-[cmk]
+-localhost
++$HOSTNAME
+ 
+ [k8s-cluster:children]
+ kube-node
+diff --git a/kud/hosting_providers/vagrant/installer.sh b/kud/hosting_providers/vagrant/installer.sh
+index c88dc9e..9381300 100755
+--- a/kud/hosting_providers/vagrant/installer.sh
++++ b/kud/hosting_providers/vagrant/installer.sh
+@@ -339,8 +339,8 @@ sudo apt-get update
+ _install_go
+ install_k8s
+ _set_environment_file
+-install_addons
+-if ${KUD_PLUGIN_ENABLED:-false}; then
+-    install_plugin
+-fi
++#install_addons
++#if ${KUD_PLUGIN_ENABLED:-false}; then
++#    install_plugin
++#fi
+ _print_kubernetes_info
