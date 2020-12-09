@@ -130,7 +130,7 @@ EOF
     fi
 
     cat $HOME/.ssh/id_rsa.pub >>  $name-userdata.yaml
-    network_config_files >> $name-userdata.yaml
+    cloud_init_scripts >> $name-userdata.yaml
     printf "\n" >>  $name-userdata.yaml
 }
 
@@ -153,10 +153,25 @@ function remove_baremetal_operator {
     kubectl delete -f bmo/namespace/namespace.yaml
 }
 
-function network_config_files {
+function cloud_init_scripts {
+    # The "intel_iommu=on iommu=pt" kernel command line is necessary
+    # for QAT support.
     cat << 'EOF'
 write_files:
-- path: /opt/ironic_net.sh
+- path: /var/lib/cloud/scripts/per-instance/set_kernel_cmdline.sh
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    grub_file=${1:-"/etc/default/grub"}
+    kernel_parameters="intel_iommu=on iommu=pt"
+    sed -i~ "/^GRUB_CMDLINE_LINUX=/{h;s/\(=\".*\)\"/\1 ${kernel_parameters}\"/};\${x;/^$/{s//GRUB_CMDLINE_LINUX=\"${kernel_parameters}\"/;H};x}" "$grub_file"
+    update-grub
+    reboot
+EOF
+    cat << 'EOF'
+- path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
   owner: root:root
   permissions: '0777'
   content: |
@@ -167,8 +182,8 @@ write_files:
         sudo dhclient -nw `basename $intf`
     done
 EOF
-cat << EOF
-- path: /opt/user_net.sh
+    cat << EOF
+- path: /var/lib/cloud/scripts/per-boot/set_provider_network.sh
   owner: root:root
   permissions: '0777'
   content: |
@@ -178,9 +193,6 @@ cat << EOF
     sed -i -e 's/^#DNS=.*/DNS=$PROVIDER_NETWORK_DNS/g' /etc/systemd/resolved.conf
     systemctl daemon-reload
     systemctl restart systemd-resolved
-runcmd:
- - [ /opt/ironic_net.sh ]
- - [ /opt/user_net.sh ]
 EOF
 }
 

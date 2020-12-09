@@ -60,10 +60,10 @@ function launch_baremetal_operator {
     kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
-network_config_files() {
-cat << 'EOF'
+function cloud_init_scripts() {
+    cat << 'EOF'
 write_files:
-- path: /opt/ironic_net.sh
+- path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
   owner: root:root
   permissions: '0777'
   content: |
@@ -73,8 +73,6 @@ write_files:
         sudo ifconfig `basename $intf` up
         sudo dhclient -nw `basename $intf`
     done
-runcmd:
- - [ /opt/ironic_net.sh ]
 EOF
 }
 
@@ -102,7 +100,7 @@ create_userdata() {
     fi
 
     cat $HOME/.ssh/id_rsa.pub >> $name-userdata.yaml
-    network_config_files >> $name-userdata.yaml
+    cloud_init_scripts >> $name-userdata.yaml
     printf "\n" >> $name-userdata.yaml
 }
 
