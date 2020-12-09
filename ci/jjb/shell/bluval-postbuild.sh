@@ -5,7 +5,7 @@ set -o pipefail
 
 echo "[ICN] Uninstalling EMCO k8s"
 cd k8s/kud/hosting_providers/vagrant
-ansible-playbook -i inventory/hosts.ini /opt/kubespray-2.12.6/reset.yml --become --become-user=root -e reset_confirmation=yes
+ansible-playbook -i inventory/hosts.ini /opt/kubespray-2.14.1/reset.yml --become --become-user=root -e reset_confirmation=yes
 
 echo "[ICN] Purging Docker fully"
 cat << EOF | tee purge-docker.yml

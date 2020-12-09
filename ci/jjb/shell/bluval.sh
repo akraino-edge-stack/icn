@@ -3,6 +3,9 @@ set -e
 set -o errexit
 set -o pipefail
 
+echo "[ICN] Patching kube-hunter image location"
+patch -p1 < ~/update_kube_hunter_image.diff
+
 echo "[ICN] Downloading EMCO k8s"
 git clone "https://gerrit.onap.org/r/multicloud/k8s"
 cp ~/aio.sh k8s/kud/hosting_providers/baremetal/aio.sh
@@ -15,6 +18,9 @@ sudo chown jenkins:jenkins /var/lib/jenkins/.netrc
 sudo chown jenkins:jenkins -R /var/lib/jenkins/workspace/icn-bluval-daily-master/k8s/kud/hosting_providers/vagrant
 # the .netrc chown is a temporary workaround, needs to be fixed in multicloud-k8s
 sleep 5
+
+echo "[ICN] Performing Lynis hardening"
+ansible-playbook -i k8s/kud/hosting_providers/vagrant/inventory/hosts.ini ~/harden_lynis.yml --become --become-user=root
 
 echo "[ICN] Patching EMCO k8s security vulnerabilities"
 kubectl replace -f - << EOF
