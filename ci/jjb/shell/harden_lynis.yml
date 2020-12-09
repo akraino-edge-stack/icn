@@ -1,0 +1,243 @@
+# ansible-playbook -i localhost, harden_lynis.yml
+# TODO vars for the various values, template for /etc/usbguard/rules.conf
+---
+
+- name: Check for GRUB boot password
+  hosts: all
+  tasks:
+  - name: Set user and password in GRUB configuration
+    blockinfile:
+      path: '/etc/grub.d/00_header'
+      # Password hash generated with grub-mkpasswd-pbkdf2, password: root
+      block: |
+        cat <<EOF
+        set superusers="root"
+        password_pbkdf2 root grub.pbkdf2.sha512.10000.E4F52CBE09DFC3C338A314E9EDC8AA682BB2832A35FF2FF9E1D12D30EB3D58E9DDE023F88B8A82CD7BF5FC8138500CD0E67174EBA6EFACF98635A693C5AD4BB9.BB41DC42C8E2C68723B94F14F5F1E43845054A7D443C80F074E9B41C44927FEA2832B0E23C83E6B7C5E1D740B67756FA3093DA9A99B2E461A20F4831BBB289AF
+        EOF
+    notify:
+    - Update GRUB
+  handlers:
+  - name: Update GRUB
+    command: update-grub
+
+- name: Check password hashing methods
+  hosts: all
+  tasks:
+  - name: Check /etc PAM and configure algorithm rounds
+    replace:
+      path: '/etc/pam.d/common-password'
+      regexp: '^(password\s+.*sha512)$'
+      replace: '\1 rounds=10000'
+    register: configure_algorithm_rounds
+  - debug:
+      msg: Passwords in /etc/shadow must be encrypted with new values
+    when: configure_algorithm_rounds.changed
+
+- name: Check group password hashing rounds
+  hosts: all
+  tasks:
+  - name: Configure minimum encryption algorithm rounds in /etc/login.defs
+    lineinfile:
+      path: '/etc/login.defs'
+      regexp: '^\s*SHA_CRYPT_MIN_ROUNDS\s+'
+      line: 'SHA_CRYPT_MIN_ROUNDS 5000'
+      state: present
+      insertafter: '^#\s+SHA_CRYPT_(MIN|MAX)_ROUNDS'
+  - name: Configure maximum encryption algorithm rounds in /etc/login.defs
+    lineinfile:
+      path: '/etc/login.defs'
+      regexp: '^\s*SHA_CRYPT_MAX_ROUNDS\s+'
+      line: 'SHA_CRYPT_MAX_ROUNDS 10000'
+      state: present
+      insertafter: '^SHA_CRYPT_MIN_ROUNDS'
+
+- name: Checking user password aging
+  hosts: all
+  tasks:
+  - name: Set PASS_MAX_DAYS option in /etc/login.defs
+    # PASS_MAX_DAYS of 99999 is considered unconfigued by lynis
+    lineinfile:
+      path: '/etc/login.defs'
+      regexp: '^\s*PASS_MAX_DAYS\s+'
+      line: 'PASS_MAX_DAYS 99000'
+      state: present
+      insertbefore: '^PASS_MIN_DAYS'
+
+- name: Default umask values
+  hosts: all
+  tasks:
+  - name: Set default umask in /etc/login.defs to more strict
+    lineinfile:
+      path: '/etc/login.defs'
+      regexp: '^\s*UMASK\s+'
+      line: 'UMASK 027'
+      state: present
+
+- name: Check for presence of USBGuard
+  hosts: all
+  tasks:
+  - name: Ensure USBGuard is installed
+    package:
+      name: usbguard
+      state: present
+  # USB hubs and HID device must be enabled for BMC Console Redirection
+  - name: Authorize USB hubs in USBGuard daemon
+    lineinfile:
+      path: '/etc/usbguard/rules.conf'
+      line: 'allow with-interface equals { 09:00:* }'
+      state: present
+      create: yes
+      mode: 0600
+    notify:
+    - Restart USBGuard
+  - name: Authorize multi-function Human Interface Devices
+    lineinfile:
+      path: '/etc/usbguard/rules.conf'
+      line: 'allow with-interface equals { 03:*:* 03:*:* }'
+      state: present
+      create: yes
+      mode: 0600
+    notify:
+    - Restart USBGuard
+  - name: Set PresentControllerPolicy to apply-policy in USBGuard daemon
+    replace:
+      path: '/etc/usbguard/usbguard-daemon.conf'
+      regexp: '^PresentControllerPolicy\s*=\s*keep'
+      replace: 'PresentControllerPolicy=apply-policy'
+    notify:
+    - Restart USBGuard
+  handlers:
+  - name: Restart USBGuard
+    service:
+      name: usbguard
+      state: restarted
+
+- name: Checking for debsums utility
+  hosts: all
+  tasks:
+  - name: Install debsums utility
+    package:
+      name: debsums
+      state: present
+
+- name: Check SSH specific defined options
+  hosts: all
+  tasks:
+  - name: Disable AllowTcpForwarding
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*AllowTcpForwarding\s+'
+      line: 'AllowTcpForwarding no'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Set ClientAliveCountMax to 2
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*ClientAliveCountMax\s+'
+      line: 'ClientAliveCountMax 2'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Set MaxAuthTries to 3
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*MaxAuthTries\s+'
+      line: 'MaxAuthTries 3'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Set MaxSessions to 2
+    # TODO MaxSessions of 2 prevents lynis from running under bluval
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*MaxSessions\s+'
+      line: 'MaxSessions 10'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Set server Port to 2222
+    # TODO lynis, etc. robot files need to be updated to handle a different port
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*Port\s+'
+      line: 'Port 22'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Set client Port to 2222
+    # TODO lynis, etc. robot files need to be updated to handle a different port
+    lineinfile:
+      path: '/etc/ssh/ssh_config'
+      regexp: '/^\s*Port\s+'
+      line: '    Port 22'
+      state: present
+  - name: Disable TCPKeepAlive
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*TCPKeepAlive\s+'
+      line: 'TCPKeepAlive no'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  - name: Restrict SSH to administrators
+    lineinfile:
+      path: '/etc/ssh/sshd_config'
+      regexp: '^\s*AllowGroups\s+'
+      line: 'AllowGroups root sudo'
+      state: present
+      validate: /usr/sbin/sshd -t -f %s
+    notify:
+    - Restart SSH
+  handlers:
+  - name: Restart SSH
+    service:
+      name: ssh
+      state: restarted
+
+- name: Check sysctl key pairs in scan profile
+  hosts: all
+  vars:
+    sysctl_config:
+      fs.suid_dumpable: 0
+      kernel.core_uses_pid: 1
+      kernel.dmesg_restrict: 1
+      kernel.kptr_restrict: 2
+      kernel.sysrq: 0
+      net.ipv4.conf.all.accept_redirects: 0
+      # TODO forwarding required by k8s
+      # net.ipv4.conf.all.forwarding: 0
+      net.ipv4.conf.all.log_martians: 1
+      net.ipv4.conf.all.send_redirects: 0
+      net.ipv4.conf.default.accept_redirects: 0
+      net.ipv4.conf.default.accept_source_route: 0
+      net.ipv4.conf.default.log_martians: 1
+      net.ipv6.conf.all.accept_redirects: 0
+      net.ipv6.conf.default.accept_redirects: 0
+  tasks:
+  - name: Set sysctl values
+    sysctl:
+      name: '{{ item.key }}'
+      value: '{{ item.value }}'
+      sysctl_set: yes
+      state: present
+      reload: yes
+      ignoreerrors: yes
+    with_dict: '{{ sysctl_config }}'
+
+- name: Check compiler permissions
+  hosts: all
+  tasks:
+  - name: Uninstall compilers
+    package:
+      name: '{{ item }}'
+      state: absent
+    with_items:
+      - gcc
+      - binutils
