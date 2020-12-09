@@ -12,7 +12,8 @@ patch -d k8s -p1 < ~/update_k8s_installer.diff
 
 echo "[ICN] Installing EMCO k8s"
 sudo chown root:root /var/lib/jenkins/.netrc
-sudo k8s/kud/hosting_providers/baremetal/aio.sh
+export CONTAINER_RUNTIME="containerd"
+sudo -E k8s/kud/hosting_providers/baremetal/aio.sh
 sudo chown jenkins:jenkins /var/lib/jenkins/.netrc
 sudo chown jenkins:jenkins -R /var/lib/jenkins/workspace/icn-bluval-daily-master/k8s/kud/hosting_providers/vagrant
 # the .netrc chown is a temporary workaround, needs to be fixed in multicloud-k8s
@@ -47,6 +48,10 @@ metadata:
   name: default
 automountServiceAccountToken: false
 EOF
+
+echo "[ICN] Installing docker-ce for run_bluval.sh"
+docker_version=$(sudo apt list -a docker-ce | awk '{print $2}' | grep 19.03 | head -1)
+sudo apt install -y docker-ce=${docker_version}
 
 echo "[ICN] Downloading run_bluval.sh from upstream ci-management"
 wget --read-timeout=10 --timeout=10 --waitretry=10 -t 10 https://raw.githubusercontent.com/akraino-edge-stack/ci-management/master/jjb/shell/run_bluval.sh
