@@ -13,7 +13,8 @@ function get_kud_repo {
     mkdir -p $DOWNLOAD_PATH
     pushd $DOWNLOAD_PATH
     if [ "$1" == "v1" ] ; then
-        git clone --branch v1.0-icn https://github.com/akraino-icn/multicloud-k8s.git
+        export KUD_ADDONS=multus
+        git clone https://github.com/onap/multicloud-k8s.git
     else
         git clone https://github.com/onap/multicloud-k8s.git
     fi
