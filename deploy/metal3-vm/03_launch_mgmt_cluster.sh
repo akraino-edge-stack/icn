@@ -60,7 +60,7 @@ function launch_baremetal_operator {
     kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
-function cloud_init_scripts() {
+function cloud_init_scripts {
     cat << 'EOF'
 write_files:
 - path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
@@ -78,7 +78,7 @@ EOF
 
 # documentation for the values below may be found at
 # https://cloudinit.readthedocs.io/en/latest/topics/modules.html
-create_userdata() {
+function create_userdata {
     name="$1"
     COMPUTE_NODE_FQDN="$name.akraino.icn.org"
     printf "#cloud-config\n" > $name-userdata.yaml
@@ -104,7 +104,7 @@ create_userdata() {
     printf "\n" >> $name-userdata.yaml
 }
 
-apply_userdata_credential() {
+function apply_userdata_credential {
     name="$1"
     cat <<EOF > ./$name-user-data-credential.yaml
 apiVersion: v1
