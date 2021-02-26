@@ -4,6 +4,8 @@ config_*.sh
 !config_example.sh
 master-*.json
 worker-*.json
+master-*.yaml
+worker-*.yaml
 *.bk
 *.tmp
 *.swp

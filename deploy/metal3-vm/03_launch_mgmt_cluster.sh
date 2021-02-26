@@ -62,7 +62,7 @@ function launch_baremetal_operator {
 
 # documentation for the values below may be found at
 # https://cloudinit.readthedocs.io/en/latest/topics/modules.html
-create_userdata() {
+function create_userdata {
     name="$1"
     COMPUTE_NODE_FQDN="$name.akraino.icn.org"
     printf "#cloud-config\n" > $name-userdata.yaml
@@ -87,7 +87,7 @@ create_userdata() {
     printf "\n" >> $name-userdata.yaml
 }
 
-apply_userdata_credential() {
+function apply_userdata_credential {
     name="$1"
     cat <<EOF > ./$name-user-data-credential.yaml
 apiVersion: v1
@@ -102,12 +102,12 @@ EOF
     kubectl apply -n metal3 -f $name-user-data-credential.yaml
 }
 
-create_networkdata() {
+function create_networkdata {
     name="$1"
     node_networkdata $name > $name-networkdata.json
 }
 
-apply_networkdata_credential() {
+function apply_networkdata_credential {
     name="$1"
     cat <<EOF > ./$name-network-data-credential.yaml
 apiVersion: v1
