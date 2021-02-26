@@ -216,7 +216,7 @@ function make_bm_hosts {
         create_userdata $name $os_username $os_password
         apply_userdata_credential $name
 
-        go run $GOPATH/src/github.com/metal3-io/baremetal-operator/cmd/make-bm-worker/main.go \
+        GO111MODULE=auto go run $GOPATH/src/github.com/metal3-io/baremetal-operator/cmd/make-bm-worker/main.go \
            -address "ipmi://$ipmi_address" \
            -password "$ipmi_password" \
            -user "$ipmi_username" \
