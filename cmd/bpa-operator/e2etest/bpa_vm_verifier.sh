@@ -2,17 +2,8 @@
 set -eu -o pipefail
 
 CLUSTER_NAME=cluster-test
-
-# Get MAC and IP addresses of VMs provisioned by metal3
-master0=$(virsh net-dhcp-leases baremetal |grep master-0)
-masterMAC=$(echo $master0 | cut -d " " -f 3)
-masterIP=$(echo $master0 | cut -d " " -f 5)
-masterIP="${masterIP%%/*}"
-
-worker0=$(virsh net-dhcp-leases baremetal |grep worker-0)
-workerMAC=$(echo $worker0 | cut -d " " -f 3)
-workerIP=$(echo $worker0 | cut -d " " -f 5)
-workerIP="${workerIP%%/*}"
+NUM_MASTERS=${NUM_MASTERS:-"1"}
+NUM_WORKERS=${NUM_WORKERS:-"1"}
 
 # Create Fake DHCP File
 mkdir -p /opt/icn/dhcp
@@ -23,27 +14,43 @@ cat <<EOF > /opt/icn/dhcp/dhcpd.leases
 # authoring-byte-order entry is generated, DO NOT DELETE
 authoring-byte-order little-endian;
 
-lease ${masterIP} {
+EOF
+for ((master=0;master<NUM_MASTERS;++master)); do
+    lease=$(virsh net-dhcp-leases baremetal |grep "master-${master}")
+    mac=$(echo $lease | cut -d " " -f 3)
+    ip=$(echo $lease | cut -d " " -f 5)
+    ip="${ip%%/*}"
+    cat <<EOF >> /opt/icn/dhcp/dhcpd.leases
+lease ${ip} {
   starts 4 2019/08/08 22:32:49;
   ends 4 2019/08/08 23:52:49;
   cltt 4 2019/08/08 22:32:49;
   binding state active;
   next binding state free;
   rewind binding state free;
-  hardware ethernet ${masterMAC};
-  client-hostname "master-0";
-}
-lease ${workerIP} {
-  starts 4 2019/08/08 22:32:49;
-  ends 4 2019/08/08 23:52:49;
-  cltt 4 2019/08/08 22:32:49;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet ${workerMAC};
-  client-hostname "worker-0";
+  hardware ethernet ${mac};
+  client-hostname "master-${master}";
 }
 EOF
+done
+for ((worker=0;worker<NUM_WORKERS;++worker)); do
+    lease=$(virsh net-dhcp-leases baremetal |grep "worker-${worker}")
+    mac=$(echo $lease | cut -d " " -f 3)
+    ip=$(echo $lease | cut -d " " -f 5)
+    ip="${ip%%/*}"
+    cat <<EOF >> /opt/icn/dhcp/dhcpd.leases
+lease ${ip} {
+  starts 4 2019/08/08 22:32:49;
+  ends 4 2019/08/08 23:52:49;
+  cltt 4 2019/08/08 22:32:49;
+  binding state active;
+  next binding state free;
+  rewind binding state free;
+  hardware ethernet ${mac};
+  client-hostname "worker-${worker}";
+}
+EOF
+done
 
 # Create provisioning CR file for testing
 cat <<EOF > e2etest/e2e_test_provisioning_cr.yaml
@@ -56,11 +63,27 @@ metadata:
     owner: c1
 spec:
   masters:
-    - master-0:
-        mac-address: ${masterMAC}
+EOF
+for ((master=0;master<NUM_MASTERS;++master)); do
+    lease=$(virsh net-dhcp-leases baremetal |grep "master-${master}")
+    mac=$(echo $lease | cut -d " " -f 3)
+    cat <<EOF >> e2etest/e2e_test_provisioning_cr.yaml
+    - master-${master}:
+        mac-address: ${mac}
+EOF
+done
+cat <<EOF >> e2etest/e2e_test_provisioning_cr.yaml
   workers:
-    - worker-0:
-        mac-address: ${workerMAC}
+EOF
+for ((worker=0;worker<NUM_WORKERS;++worker)); do
+    lease=$(virsh net-dhcp-leases baremetal |grep "worker-${worker}")
+    mac=$(echo $lease | cut -d " " -f 3)
+    cat <<EOF >> e2etest/e2e_test_provisioning_cr.yaml
+    - worker-${worker}:
+        mac-address: ${mac}
+EOF
+done
+cat <<EOF >> e2etest/e2e_test_provisioning_cr.yaml
   KUDPlugins:
     - emco
 EOF
