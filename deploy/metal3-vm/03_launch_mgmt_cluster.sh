@@ -123,7 +123,7 @@ function make_bm_hosts {
     while IFS=',' read -r name address user password mac; do
         create_userdata $name
         apply_userdata_credential $name
-        go run "${BMOPATH}"/cmd/make-bm-worker/main.go \
+        GO111MODULE=auto go run "${BMOPATH}"/cmd/make-bm-worker/main.go \
            -address "$address" \
            -password "$password" \
            -user "$user" \
