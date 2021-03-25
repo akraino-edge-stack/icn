@@ -678,6 +678,11 @@ func createKUDinstallerJob(clusterName, namespace string, labels map[string]stri
                                                         },
 
                                            },
+                                           EnvFrom: []corev1.EnvFromSource{
+                                                   {
+                                                             ConfigMapRef: &corev1.ConfigMapEnvSource{LocalObjectReference: corev1.LocalObjectReference{Name: "kud-variable-config"}},
+                                                   },
+                                           },
                                            Command: []string{"/bin/sh","-c"},
                                            Args: []string{"cp -r /.ssh /root/; chmod -R 600 /root/.ssh;" + installerString},
                                            SecurityContext: &corev1.SecurityContext{
