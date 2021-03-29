@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "2e8cdb20_17e0d861",
+        "filename": "cmd/bpa-operator/Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 52,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-03-29T17:53:32Z",
+      "side": 1,
+      "message": "While not part of this change, it seems odd to delete the CRDs before the operator is deleted.",
+      "range": {
+        "startLine": 51,
+        "startChar": 0,
+        "endLine": 52,
+        "endChar": 74
+      },
+      "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "0a53aad1_3b8c84b7",
+        "filename": "cmd/bpa-operator/deploy/kud-variable-config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 6,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-03-29T17:53:32Z",
+      "side": 1,
+      "message": "Might want to rename this to kud-installer or kud-install to be consistent with other naming in bpa-operator code.",
+      "range": {
+        "startLine": 6,
+        "startChar": 8,
+        "endLine": 6,
+        "endChar": 27
+      },
+      "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "cb294d3d_ff6bfea4",
+        "filename": "cmd/bpa-operator/deploy/kud-variable-config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-03-29T17:53:32Z",
+      "side": 1,
+      "message": "This can be removed",
+      "range": {
+        "startLine": 7,
+        "startChar": 2,
+        "endLine": 7,
+        "endChar": 20
+      },
+      "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "6fc0773f_71f076b7",
+        "filename": "cmd/bpa-operator/deploy/kud-variable-config.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 8,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-03-29T17:53:32Z",
+      "side": 1,
+      "message": "nit: extraneous whitespace",
+      "range": {
+        "startLine": 8,
+        "startChar": 5,
+        "endLine": 8,
+        "endChar": 6
+      },
+      "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
