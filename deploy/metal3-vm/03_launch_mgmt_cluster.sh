@@ -60,7 +60,7 @@ function launch_baremetal_operator {
     kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
-function cloud_init_scripts() {
+function cloud_init_scripts {
     cat << 'EOF'
 write_files:
 - path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
