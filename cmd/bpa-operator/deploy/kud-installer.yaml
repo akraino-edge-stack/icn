@@ -1,0 +1,10 @@
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: kud-installer
+data:
+  CONTAINER_RUNTIME: "docker"
+  KUD_DEBUG: ""
+  KUD_ENABLE_TESTS: "false"
