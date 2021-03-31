@@ -38,6 +38,7 @@ deploy:
 	kubectl apply -f deploy/role_binding.yaml
 	kubectl apply -f deploy/crds/provisioning-crd/bpa_v1alpha1_provisioning_crd.yaml
 	kubectl apply -f deploy/crds/software-crd/bpa_v1alpha1_software_crd.yaml
+	kubectl apply -f deploy/kud-installer.yaml
 	kubectl apply -f deploy/operator.yaml
 	kubectl create secret generic ssh-key-secret --from-file=id_rsa=/root/.ssh/id_rsa --from-file=id_rsa.pub=/root/.ssh/id_rsa.pub
 
@@ -48,6 +49,7 @@ delete:
 	kubectl delete -f deploy/role_binding.yaml
 	kubectl delete -f deploy/crds/provisioning-crd/bpa_v1alpha1_provisioning_crd.yaml
 	kubectl delete -f deploy/crds/software-crd/bpa_v1alpha1_software_crd.yaml
+	kubectl delete -f deploy/kud-installer.yaml
 	kubectl delete -f deploy/operator.yaml
 	kubectl delete secret ssh-key-secret
 
