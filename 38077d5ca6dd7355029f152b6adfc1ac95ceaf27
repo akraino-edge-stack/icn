@@ -114,6 +114,30 @@
       "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "dcd78a1a_eb0f0b1a",
+        "filename": "cmd/bpa-operator/pkg/controller/provisioning/provisioning_controller.go",
+        "patchSetId": 1
+      },
+      "lineNbr": 684,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-04-09T20:42:38Z",
+      "side": 1,
+      "message": "Is this comments resolved ?",
+      "parentUuid": "62570a71_9387fcc4",
+      "range": {
+        "startLine": 681,
+        "startChar": 43,
+        "endLine": 684,
+        "endChar": 53
+      },
+      "revId": "38077d5ca6dd7355029f152b6adfc1ac95ceaf27",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
