@@ -6,30 +6,29 @@ docker:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
 	git clone https://github.com/onap/multicloud-k8s.git
 	cd multicloud-k8s && \
-	docker build  --network=host --rm \
-         	--build-arg http_proxy=${http_proxy} \
-         	--build-arg HTTP_PROXY=${HTTP_PROXY} \
-         	--build-arg https_proxy=${https_proxy} \
-         	--build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-         	--build-arg no_proxy=${no_proxy} \
-         	--build-arg NO_PROXY=${NO_PROXY} \
-         	-t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
+	docker build --network=host --rm \
+		--build-arg http_proxy=${http_proxy} \
+		--build-arg HTTP_PROXY=${HTTP_PROXY} \
+		--build-arg https_proxy=${https_proxy} \
+		--build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+		--build-arg no_proxy=${no_proxy} \
+		--build-arg NO_PROXY=${NO_PROXY} \
+		-t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
 	rm -rf multicloud-k8s
 
-docker_bmh_e2e:
+docker_e2e:
 	docker build --rm -t akraino.org/icn/bpa-operator:latest . -f build/Dockerfile
 	git clone https://github.com/onap/multicloud-k8s.git
 	cd multicloud-k8s && \
-        docker build  --network=host --rm \
-        	--build-arg http_proxy=${http_proxy} \
-        	--build-arg HTTP_PROXY=${HTTP_PROXY} \
-        	--build-arg https_proxy=${https_proxy} \
-        	--build-arg HTTPS_PROXY=${HTTPS_PROXY} \
-        	--build-arg no_proxy=${no_proxy} \
-        	--build-arg NO_PROXY=${NO_PROXY} \
-        	--build-arg KUD_ENABLE_TESTS=true \
-        	--build-arg KUD_PLUGIN_ENABLED=true \
-        	-t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
+	docker build --network=host --rm \
+		--build-arg http_proxy=${http_proxy} \
+		--build-arg HTTP_PROXY=${HTTP_PROXY} \
+		--build-arg https_proxy=${https_proxy} \
+		--build-arg HTTPS_PROXY=${HTTPS_PROXY} \
+		--build-arg no_proxy=${no_proxy} \
+		--build-arg NO_PROXY=${NO_PROXY} \
+		--build-arg KUD_ENABLE_TESTS=true \
+		-t github.com/onap/multicloud-k8s:latest . -f kud/build/Dockerfile
 	rm -rf multicloud-k8s
 
 .PHONY: deploy
