@@ -122,3 +122,8 @@ function list_nodes {
            ] | @csv' | \
         sed 's/"//g'
 }
+
+function node_networkdata {
+    name=$1
+    cat $NODES_FILE  | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net'
+}

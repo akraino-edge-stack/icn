@@ -29,11 +29,29 @@
       "properties": {
         "local_gb": "{{ flavors[node.flavor].disk }}",
         "cpu_arch": "{{ libvirt_arch }}"
+      },
+      "net": {
+        "links": [
+	{% for network in networks %}
+          {
+            "id": "{{ network.name }}_nic",
+            "ethernet_mac_address": "{{ node_mac_map.get(node.name).get(network.name) }}",
+            "type": "phy"
+          }{% if not loop.last %},{% endif %}
+	{% endfor %}
+        ],
+        "networks": [
+	{% for network in networks %}
+          {
+            "id": "{{ network.name }}",
+            "link": "{{ network.name }}_nic",
+            "type": "ipv4_dhcp"
+          }{% if not loop.last %},{% endif %}
+	{% endfor %}
+        ],
+        "services": []
       }
-    }
-    {% if not loop.last %}
-    ,
-    {% endif %}
+    }{% if not loop.last %},{% endif %}
   {% endfor %}
   ]
 }

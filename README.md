@@ -132,8 +132,11 @@ command `make install`.
 The user is required to provide the IPMI information of the servers
 they connect to the Local Controller by editing node JSON sample file
 in the directory icn/deploy/metal3/scripts/nodes.json.sample as
-below. This example only shows 2 servers. If you want to increase
-servers, just add another array.
+below. This example only shows 2 servers, statically configured on the
+baremetal network. If you want to increase servers, just add another
+array.  If the baremetal network provides a DHCP server with gateway
+and DNS server information, just change the baremetal type to "ipv4".
+ICN provides DHCP servers for the provisioning and bootstrap networks.
 
 `node.json.sample`
 ``` json
@@ -149,6 +152,46 @@ servers, just add another array.
       "image_name": "bionic-server-cloudimg-amd64.img",
       "username": "ubuntu",
       "password": "mypasswd"
+    },
+    "net": {
+      "links": [
+        {
+          "id": "baremetal_nic",
+          "ethernet_mac_address": "00:1e:67:fe:f4:19",
+          "type": "phy"
+        },
+        {
+          "id": "provisioning_nic",
+          "ethernet_mac_address": "00:1e:67:fe:f4:1a",
+          "type": "phy"
+        },
+        {
+          "id": "bootstrap_nic",
+          "ethernet_mac_address": "00:1e:67:f8:6a:40",
+          "type": "phy"
+        }
+      ],
+      "networks": [
+        {
+          "id": "baremetal",
+          "link": "baremetal_nic",
+          "type": "ipv4",
+          "ip_address": "10.10.110.21/24",
+          "gateway": "10.10.110.1",
+          "dns_nameservers": ["8.8.8.8"]
+        },
+        {
+          "id": "provisioning",
+          "link": "provisioning_nic",
+          "type": "ipv4_dhcp"
+        },
+        {
+          "id": "bootstrap",
+          "link": "bootstrap_nic",
+          "type": "ipv4_dhcp"
+        }
+      ],
+      "services": []
     }
   },
   {
@@ -162,6 +205,46 @@ servers, just add another array.
       "image_name": "bionic-server-cloudimg-amd64.img",
       "username": "ubuntu",
       "password": "mypasswd"
+    },
+    "net": {
+      "links": [
+        {
+          "id": "baremetal_nic",
+          "ethernet_mac_address": "00:1e:67:f1:5b:90",
+          "type": "phy"
+        },
+        {
+          "id": "bootstrap_nic",
+          "ethernet_mac_address": "00:1e:67:f8:69:80",
+          "type": "phy"
+        },
+        {
+          "id": "provisioning_nic",
+          "ethernet_mac_address": "00:1e:67:f1:5b:91",
+          "type": "phy"
+        }
+      ],
+      "networks": [
+        {
+          "id": "baremetal",
+          "link": "baremetal_nic",
+          "type": "ipv4",
+          "ip_address": "10.10.110.22/24",
+          "gateway": "10.10.110.1",
+          "dns_nameservers": ["8.8.8.8"]
+        },
+        {
+          "id": "provisioning",
+          "link": "provisioning_nic",
+          "type": "ipv4_dhcp"
+        },
+        {
+          "id": "bootstrap",
+          "link": "bootstrap_nic",
+          "type": "ipv4_dhcp"
+        }
+      ],
+      "services": []
     }
   }]
 }
@@ -183,6 +266,27 @@ servers, just add another array.
   - *image_name*: Images name should be in qcow2 format.
   - *username*: Login username for the OS provisioned.
   - *password*: Login password for the OS provisioned.
+- *net*: Bare metal network information is a json field.  It describes
+  the interfaces and networks used by ICN.  For more information,
+  refer to the *networkData* field of the BareMetalHost resource
+  definition.
+  - *links*: An array of interfaces.
+	- *id*: The ID of the interface.  This is used in the network
+      definitions to associate the interface with its network
+      configuration.
+    - *ethernet_mac_address*: The MAC address of the interface.
+	- *type*: The type of interface.  Valid values are "phy".
+  - *networks*: An array of networks.
+    - *id*: The ID of the network.
+    - *link*: The ID of the link this network definition applies to.
+    - *type*: The type of network, either dynamic ("ipv4_dhcp") or
+      static ("ipv4").
+    - *ip_address*: Only valid for type "ipv4"; the IP address of the
+      interface.
+    - *gateway*: Only valid for type "ipv4"; the gateway of this
+      network.
+    - *dns_nameservers*: Only valid for type "ipv4"; an array of DNS
+      servers.
 
 #### Creating the Settings Files
 
@@ -203,9 +307,8 @@ export BS_DHCP_INTERFACE_IP="172.31.1.1/24"
 
 #Edge Location Provider Network configuration
 #Net A - Provider Network
-#If provider having specific Gateway and DNS server details in the edge location
-#export PROVIDER_NETWORK_GATEWAY="10.10.110.1"
-#export PROVIDER_NETWORK_DNS="8.8.8.8"
+#If provider having specific Gateway and DNS server details in the edge location,
+#supply those values in nodes.json.
 
 #Ironic Metal3 settings for provisioning network
 #Interface to which Ironic provision network to be connected
@@ -429,11 +532,11 @@ the Ironic logs and baremetal operator to look at the state of
 servers. Openstack baremetal node shows all state of the server right
 from power, storage.
 
-**Why provide network is required?**
+**Why provider network (baremetal network configuration) is required?**
 
-Generally, provider network DHCP servers in lab provide the router and
-DNS server details. In some lab setup DHCP server don't provide this
-information.
+Generally, provider network DHCP servers in a lab provide the router
+and DNS server details. In some labs, there is no DHCP server or the
+DHCP server does not provide this information.
 
 # License
 

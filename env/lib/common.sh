@@ -22,10 +22,6 @@ BS_DHCP_INTERFACE=${BS_DHCP_INTERFACE:-}
 BS_DHCP_INTERFACE_IP=${BS_DHCP_INTERFACE_IP:-}
 BS_DHCP_DIR=${BS_DHCP_DIR:-$DOWNLOAD_PATH/dhcp}
 
-#User Provider Network configuration
-PROVIDER_NETWORK_GATEWAY=${PROVIDER_NETWORK_GATEWAY:-}
-PROVIDER_NETWORK_DNS=${PROVIDER_NETWORK_DNS:-}
-
 #Ironic variables
 IRONIC_IMAGE=${IRONIC_IMAGE:-"integratedcloudnative/ironic:v1.0-icn"}
 IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"integratedcloudnative/ironic-inspector:v1.0-icn"}
@@ -105,3 +101,14 @@ function list_nodes {
         sed 's/"//g'
 }
 
+function node_networkdata {
+    name=$1
+
+    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
+
+    if [ ! -f "$NODES_FILE" ]; then
+        exit 1
+    fi
+
+    cat $NODES_FILE  | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net'
+}

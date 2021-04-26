@@ -134,6 +134,11 @@ EOF
     printf "\n" >>  $name-userdata.yaml
 }
 
+create_networkdata() {
+    name="$1"
+    node_networkdata $name > $name-networkdata.json
+}
+
 function launch_baremetal_operator {
     docker pull $IRONIC_BAREMETAL_IMAGE
     kubectl apply -f bmo/namespace/namespace.yaml
@@ -170,30 +175,6 @@ write_files:
     update-grub
     reboot
 EOF
-    cat << 'EOF'
-- path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
-  owner: root:root
-  permissions: '0777'
-  content: |
-    #!/usr/bin/env bash
-    set -xe
-    for intf in /sys/class/net/*; do
-        sudo ifconfig `basename $intf` up
-        sudo dhclient -nw `basename $intf`
-    done
-EOF
-    cat << EOF
-- path: /var/lib/cloud/scripts/per-boot/set_provider_network.sh
-  owner: root:root
-  permissions: '0777'
-  content: |
-    #!/usr/bin/env bash
-    set -xe
-    route add default gw $PROVIDER_NETWORK_GATEWAY
-    sed -i -e 's/^#DNS=.*/DNS=$PROVIDER_NETWORK_DNS/g' /etc/systemd/resolved.conf
-    systemctl daemon-reload
-    systemctl restart systemd-resolved
-EOF
 }
 
 function apply_userdata_credential {
@@ -211,10 +192,27 @@ EOF
     kubectl apply -n metal3 -f $name-user-data-credential.yaml
 }
 
+apply_networkdata_credential() {
+    name="$1"
+    cat <<EOF > ./$name-network-data-credential.yaml
+apiVersion: v1
+data:
+  networkData: $(base64 -w 0 $name-networkdata.json)
+kind: Secret
+metadata:
+  name: $name-network-data
+  namespace: metal3
+type: Opaque
+EOF
+    kubectl apply -n metal3 -f $name-network-data-credential.yaml
+}
+
 function make_bm_hosts {
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
         create_userdata $name $os_username $os_password
         apply_userdata_credential $name
+        create_networkdata $name
+        apply_networkdata_credential $name
 
         GO111MODULE=auto go run $GOPATH/src/github.com/metal3-io/baremetal-operator/cmd/make-bm-worker/main.go \
            -address "ipmi://$ipmi_address" \
@@ -227,6 +225,9 @@ function make_bm_hosts {
         printf "\n    checksum: ""%s" "$IMAGE_CHECKSUM" >> $name-bm-node.yaml
         printf "\n  userData:" >> $name-bm-node.yaml
         printf "\n    name: ""%s" "$name""-user-data" >> $name-bm-node.yaml
+        printf "\n    namespace: metal3" >> $name-bm-node.yaml
+        printf "\n  networkData:" >> $name-bm-node.yaml
+        printf "\n    name: ""%s" "$name""-network-data" >> $name-bm-node.yaml
         printf "\n    namespace: metal3" >> $name-bm-node.yaml
         printf "\n  rootDeviceHints:" >> $name-bm-node.yaml
         printf "\n    minSizeGigabytes: 48\n" >> $name-bm-node.yaml

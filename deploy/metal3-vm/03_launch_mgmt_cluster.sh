@@ -60,22 +60,6 @@ function launch_baremetal_operator {
     kubectl apply -f $BMODIR/operator/no_ironic/operator.yaml -n metal3
 }
 
-function cloud_init_scripts {
-    cat << 'EOF'
-write_files:
-- path: /var/lib/cloud/scripts/per-boot/run_dhclient.sh
-  owner: root:root
-  permissions: '0777'
-  content: |
-    #!/usr/bin/env bash
-    set -xe
-    for intf in /sys/class/net/*; do
-        sudo ifconfig `basename $intf` up
-        sudo dhclient -nw `basename $intf`
-    done
-EOF
-}
-
 # documentation for the values below may be found at
 # https://cloudinit.readthedocs.io/en/latest/topics/modules.html
 create_userdata() {
@@ -100,7 +84,6 @@ create_userdata() {
     fi
 
     cat $HOME/.ssh/id_rsa.pub >> $name-userdata.yaml
-    cloud_init_scripts >> $name-userdata.yaml
     printf "\n" >> $name-userdata.yaml
 }
 
@@ -119,10 +102,32 @@ EOF
     kubectl apply -n metal3 -f $name-user-data-credential.yaml
 }
 
+create_networkdata() {
+    name="$1"
+    node_networkdata $name > $name-networkdata.json
+}
+
+apply_networkdata_credential() {
+    name="$1"
+    cat <<EOF > ./$name-network-data-credential.yaml
+apiVersion: v1
+data:
+  networkData: $(base64 -w 0 $name-networkdata.json)
+kind: Secret
+metadata:
+  name: $name-network-data
+  namespace: metal3
+type: Opaque
+EOF
+    kubectl apply -n metal3 -f $name-network-data-credential.yaml
+}
+
 function make_bm_hosts {
     while IFS=',' read -r name address user password mac; do
         create_userdata $name
         apply_userdata_credential $name
+        create_networkdata $name
+        apply_networkdata_credential $name
         GO111MODULE=auto go run "${BMOPATH}"/cmd/make-bm-worker/main.go \
            -address "$address" \
            -password "$password" \
@@ -134,6 +139,9 @@ function make_bm_hosts {
         printf "\n    checksum: ""%s" "${IMAGE_CHECKSUM}" >> $name-bm-node.yaml
         printf "\n  userData:" >> $name-bm-node.yaml
         printf "\n    name: ""%s" "$name""-user-data" >> $name-bm-node.yaml
+        printf "\n    namespace: metal3" >> $name-bm-node.yaml
+        printf "\n  networkData:" >> $name-bm-node.yaml
+        printf "\n    name: ""%s" "$name""-network-data" >> $name-bm-node.yaml
         printf "\n    namespace: metal3" >> $name-bm-node.yaml
         printf "\n  rootDeviceHints:" >> $name-bm-node.yaml
         printf "\n    minSizeGigabytes: 48\n" >> $name-bm-node.yaml

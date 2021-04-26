@@ -2,8 +2,8 @@ logs
 ironic.env
 config_*.sh
 !config_example.sh
-master-0*.yaml
-worker-0*.yaml
+master-*.json
+worker-*.json
 *.bk
 *.tmp
 *.swp

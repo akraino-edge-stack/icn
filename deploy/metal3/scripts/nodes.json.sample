@@ -11,6 +11,46 @@
         "image_name": "bionic-server-cloudimg-amd64.img",
         "username": "ubuntu",
         "password": "mypasswd"
+      },
+      "net": {
+        "links": [
+          {
+            "id": "baremetal_nic",
+            "ethernet_mac_address": "00:1e:67:fe:f4:19",
+            "type": "phy"
+          },
+          {
+            "id": "bootstrap_nic",
+            "ethernet_mac_address": "00:1e:67:f8:6a:40",
+            "type": "phy"
+          },
+          {
+            "id": "provisioning_nic",
+            "ethernet_mac_address": "00:1e:67:fe:f4:1a",
+            "type": "phy"
+          }
+        ],
+        "networks": [
+          {
+            "id": "baremetal",
+            "link": "baremetal_nic",
+            "type": "ipv4",
+            "ip_address": "10.10.110.22/24",
+            "gateway": "10.10.110.1",
+            "dns_nameservers": ["8.8.8.8"]
+          },
+          {
+            "id": "provisioning",
+            "link": "provisioning_nic",
+            "type": "ipv4_dhcp"
+          },
+          {
+            "id": "bootstrap",
+            "link": "bootstrap_nic",
+            "type": "ipv4_dhcp"
+          }
+        ],
+        "services": []
       }
     },
      {
@@ -24,6 +64,46 @@
         "image_name": "bionic-server-cloudimg-amd64.img",
         "username": "ubuntu",
         "password": "mypasswd"
+      },
+      "net": {
+        "links": [
+          {
+            "id": "baremetal_nic",
+            "ethernet_mac_address": "00:1e:67:f1:5b:90",
+            "type": "phy"
+          },
+          {
+            "id": "bootstrap_nic",
+            "ethernet_mac_address": "00:1e:67:f8:69:80",
+            "type": "phy"
+          },
+          {
+            "id": "provisioning_nic",
+            "ethernet_mac_address": "00:1e:67:f1:5b:91",
+            "type": "phy"
+          }
+        ],
+        "networks": [
+          {
+            "id": "baremetal",
+            "link": "baremetal_nic",
+            "type": "ipv4",
+            "ip_address": "10.10.110.203/24",
+            "gateway": "10.10.110.1",
+            "dns_nameservers": ["8.8.8.8"]
+          },
+          {
+            "id": "provisioning",
+            "link": "provisioning_nic",
+            "type": "ipv4_dhcp"
+          },
+          {
+            "id": "bootstrap",
+            "link": "bootstrap_nic",
+            "type": "ipv4_dhcp"
+          }
+        ],
+        "services": []
       }
     }
   ]
