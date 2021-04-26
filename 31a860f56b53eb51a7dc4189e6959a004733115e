@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "57fff3a8_c2c17f0a",
+        "filename": "deploy/metal3/scripts/nodes.json.sample",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-04-26T23:56:31Z",
+      "side": 1,
+      "message": "203 or 23 ?",
+      "range": {
+        "startLine": 91,
+        "startChar": 27,
+        "endLine": 91,
+        "endChar": 43
+      },
+      "revId": "31a860f56b53eb51a7dc4189e6959a004733115e",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
