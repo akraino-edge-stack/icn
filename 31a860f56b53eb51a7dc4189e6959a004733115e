@@ -22,6 +22,30 @@
       "revId": "31a860f56b53eb51a7dc4189e6959a004733115e",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "f5aa83c3_a5c959bb",
+        "filename": "deploy/metal3/scripts/nodes.json.sample",
+        "patchSetId": 1
+      },
+      "lineNbr": 91,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-04-27T00:02:02Z",
+      "side": 1,
+      "message": "Will be fixed later",
+      "parentUuid": "57fff3a8_c2c17f0a",
+      "range": {
+        "startLine": 91,
+        "startChar": 27,
+        "endLine": 91,
+        "endChar": 43
+      },
+      "revId": "31a860f56b53eb51a7dc4189e6959a004733115e",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
