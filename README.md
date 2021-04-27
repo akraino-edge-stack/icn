@@ -169,6 +169,11 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "id": "bootstrap_nic",
           "ethernet_mac_address": "00:1e:67:f8:6a:40",
           "type": "phy"
+        },
+        {
+          "id": "sriov_nic",
+          "ethernet_mac_address": "00:1e:67:f8:6a:41",
+          "type": "phy"
         }
       ],
       "networks": [
@@ -189,6 +194,12 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "id": "bootstrap",
           "link": "bootstrap_nic",
           "type": "ipv4_dhcp"
+        },
+        {
+          "id": "sriov",
+          "link": "sriov_nic",
+          "type": "ipv4",
+          "ip_address": "10.10.113.2/24"
         }
       ],
       "services": []
@@ -222,6 +233,11 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "id": "provisioning_nic",
           "ethernet_mac_address": "00:1e:67:f1:5b:91",
           "type": "phy"
+        },
+        {
+          "id": "sriov_nic",
+          "ethernet_mac_address": "00:1e:67:f8:69:81",
+          "type": "phy"
         }
       ],
       "networks": [
@@ -242,6 +258,12 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "id": "bootstrap",
           "link": "bootstrap_nic",
           "type": "ipv4_dhcp"
+        },
+        {
+          "id": "sriov",
+          "link": "sriov_nic",
+          "type": "ipv4",
+          "ip_address": "10.10.113.3/24"
         }
       ],
       "services": []
