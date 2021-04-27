@@ -28,6 +28,11 @@
             "id": "provisioning_nic",
             "ethernet_mac_address": "00:1e:67:fe:f4:1a",
             "type": "phy"
+          },
+          {
+            "id": "sriov_nic",
+            "ethernet_mac_address": "00:1e:67:f8:6a:41",
+            "type": "phy"
           }
         ],
         "networks": [
@@ -48,6 +53,12 @@
             "id": "bootstrap",
             "link": "bootstrap_nic",
             "type": "ipv4_dhcp"
+          },
+          {
+            "id": "sriov",
+            "link": "sriov_nic",
+            "type": "ipv4",
+            "ip_address": "10.10.113.3/24"
           }
         ],
         "services": []
@@ -81,6 +92,11 @@
             "id": "provisioning_nic",
             "ethernet_mac_address": "00:1e:67:f1:5b:91",
             "type": "phy"
+          },
+          {
+            "id": "sriov_nic",
+            "ethernet_mac_address": "00:1e:67:f8:69:81",
+            "type": "phy"
           }
         ],
         "networks": [
@@ -101,6 +117,12 @@
             "id": "bootstrap",
             "link": "bootstrap_nic",
             "type": "ipv4_dhcp"
+          },
+          {
+            "id": "sriov",
+            "link": "sriov_nic",
+            "type": "ipv4",
+            "ip_address": "10.10.113.4/24"
           }
         ],
         "services": []
