@@ -423,8 +423,7 @@ No snapshot is implemented in ICN R2.
 
 #### Install Jump Server
 Jump server is required to be installed with Ubuntu 18.04. This will
-install all the VMs and install the k8s clusters. Same as bare metal
-deployment, use `make vm_install` to install virtual deployment.
+install all the VMs and install the k8s clusters.
 
 #### Verifying the Setup - VMs
 `make verify_all` installs two VMs with name master-0 and worker-0
