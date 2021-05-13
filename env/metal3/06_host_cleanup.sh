@@ -11,16 +11,10 @@ for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
     sudo docker ps --all | grep -w "$name$" && sudo docker rm "$name" -f
 done
 
-ip link set provisioning down
-brctl delbr provisioning
+ip link set provisioning down || true
+brctl delbr provision || true
 
-ip link set dhcp0 down
-brctl delbr dhcp0
+ip link set dhcp0 down || true
+brctl delbr dhcp0 || true
 
 rm -rf ${IRONIC_DATA_DIR}
-
-#Kubeadm usage is deprecated in v1.0.0
-#kubeadm reset -f
-#iptables -F && iptables -t nat -F && iptables -t mangle -F && iptables -X
-#rm -rf $HOME/.kube/config
-#rm -rf /var/lib/etcd
