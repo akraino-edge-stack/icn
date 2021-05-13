@@ -108,11 +108,12 @@ function kud_install {
 
 function kud_reset {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
-    ansible-playbook -i inventory/hosts.ini /opt/kubespray-2.10.4/reset.yml \
+    local version=$(grep "kubespray_version" ../../deployment_infra/playbooks/kud-vars.yml |
+        awk -F ': ' '{print $2}')
+    ansible-playbook -i inventory/hosts.ini /opt/kubespray-${version}/reset.yml \
         --become --become-user=root -e reset_confirmation=yes
     popd
 }
-
 
 function verifier {
     APISERVER=$(kubectl config view --minify -o \
