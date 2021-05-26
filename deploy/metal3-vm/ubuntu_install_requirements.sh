@@ -70,9 +70,9 @@ if [[ $PATH != *pyenv* ]]; then
   fi
 fi
 
-pyenv install -s 2.7.5
+pyenv install -s 2.7.18
 pyenv versions
-pyenv global 2.7.5
+pyenv global 2.7.18
 # There are some packages which are newer in the tripleo repos
 
 # Setup yarn and nodejs repositories
