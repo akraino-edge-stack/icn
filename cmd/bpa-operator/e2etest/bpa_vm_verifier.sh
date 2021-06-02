@@ -132,8 +132,10 @@ fi
 #Install addons
 printf "Installing KUD addons\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f prerequisites.yaml -v values.yaml
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f composite-app.yaml -v values.yaml
+/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f 00-controllers.yaml -v values.yaml
+/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f 01-cluster.yaml -v values.yaml
+/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f 02-project.yaml -v values.yaml
+/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f 03-addons-app.yaml -v values.yaml
 popd
 
 #Wait for addons to be ready
@@ -154,7 +156,7 @@ done
 #Install addon resources
 printf "Installing KUD addon resources\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f composite-app.yaml -v values-resources.yaml
+/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f 04-addon-resources-app.yaml -v values.yaml
 popd
 
 #Wait for addon resources to be ready
@@ -188,17 +190,27 @@ printf "\n\nBeginning E2E Test Teardown\n\n"
 # Workaround known issue with emcoctl resource deletion by retrying
 # until a 404 is received.
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f composite-app.yaml -v values-resources.yaml |
+until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f 04-addon-resources-app.yaml -v values.yaml |
             awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
     echo "Waiting for KUD addon resources to terminate"
     sleep 1s
 done
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f composite-app.yaml -v values.yaml |
+until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f 03-addons-app.yaml -v values.yaml |
             awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
     echo "Waiting for KUD addons to terminate"
     sleep 1s
 done
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f prerequisites.yaml -v values.yaml |
+until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f 02-project.yaml -v values.yaml |
+            awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
+    echo "Waiting for KUD addons to terminate"
+    sleep 1s
+done
+until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f 01-cluster.yaml -v values.yaml |
+            awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
+    echo "Waiting for KUD addons to terminate"
+    sleep 1s
+done
+until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f 00-controllers.yaml -v values.yaml |
             awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
     echo "Waiting for KUD addons to terminate"
     sleep 1s
