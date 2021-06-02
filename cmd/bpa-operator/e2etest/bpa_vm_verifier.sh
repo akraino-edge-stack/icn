@@ -129,45 +129,66 @@ else
     exit 1
 fi
 
+function emcoctl_apply {
+    # Workaround known issue with emcoctl resource instantation by retrying
+    # until a 2xx is received.
+    try=0
+    until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f $@ -v values.yaml  |
+                   awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]; do
+        if [[ $try -lt 10 ]]; then
+            echo "Waiting for KUD addons to terminate"
+            sleep 1s
+        else
+            return 1
+        fi
+        try=$((try + 1))
+    done
+    return 0
+}
+
+function emcoctl_delete {
+    # Workaround known issue with emcoctl resource deletion by retrying
+    # until a 404 is received.
+    until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f $@ -v values.yaml |
+                   awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
+        echo "Waiting for KUD addons to terminate"
+        sleep 1s
+    done
+}
+
+function wait_for_addons_ready {
+    #Wait for addons to be ready
+    # The deployment intent group status reports instantiated before all
+    # Pods are ready, so wait for the instance label (.spec.version) of
+    # the deployment intent group instead.
+    status="Pending"
+    for try in {0..9}; do
+	printf "Waiting for KUD addons to be ready\n"
+	sleep 30s
+	if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --all-namespaces --timeout=0s 2>/dev/null >/dev/null; then
+            status="Ready"
+            break
+	fi
+    done
+    [[ $status == "Ready" ]]
+}
+
 #Install addons
 printf "Installing KUD addons\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f prerequisites.yaml -v values.yaml
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f composite-app.yaml -v values.yaml
+emcoctl_apply 00-controllers.yaml
+emcoctl_apply 01-cluster.yaml
+emcoctl_apply 02-project.yaml
+emcoctl_apply 03-addons-app.yaml
 popd
-
-#Wait for addons to be ready
-# The deployment intent group status reports instantiated before all
-# Pods are ready, so wait for the instance label (.spec.version) of
-# the deployment intent group instead.
-status="Pending"
-for try in {0..9}; do
-    printf "Waiting for KUD addons to be ready\n"
-    sleep 30s
-    if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --all-namespaces --timeout=0s 2>/dev/null >/dev/null; then
-        status="Ready"
-        break
-    fi
-done
-[[ $status == "Ready" ]]
+wait_for_addons_ready
 
 #Install addon resources
 printf "Installing KUD addon resources\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f composite-app.yaml -v values-resources.yaml
+emcoctl_apply 04-addon-resources-app.yaml
 popd
-
-#Wait for addon resources to be ready
-status="Pending"
-for try in {0..9}; do
-    printf "Waiting for KUD addon resources to be ready\n"
-    sleep 30s
-    if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --all-namespaces --timeout=0s 2>/dev/null >/dev/null; then
-       status="Ready"
-       break
-    fi
-done
-[[ $status == "Ready" ]]
+wait_for_addons_ready
 
 #Test addons
 printf "Testing KUD addons\n"
@@ -192,24 +213,12 @@ printf "All test cases passed\n"
 
 #Tear down setup
 printf "\n\nBeginning E2E Test Teardown\n\n"
-# Workaround known issue with emcoctl resource deletion by retrying
-# until a 404 is received.
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f composite-app.yaml -v values-resources.yaml |
-            awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
-    echo "Waiting for KUD addon resources to terminate"
-    sleep 1s
-done
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f composite-app.yaml -v values.yaml |
-            awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
-    echo "Waiting for KUD addons to terminate"
-    sleep 1s
-done
-until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f prerequisites.yaml -v values.yaml |
-            awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
-    echo "Waiting for KUD addons to terminate"
-    sleep 1s
-done
+emcoctl_delete 04-addon-resources-app.yaml
+emcoctl_delete 03-addons-app.yaml
+emcoctl_delete 02-project.yaml
+emcoctl_delete 01-cluster.yaml
+emcoctl_delete 00-controllers.yaml
 popd
 kubectl delete -f e2etest/e2e_test_provisioning_cr.yaml
 kubectl delete job kud-${CLUSTER_NAME}
