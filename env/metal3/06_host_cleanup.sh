@@ -12,7 +12,7 @@ for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
 done
 
 ip link set provisioning down || true
-brctl delbr provision || true
+brctl delbr provisioning || true
 
 ip link set dhcp0 down || true
 brctl delbr dhcp0 || true
