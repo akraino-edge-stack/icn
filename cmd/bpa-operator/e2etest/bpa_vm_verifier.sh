@@ -173,8 +173,15 @@ done
 printf "Testing KUD addons\n"
 pushd /opt/kud/multi-cluster/addons/tests
 failed_kud_tests=""
-for addon in multus ovn4nfv nfd sriov-network qat cmk; do
-    KUBECONFIG=${CLUSTER_KUBECONFIG} bash ${addon}.sh || failed_kud_tests="${failed_kud_tests} ${addon}"
+container_runtime=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
+if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
+    #With containerd 1.2.13, the qat test container image fails to unpack.
+    kud_tests="multus ovn4nfv nfd sriov-network cmk"
+else
+    kud_tests="multus ovn4nfv nfd sriov-network qat cmk"
+fi
+for test in ${kud_tests}; do
+    KUBECONFIG=${CLUSTER_KUBECONFIG} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
 done
 if [[ ! -z "$failed_kud_tests" ]]; then
     printf "Test cases failed:${failed_kud_tests}\n"
