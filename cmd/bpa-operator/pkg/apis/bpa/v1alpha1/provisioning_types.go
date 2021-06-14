@@ -13,10 +13,10 @@ type ProvisioningSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "operator-sdk generate k8s" to regenerate code after modifying this file
 	// Add custom validation using kubebuilder tags: https://book-v1.book.kubebuilder.io/beyond_basics/generating_crd.html
-	Masters []map[string]Master  `json:"masters,omitempty"`
-	Workers []map[string]Worker  `json:"workers,omitempty"`
-	KUDPlugins []string `json:"KUDPlugins,omitempty"`
-	PodSubnet string `json:"PodSubnet,omitempty"`
+	Masters    []map[string]Master `json:"masters,omitempty"`
+	Workers    []map[string]Worker `json:"workers,omitempty"`
+	KUDPlugins []string            `json:"KUDPlugins,omitempty"`
+	PodSubnet  string              `json:"PodSubnet,omitempty"`
 }
 
 // ProvisioningStatus defines the observed state of Provisioning
@@ -52,17 +52,17 @@ type ProvisioningList struct {
 // master struct contains resource requirements for a master node
 type Master struct {
 	MACaddress string `json:"mac-address,omitempty"`
-	CPU int32  `json:"cpu,omitempty"`
-	Memory string  `json:"memory,omitempty"`
+	CPU        int32  `json:"cpu,omitempty"`
+	Memory     string `json:"memory,omitempty"`
 }
 
 // worker struct contains resource requirements for a worker node
 type Worker struct {
 	MACaddress string `json:"mac-address,omitempty"`
-	CPU int32 `json:"cpu,omitempty"`
-	Memory string  `json:"memory,omitempty"`
-	SRIOV bool  `json:"sriov,omitempty"`
-	QAT  bool      `json:"qat,omitempty"`
+	CPU        int32  `json:"cpu,omitempty"`
+	Memory     string `json:"memory,omitempty"`
+	SRIOV      bool   `json:"sriov,omitempty"`
+	QAT        bool   `json:"qat,omitempty"`
 }
 
 func init() {
