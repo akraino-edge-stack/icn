@@ -159,10 +159,26 @@ function remove_baremetal_operator {
 }
 
 function cloud_init_scripts {
-    # The "intel_iommu=on iommu=pt" kernel command line is necessary
-    # for QAT support.
+    # set_dhcp_indentifier.sh:
+    #   The IP address assigned to the provisioning NIC will change
+    #   due to IPA using the MAC address as the client ID and systemd
+    #   using a different ID.  Tell systemd to use the MAC as the
+    #   client ID.  We can't do this in the network data as only the
+    #   JSON format is supported by metal3, and the JSON format does
+    #   not support the dhcp-identifier field.
+    # set_kernel_cmdline.sh:
+    #   The "intel_iommu=on iommu=pt" kernel command line is necessary
+    #   for QAT support.
     cat << 'EOF'
 write_files:
+- path: /var/lib/cloud/scripts/per-instance/set_dhcp_identifier.sh
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    sed -i -e '/dhcp4: true$/!b' -e 'h;s/\S.*/dhcp-identifier: mac/;H;g' /etc/netplan/50-cloud-init.yaml
+    netplan apply
 - path: /var/lib/cloud/scripts/per-instance/set_kernel_cmdline.sh
   owner: root:root
   permissions: '0777'

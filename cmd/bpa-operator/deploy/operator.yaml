@@ -20,8 +20,6 @@ spec:
           image: akraino.org/icn/bpa-operator:latest
           imagePullPolicy: IfNotPresent
           volumeMounts:
-          - name: dhcp-shared
-            mountPath: /var/lib/dhcp/
           - name: icn-cluster
             mountPath: /multi-cluster
           command:
@@ -40,9 +38,6 @@ spec:
             - name: OPERATOR_NAME
               value: "bpa-operator"
       volumes:
-      - name: dhcp-shared
-        hostPath:
-          path: /opt/icn/dhcp/
       - name: icn-cluster
         hostPath:
           path: /opt/kud/multi-cluster

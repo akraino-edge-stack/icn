@@ -1,7 +1,6 @@
 package provisioning
 
 import (
-	"io/ioutil"
 	"os"
 	"testing"
 
@@ -23,20 +22,12 @@ func TestProvisioningController(t *testing.T) {
 	logf.SetLogger(logf.ZapLogger(true))
 	bpaName1 := "bpa-test-cr"
 	bpaName2 := "bpa-test-2"
-	bpaName3 := "bpa-test-3"
 	namespace := "default"
 	clusterName := "test-cluster"
 	clusterName2 := "test-cluster-2"
 	clusterName3 := "test-cluster-3"
 	macAddress1 := "08:00:27:00:ab:2c"
 	macAddress2 := "08:00:27:00:ab:3d"
-	macAddress3 := "08:00:27:00:ab:1c"
-
-	// Create Fake DHCP file
-	err := createFakeDHCP()
-	if err != nil {
-		t.Fatalf("Cannot create Fake DHCP file for testing\n")
-	}
 
 	// Create Fake baremetalhost
 	bmhList := newBMList()
@@ -44,15 +35,14 @@ func TestProvisioningController(t *testing.T) {
 	// Create Fake Provisioning CR
 	provisioning := newBPA(bpaName1, namespace, clusterName, macAddress1)
 	provisioning2 := newBPA(bpaName2, namespace, clusterName2, macAddress2)
-	provisioning3 := newBPA(bpaName3, namespace, clusterName3, macAddress3)
 
 	// Objects to track in the fake Client
-	objs := []runtime.Object{provisioning, provisioning2, provisioning3}
+	objs := []runtime.Object{provisioning, provisioning2}
 
 	// Register operator types with the runtime scheme
 	sc := scheme.Scheme
 
-	sc.AddKnownTypes(bpav1alpha1.SchemeGroupVersion, provisioning, provisioning2, provisioning3)
+	sc.AddKnownTypes(bpav1alpha1.SchemeGroupVersion, provisioning, provisioning2)
 
 	// Create Fake Clients and Clientset
 	fakeClient := fake.NewFakeClient(objs...)
@@ -63,7 +53,7 @@ func TestProvisioningController(t *testing.T) {
 
 	// Mock request to simulate Reconcile() being called on an event for a watched resource
 	req := simulateRequest(provisioning)
-	_, err = r.Reconcile(req)
+	_, err := r.Reconcile(req)
 	if err != nil {
 		t.Fatalf("reconcile: (%v)", err)
 	}
@@ -90,19 +80,7 @@ func TestProvisioningController(t *testing.T) {
 		t.Fatalf("Failed, Unexpected error occured %v\n", err)
 	}
 
-	// Test 4: Check that the right error is produced when MAC address is not found in the DHCP lease file
-	req = simulateRequest(provisioning3)
-	_, err = r.Reconcile(req)
-	expectedErr = "IP address not found for host with MAC address " + macAddress3 + " \n"
-	if err.Error() != expectedErr {
-		t.Fatalf("Failed, Unexpected error occured %v\n", err)
-	}
-
-	// Delete Fake DHCP file and cluster directories
-	err = os.Remove("/var/lib/dhcp/dhcpd.leases")
-	if err != nil {
-		t.Logf("\nUnable to delete fake DHCP file\n")
-	}
+	// Delete cluster directories
 	err = os.RemoveAll("/multi-cluster/" + clusterName)
 	if err != nil {
 		t.Logf("\nUnable to delete cluster directory %s\n", clusterName)
@@ -172,7 +150,7 @@ func newBMList() *unstructured.UnstructuredList {
 	}
 
 	nicMap1 := map[string]interface{}{
-		"ip":        "",
+		"ip":        "192.168.50.63",
 		"mac":       "08:00:27:00:ab:2c",
 		"model":     "0x8086 0x1572",
 		"name":      "eth3",
@@ -182,7 +160,7 @@ func newBMList() *unstructured.UnstructuredList {
 	}
 
 	nicMap2 := map[string]interface{}{
-		"ip":        "",
+		"ip":        "192.168.60.73",
 		"mac":       "08:00:27:00:ab:1c",
 		"model":     "0x8086 0x1572",
 		"name":      "eth4",
@@ -192,13 +170,15 @@ func newBMList() *unstructured.UnstructuredList {
 	}
 
 	specMap := map[string]interface{}{
-		"status": map[string]interface{}{
-			"errorMessage": "",
-			"hardware": map[string]interface{}{
-				"nics": map[string]interface{}{
-					"nic1": nicMap1,
-					"nic2": nicMap2,
-				},
+		"bootMACAddress": "08:00:27:00:ab:2c",
+	}
+
+	statusMap := map[string]interface{}{
+		"errorMessage": "",
+		"hardware": map[string]interface{}{
+			"nics": []interface{}{
+				nicMap1,
+				nicMap2,
 			},
 		},
 	}
@@ -208,6 +188,7 @@ func newBMList() *unstructured.UnstructuredList {
 		"kind":       "BareMetalHost",
 		"metadata":   metaData,
 		"spec":       specMap,
+		"status":     statusMap,
 	}
 	itemU := unstructured.Unstructured{
 		Object: itemMap,
@@ -221,26 +202,4 @@ func newBMList() *unstructured.UnstructuredList {
 	}
 
 	return bmhList
-}
-
-// Create DHCP file for testing
-func createFakeDHCP() error {
-
-	dhcpData := []byte(`lease 192.168.50.63 {
-  starts 4 2019/08/08 22:32:49;
-  ends 4 2019/08/08 23:52:49;
-  cltt 4 2019/08/08 22:32:49;
-  binding state active;
-  next binding state free;
-  rewind binding state free;
-  hardware ethernet 08:00:27:00:ab:2c;
-  client-hostname "fake-test-bmh"";
-}`)
-	err := ioutil.WriteFile("/var/lib/dhcp/dhcpd.leases", dhcpData, 0777)
-
-	if err != nil {
-		return err
-	}
-
-	return nil
 }

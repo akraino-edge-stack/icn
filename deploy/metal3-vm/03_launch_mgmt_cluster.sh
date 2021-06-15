@@ -84,7 +84,29 @@ function create_userdata {
     fi
 
     cat $HOME/.ssh/id_rsa.pub >> $name-userdata.yaml
+    cloud_init_scripts >> $name-userdata.yaml
     printf "\n" >> $name-userdata.yaml
+}
+
+function cloud_init_scripts {
+    # set_dhcp_indentifier.sh:
+    #   The IP address assigned to the provisioning NIC will change
+    #   due to IPA using the MAC address as the client ID and systemd
+    #   using a different ID.  Tell systemd to use the MAC as the
+    #   client ID.  We can't do this in the network data as only the
+    #   JSON format is supported by metal3, and the JSON format does
+    #   not support the dhcp-identifier field.
+    cat << 'EOF'
+write_files:
+- path: /var/lib/cloud/scripts/per-instance/set_dhcp_identifier.sh
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    sed -i -e '/dhcp4: true$/!b' -e 'h;s/\S.*/dhcp-identifier: mac/;H;g' /etc/netplan/50-cloud-init.yaml
+    netplan apply
+EOF
 }
 
 function apply_userdata_credential {

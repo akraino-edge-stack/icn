@@ -8,9 +8,9 @@ metadata:
 spec:
   masters:
     - pod11-node3:
-        mac-address: 00:1e:67:f8:69:80
+        mac-address: 00:1e:67:f1:5b:91
   workers:
     - pod11-node2:
-        mac-address: 00:1e:67:f8:6a:40
+        mac-address: 00:1e:67:fe:f4:1a
   KUDPlugins:
     - emco
