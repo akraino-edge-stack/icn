@@ -1,9 +1,5 @@
 #!/usr/bin/env bash
 
-#Local controller - Bootstrap cluster DHCP connection
-export BS_DHCP_INTERFACE="eno3"
-export BS_DHCP_INTERFACE_IP="172.31.1.1/24"
-
 #Ironic Metal3 settings for provisioning network
 export IRONIC_INTERFACE="enp4s0f3"
 

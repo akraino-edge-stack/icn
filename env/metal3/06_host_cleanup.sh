@@ -14,7 +14,4 @@ done
 ip link set provisioning down || true
 brctl delbr provisioning || true
 
-ip link set dhcp0 down || true
-brctl delbr dhcp0 || true
-
 rm -rf ${IRONIC_DATA_DIR}

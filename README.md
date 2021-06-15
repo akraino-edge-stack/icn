@@ -82,7 +82,7 @@ No prerequisites for ICN blueprint.
 (Tested as below)
 Hostname | CPU Model | Memory | Storage | 1GbE: NIC#, VLAN, (Connected extreme 480 switch) | 10GbE: NIC# VLAN, Network (Connected with IZ1 switch)
 ---------|-----------|--------|---------|--------------------------------------------------|------------------------------------------------------
-jump0 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112
+jump0 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 |
 
 #### Jump Server Software Requirements
 ICN supports Ubuntu 18.04. The ICN blueprint installs all required
@@ -104,9 +104,9 @@ Net C to provision the bare metal servers to do the OS provisioning.
 (Tested as below)
 Hostname | CPU Model | Memory | Storage | 1GbE: NIC#, VLAN, (Connected extreme 480 switch) | 10GbE: NIC# VLAN, Network (Connected with IZ1 switch)
 ---------|-----------|--------|---------|--------------------------------------------------|------------------------------------------------------
-node1 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
-node2 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
-node3 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 112<br/>eno4: VLAN 113
+node1 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 113
+node2 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 113
+node3 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>eno1: VLAN 110<br/>eno2: VLAN 111 | eno3: VLAN 113
 
 #### Compute Server Software Requirements
 The Local Controller will install all the software in compute servers
@@ -136,7 +136,7 @@ below. This example only shows 2 servers, statically configured on the
 baremetal network. If you want to increase servers, just add another
 array.  If the baremetal network provides a DHCP server with gateway
 and DNS server information, just change the baremetal type to "ipv4".
-ICN provides DHCP servers for the provisioning and bootstrap networks.
+ICN provides DHCP servers for the provisioning network.
 
 `node.json.sample`
 ``` json
@@ -166,11 +166,6 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "type": "phy"
         },
         {
-          "id": "bootstrap_nic",
-          "ethernet_mac_address": "00:1e:67:f8:6a:40",
-          "type": "phy"
-        },
-        {
           "id": "sriov_nic",
           "ethernet_mac_address": "00:1e:67:f8:6a:41",
           "type": "phy"
@@ -188,11 +183,6 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
         {
           "id": "provisioning",
           "link": "provisioning_nic",
-          "type": "ipv4_dhcp"
-        },
-        {
-          "id": "bootstrap",
-          "link": "bootstrap_nic",
           "type": "ipv4_dhcp"
         },
         {
@@ -225,11 +215,6 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
           "type": "phy"
         },
         {
-          "id": "bootstrap_nic",
-          "ethernet_mac_address": "00:1e:67:f8:69:80",
-          "type": "phy"
-        },
-        {
           "id": "provisioning_nic",
           "ethernet_mac_address": "00:1e:67:f1:5b:91",
           "type": "phy"
@@ -252,11 +237,6 @@ ICN provides DHCP servers for the provisioning and bootstrap networks.
         {
           "id": "provisioning",
           "link": "provisioning_nic",
-          "type": "ipv4_dhcp"
-        },
-        {
-          "id": "bootstrap",
-          "link": "bootstrap_nic",
           "type": "ipv4_dhcp"
         },
         {
@@ -319,13 +299,6 @@ The user will find the network configuration file named as
 `user_config.sh`
 ``` shell
 #!/bin/bash
-
-#Local Controller - Bootstrap cluster DHCP connection
-#BS_DHCP_INTERFACE defines the interfaces, to which ICN DHCP deployment will bind
-export BS_DHCP_INTERFACE="eno3"
-
-#BS_DHCP_INTERFACE_IP defines the IPAM for the ICN DHCP to be managed.
-export BS_DHCP_INTERFACE_IP="172.31.1.1/24"
 
 #Edge Location Provider Network configuration
 #Net A - Provider Network

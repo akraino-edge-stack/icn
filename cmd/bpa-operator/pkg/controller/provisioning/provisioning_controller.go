@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
@@ -197,7 +196,6 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 		var masterString string
 		var workerString string
 
-		dhcpLeaseFile := "/var/lib/dhcp/dhcpd.leases"
 		multiClusterDir := "/multi-cluster"
 
 		//Create Directory for the specific cluster
@@ -240,7 +238,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 						fmt.Printf("BareMetalHost CR %s has NIC with MAC Address %s\n", bmhCR, masterMAC)
 
 						//Get IP address of master
-						hostIPaddress, err = getHostIPaddress(masterMAC, dhcpLeaseFile)
+						hostIPaddress, err = getHostIPaddress(bareMetalHostList, masterMAC)
 						if err != nil || hostIPaddress == "" {
 							err = fmt.Errorf("IP address not found for host with MAC address %s \n", masterMAC)
 							return reconcile.Result{}, err
@@ -323,7 +321,7 @@ func (r *ReconcileProvisioning) Reconcile(request reconcile.Request) (reconcile.
 											fmt.Printf("Host %s matches that macAddress\n", bmhCR)
 
 											//Get IP address of worker
-											hostIPaddress, err = getHostIPaddress(workerMAC, dhcpLeaseFile)
+											hostIPaddress, err = getHostIPaddress(bareMetalHostList, workerMAC)
 											if err != nil {
 												fmt.Errorf("IP address not found for host with MAC address %s \n", workerMAC)
 												return reconcile.Result{}, err
@@ -523,49 +521,35 @@ func checkMACaddress(bareMetalHostList *unstructured.UnstructuredList, macAddres
 
 }
 
-//Function to get the IP address of a host from the DHCP file
-func getHostIPaddress(macAddress string, dhcpLeaseFilePath string) (string, error) {
+//Function to get the IP address of a host from the BareMetalHost resource
+func getHostIPaddress(bareMetalHostList *unstructured.UnstructuredList, macAddress string) (string, error) {
 
-	//Read the dhcp lease file
-	dhcpFile, err := ioutil.ReadFile(dhcpLeaseFilePath)
-	if err != nil {
-		fmt.Printf("Failed to read lease file\n")
-		return "", err
-	}
-
-	dhcpLeases := string(dhcpFile)
-
-	//Regex to use to search dhcpLeases
-	reg := "lease.*{|ethernet.*|\n. binding state.*"
-	re, err := regexp.Compile(reg)
-	if err != nil {
-		fmt.Printf("Could not create Regexp object, Error %v occured\n", err)
-		return "", err
-	}
-
-	//Get String containing leased Ip addresses and Corressponding MAC addresses
-	out := re.FindAllString(dhcpLeases, -1)
-	outString := strings.Join(out, " ")
-	stringReplacer := strings.NewReplacer("lease", "", "ethernet ", "", ";", "",
-		" binding state", "", "{", "")
-	replaced := stringReplacer.Replace(outString)
-	ipMacList := strings.Fields(replaced)
-
-	//Get IP addresses corresponding to Input MAC Address
-	for idx := len(ipMacList) - 1; idx >= 0; idx-- {
-		item := ipMacList[idx]
-		if item == macAddress {
-
-			leaseState := ipMacList[idx-1]
-			if leaseState != "active" {
-				err := fmt.Errorf("No active ip address lease found for MAC address %s \n", macAddress)
-				fmt.Printf("%v\n", err)
-				return "", err
-			}
-			ipAdd := ipMacList[idx-2]
-			return ipAdd, nil
+	for _, bareMetalHost := range bareMetalHostList.Items {
+		status, ok := bareMetalHost.Object["status"].(map[string]interface{})
+		if !ok {
+			continue
 		}
-
+		hardware, ok := status["hardware"].(map[string]interface{})
+		if !ok {
+			continue
+		}
+		nics, ok := hardware["nics"].([]interface{})
+		if !ok {
+			continue
+		}
+		for _, nic := range nics {
+			n, ok := nic.(map[string]interface{})
+			if !ok {
+				continue
+			}
+			ip, ok := n["ip"].(string)
+			if !ok {
+				continue
+			}
+			if macAddress == n["mac"] {
+				return ip, nil
+			}
+		}
 	}
 	return "", nil
 }

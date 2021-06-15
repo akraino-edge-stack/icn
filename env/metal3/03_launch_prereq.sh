@@ -140,26 +140,6 @@ function install_k8s_single_node {
     fi
 }
 
-function install_dhcp {
-    if [ ! -d $BS_DHCP_DIR ]; then
-        mkdir -p $BS_DHCP_DIR
-    fi
-
-    #make sure the dhcp conf sample are configured
-    if [ ! -f $BS_DHCP_DIR/dhcpd.conf ]; then
-        cp $PWD/05_dhcp.conf.sample $BS_DHCP_DIR/dhcpd.conf
-    fi
-
-    kubectl create -f $PWD/04_dhcp.yaml
-}
-
-function reset_dhcp {
-    kubectl delete --ignore-not-found=true -f $PWD/04_dhcp.yaml
-    if [ -d $BS_DHCP_DIR ]; then
-        rm -rf $BS_DHCP_DIR
-    fi
-}
-
 function create_ironic_env {
     cat <<EOF > ${PWD}/ironic.env
 PROVISIONING_INTERFACE=provisioning
@@ -193,14 +173,6 @@ if [ "$#" -eq 0 ]; then
     install online
 elif [ "$1" == "-o" ]; then
     install offline
-elif [ "$1" == "--dhcp-start" ]; then
-    install_dhcp
-    echo "wait for 320s for nodes to be assigned"
-    sleep 6m
-elif [ "$1" == "--dhcp-reset" ]; then
-    reset_dhcp
-    echo "wait for 320s for nodes to be re-assigned"
-    sleep 6m
 else
     exit 1
 fi

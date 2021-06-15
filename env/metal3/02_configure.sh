@@ -25,13 +25,6 @@ function check_interface_ip {
     fi
 }
 
-function configure_dhcp_bridge {
-    brctl addbr dhcp0
-    ip link set dhcp0 up
-    brctl addif dhcp0 $BS_DHCP_INTERFACE
-    ip addr add dev dhcp0 $BS_DHCP_INTERFACE_IP
-}
-
 function configure_ironic_bridge {
     brctl addbr provisioning
     ip link set provisioning up
@@ -159,7 +152,6 @@ function configure {
     #configure_kubeadm $1
     #configure_kubelet
     configure_ironic $1
-    configure_dhcp_bridge
     configure_ironic_bridge
     configure_ironic_interfaces
 }
