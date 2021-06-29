@@ -197,9 +197,9 @@ failed_kud_tests=""
 container_runtime=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
 if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
     #With containerd 1.2.13, the qat test container image fails to unpack.
-    kud_tests="multus ovn4nfv nfd sriov-network cmk"
+    kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network cmk"
 else
-    kud_tests="multus ovn4nfv nfd sriov-network qat cmk"
+    kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network qat cmk"
 fi
 for test in ${kud_tests}; do
     KUBECONFIG=${CLUSTER_KUBECONFIG} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
