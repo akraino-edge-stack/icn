@@ -17,17 +17,21 @@ function autoremove {
 function clean_essential_packages {
     apt-get update
     for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
-        python-pip python-requests python-setuptools vim wget; do
+        python3-pip python3-requests python3-setuptools vim wget; do
         apt-get remove $package -y
     done
+    update-alternatives --remove python /usr/bin/python3
+    update-alternatives --remove pip /usr/bin/pip3
 
     autoremove
 }
 
 function check_prerequisite {
     if !(which pip); then
-        apt-get install python-pip -y
+        apt-get install python3-pip -y
     fi
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
     if !(which curl); then
         apt-get install curl -y
@@ -39,9 +43,9 @@ function check_prerequisite {
 }
 
 function clean_ironic_packages {
-    for package in python-ironicclient \
-        python-ironic-inspector-client \
-        python-openstackclient genisoimage; do
+    for package in python3-ironicclient \
+        python3-ironic-inspector-client \
+        python3-openstackclient genisoimage; do
         apt-get remove $package -y
     done
 }

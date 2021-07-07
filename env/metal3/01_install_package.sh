@@ -21,14 +21,17 @@ function install_essential_packages {
     nmap \
     patch \
     psmisc \
-    python-pip \
-    python-requests \
-    python-setuptools \
+    python3-pip \
+    python3-requests \
+    python3-setuptools \
     vim \
     wget \
     git \
     software-properties-common \
     bridge-utils
+
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
     add-apt-repository -y ppa:longsleep/golang-backports
     apt-get update
@@ -40,11 +43,11 @@ function install_ironic_packages {
     apt-get -y install \
     jq \
     nodejs \
-    python-ironicclient \
-    python-ironic-inspector-client \
-    python-lxml \
-    python-netaddr \
-    python-openstackclient \
+    python3-ironicclient \
+    python3-ironic-inspector-client \
+    python3-lxml \
+    python3-netaddr \
+    python3-openstackclient \
     unzip \
     genisoimage \
     whois
