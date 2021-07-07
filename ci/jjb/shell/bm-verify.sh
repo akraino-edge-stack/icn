@@ -5,6 +5,6 @@ echo "---> bm-verify.sh"
 # Disable 'globbing'
 set -exuf -o pipefail
 
-sudo apt update
-sudo apt install -y make
+sudo apt-get update
+sudo apt-get install -y make
 sudo su -c 'make {target}'

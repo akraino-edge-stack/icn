@@ -14,7 +14,6 @@ fi
 function install_essential_packages {
     apt-get update
     apt-get -y install \
-    crudini \
     curl \
     dnsmasq \
     figlet \

@@ -13,7 +13,7 @@ source lib/common.sh
 # fi
 
 # Update to latest packages first
-sudo apt -y update
+sudo apt-get -y update
 
 # Install EPEL required by some packages
 # if [ ! -f /etc/yum.repos.d/epel.repo ] ; then
@@ -31,8 +31,7 @@ sudo apt -y update
 
 # Install required packages
 
-sudo apt -y install \
-  crudini \
+sudo apt-get -y install \
   curl \
   dnsmasq \
   figlet \
@@ -85,12 +84,12 @@ sudo add-apt-repository -y ppa:projectatomic/ppa
 sudo add-apt-repository -y ppa:longsleep/golang-backports
 
 # Update some packages from new repos
-sudo apt -y update
+sudo apt-get -y update
 
 # make sure additional requirments are installed
 
 ##No bind-utils. It is for host, nslookop,..., no need in ubuntu
-sudo apt -y install \
+sudo apt-get -y install \
   jq \
   libguestfs-tools \
   nodejs \
@@ -103,9 +102,9 @@ sudo apt -y install \
 
 
 if [[ "${CONTAINER_RUNTIME}" == "podman" ]]; then
-  sudo apt -y install podman
+  sudo apt-get -y install podman
 else
-  sudo apt -y install \
+  sudo apt-get -y install \
     apt-transport-https \
     ca-certificates \
     gnupg-agent \
@@ -115,8 +114,8 @@ else
     "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
     $(lsb_release -cs) \
     stable"
-  sudo apt update
-  sudo apt install -y docker-ce docker-ce-cli containerd.io
+  sudo apt-get update
+  sudo apt-get install -y docker-ce docker-ce-cli containerd.io
   sudo systemctl start docker
 fi
 

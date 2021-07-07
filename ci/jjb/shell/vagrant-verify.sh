@@ -16,8 +16,8 @@ vagrant ssh -c "
 set -exuf
 sudo parted -a optimal /dev/sda ---pretend-input-tty resizepart 3 yes 100%
 sudo resize2fs /dev/sda3
-sudo apt update
-sudo apt install -y make
+sudo apt-get update
+sudo apt-get install -y make
 cd /vagrant
 sudo su -c 'make {target}'
 "

@@ -16,7 +16,7 @@ function autoremove {
 
 function clean_essential_packages {
     apt-get update
-    for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
+    for package in curl dnsmasq figlet golang nmap patch psmisc \
         python3-pip python3-requests python3-setuptools vim wget; do
         apt-get remove $package -y
     done

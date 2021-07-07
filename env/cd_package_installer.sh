@@ -10,7 +10,6 @@ function install_essential_packages {
     export DEBIAN_FRONTEND=noninteractive
     apt-get update
     apt-get -y install \
-    crudini \
     curl \
     dnsmasq \
     figlet \
