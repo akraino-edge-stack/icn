@@ -17,13 +17,16 @@ function install_essential_packages {
     nmap \
     patch \
     psmisc \
-    python-pip \
-    python-requests \
-    python-setuptools \
+    python3-pip \
+    python3-requests \
+    python3-setuptools \
     vim \
     wget \
     git \
     software-properties-common
+
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
     add-apt-repository -y ppa:longsleep/golang-backports
     apt-get update

@@ -53,9 +53,9 @@
   failed_when: "'Result: success\n' != result.output"
   tags: [gerrit]
 
-- name: Install python-pip
+- name: Install python3-pip
   apt:
-    name: python-pip
+    name: python3-pip
   tags: [jobs]
 
 - name: Install python-jenkins and lxml(required by jenkins_job module)

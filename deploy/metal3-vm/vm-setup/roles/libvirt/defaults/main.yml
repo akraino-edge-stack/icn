@@ -50,9 +50,9 @@ ubuntu_libvirt_packages:
   - libvirt-bin
   - libvirt-clients
   - libvirt-dev
-  - python-libvirt
+  - python3-libvirt
   - libguestfs-tools
-  - python-lxml
+  - python3-lxml
   - gir1.2-polkit-1.0
   - libpolkit-agent-1-0
   - libpolkit-backend-1-0

@@ -42,10 +42,11 @@ sudo apt -y install \
   nmap \
   patch \
   psmisc \
-  python-pip \
+  python3-pip \
   wget
 
-
+sudo update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+sudo update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 
 # Install pyenv
 
@@ -70,9 +71,6 @@ if [[ $PATH != *pyenv* ]]; then
   fi
 fi
 
-pyenv install -s 2.7.18
-pyenv versions
-pyenv global 2.7.18
 # There are some packages which are newer in the tripleo repos
 
 # Setup yarn and nodejs repositories
@@ -98,10 +96,7 @@ sudo apt -y install \
   nodejs \
   qemu-kvm \
   libvirt-bin libvirt-clients libvirt-dev \
-  python-ironicclient \
-  python-ironic-inspector-client \
   golang-go \
-  python-lxml \
   unzip \
   yarn \
   genisoimage

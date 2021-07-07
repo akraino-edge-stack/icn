@@ -18,9 +18,11 @@ fi
 function download_essential_packages {
     apt-get update
     for package in crudini curl dnsmasq figlet golang nmap patch psmisc \
-        python-pip python-requests python-setuptools vim wget; do
+        python3-pip python3-requests python3-setuptools vim wget; do
         apt-get -d install $package -y
     done
+    update-alternatives --install /usr/bin/python python /usr/bin/python3 1
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 }
 
 function build_baremetal_operator_images {
@@ -137,8 +139,9 @@ function download_build_packages {
 
 function check_pip {
     if ! which pip ; then
-    apt-get install python-pip -y
+        apt-get install python3-pip -y
     fi
+    update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 }
 
 function check_curl {
@@ -154,9 +157,9 @@ function check_apt_tools {
 }
 
 function download_ironic_packages {
-    for package in jq nodejs python-ironicclient \
-        python-ironic-inspector-client python-lxml python-netaddr \
-        python-openstackclient unzip genisoimage; do
+    for package in jq nodejs python3-ironicclient \
+        python3-ironic-inspector-client python3-lxml python3-netaddr \
+        python3-openstackclient unzip genisoimage; do
         apt-get -d install $package -y
     done
 
