@@ -15,7 +15,8 @@ function check_interface_ip {
     local interface=$1
     local ipaddr=$2
 
-    if [ ! $(ip addr show dev $interface) ]; then
+    ip addr show dev $interface
+    if [ $? -ne 0 ]; then
         exit 1
     fi
 
