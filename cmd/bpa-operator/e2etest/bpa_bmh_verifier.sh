@@ -2,6 +2,7 @@
 set -eu -o pipefail
 
 CLUSTER_NAME=test-bmh-cluster
+ADDONS_NAMESPACE=kud
 
 kubectl create -f e2etest/test_bmh_provisioning_cr.yaml
 sleep 5
@@ -52,7 +53,7 @@ function emcoctl_apply {
     until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f $@ -v values.yaml  |
                    awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]; do
         if [[ $try -lt 10 ]]; then
-            echo "Waiting for KUD addons to terminate"
+            echo "Waiting for KUD addons to instantiate"
             sleep 1s
         else
             return 1
@@ -81,7 +82,7 @@ function wait_for_addons_ready {
     for try in {0..19}; do
 	printf "Waiting for KUD addons to be ready\n"
 	sleep 30s
-	if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --all-namespaces --timeout=0s 2>/dev/null >/dev/null; then
+	if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --timeout=0s 2>/dev/null >/dev/null; then
             status="Ready"
             break
 	fi
@@ -103,8 +104,8 @@ wait_for_addons_ready
 # The issue is kubevirt creates a PodDisruptionBudget that prevents
 # sriov from succesfully draining the node.  The workaround is to
 # temporarily scale down the kubevirt operator while the drain occurs.
-KUBEVIRT_OP_REPLICAS=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl get deployments/r1-kubevirt-operator -o jsonpath='{.spec.replicas}')
-KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl scale deployments/r1-kubevirt-operator --replicas=0
+KUBEVIRT_OP_REPLICAS=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get deployments/r1-kubevirt-operator -o jsonpath='{.spec.replicas}')
+KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} scale deployments/r1-kubevirt-operator --replicas=0
 
 #Install addon resources
 printf "Installing KUD addon resources\n"
@@ -117,7 +118,7 @@ wait_for_addons_ready
 # Scale the kubevirt operator back up and wait things to be ready
 # again.
 KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait nodes --for=condition=Ready --all
-KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl scale deployments/r1-kubevirt-operator --replicas=${KUBEVIRT_OP_REPLICAS}
+KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} scale deployments/r1-kubevirt-operator --replicas=${KUBEVIRT_OP_REPLICAS}
 wait_for_addons_ready
 
 #Test addons
