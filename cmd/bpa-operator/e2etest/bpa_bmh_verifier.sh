@@ -99,11 +99,25 @@ emcoctl_apply 03-addons-app.yaml
 popd
 wait_for_addons_ready
 
+#Workaround for sriov+kubevirt issue on single-node clusters
+# The issue is kubevirt creates a PodDisruptionBudget that prevents
+# sriov from succesfully draining the node.  The workaround is to
+# temporarily scale down the kubevirt operator while the drain occurs.
+KUBEVIRT_OP_REPLICAS=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl get deployments/r1-kubevirt-operator -o jsonpath='{.spec.replicas}')
+KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl scale deployments/r1-kubevirt-operator --replicas=0
+
 #Install addon resources
 printf "Installing KUD addon resources\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
 emcoctl_apply 04-addon-resources-app.yaml
 popd
+wait_for_addons_ready
+
+#Workaround for sriov+kubevirt issue on single-node clusters
+# Scale the kubevirt operator back up and wait things to be ready
+# again.
+KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait nodes --for=condition=Ready --all
+KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl scale deployments/r1-kubevirt-operator --replicas=${KUBEVIRT_OP_REPLICAS}
 wait_for_addons_ready
 
 #Test addons
@@ -113,13 +127,14 @@ failed_kud_tests=""
 container_runtime=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
 if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
     #With containerd 1.2.13, the qat test container image fails to unpack.
-    kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network cmk"
+    kud_tests="topology-manager-sriov kubevirt multus ovn4nfv nfd sriov-network cmk"
 else
-    kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network qat cmk"
+    kud_tests="topology-manager-sriov kubevirt multus ovn4nfv nfd sriov-network qat cmk"
 fi
 for test in ${kud_tests}; do
     KUBECONFIG=${CLUSTER_KUBECONFIG} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
 done
+KUBECONFIG=${CLUSTER_KUBECONFIG} DEMO_FOLDER=${PWD} PATH=/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts:${PATH} bash plugin_fw_v2.sh --external || failed_kud_tests="${failed_kud_tests} plugin_fw_v2"
 if [[ ! -z "$failed_kud_tests" ]]; then
     printf "Test cases failed:${failed_kud_tests}\n"
     exit 1
