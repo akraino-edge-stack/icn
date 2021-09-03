@@ -46,80 +46,110 @@ else
     exit 1
 fi
 
-function emcoctl_apply {
-    # Workaround known issue with emcoctl resource instantation by retrying
-    # until a 2xx is received.
-    try=0
-    until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f $@ -v values.yaml  |
-                   awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]; do
-        if [[ $try -lt 10 ]]; then
-            echo "Waiting for KUD addons to instantiate"
-            sleep 1s
-        else
-            return 1
-        fi
-        try=$((try + 1))
+function wait_for {
+    local -r interval=30
+    for ((try=0;try<600;try+=${interval})); do
+        echo "$(date +%H:%M:%S) - Waiting for $*"
+        sleep ${interval}s
+        if $*; then return 0; fi
     done
-    return 0
+    return 1
+}
+
+function emco_ready {
+    KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n emco wait pod --all --for=condition=Ready --timeout=0s 1>/dev/null 2>/dev/null
+}
+
+function emcoctl_apply {
+    [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply -f $@ -v values.yaml |
+             awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]
 }
 
 function emcoctl_delete {
-    # Workaround known issue with emcoctl resource deletion by retrying
-    # until a 404 is received.
-    until [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f $@ -v values.yaml |
-                   awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]; do
-        echo "Waiting for KUD addons to terminate"
-        sleep 1s
-    done
+    [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh delete -f $@ -v values.yaml |
+             awk '/Response Code:/ {code=$3} END{print code}') =~ 404 ]]
 }
 
-function wait_for_addons_ready {
-    #Wait for addons to be ready
-    # The deployment intent group status reports instantiated before all
-    # Pods are ready, so wait for the instance label (.spec.version) of
-    # the deployment intent group instead.
-    status="Pending"
-    for try in {0..19}; do
-	printf "Waiting for KUD addons to be ready\n"
-	sleep 30s
-	if KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --timeout=0s 2>/dev/null >/dev/null; then
-            status="Ready"
-            break
-	fi
-    done
-    [[ $status == "Ready" ]]
+function emcoctl_instantiate {
+    [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply projects/kud/composite-apps/$@/v1/deployment-intent-groups/deployment/instantiate |
+             awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]
 }
 
-#Install addons
-printf "Installing KUD addons\n"
+function emcoctl_terminate {
+    [[ $(/opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/emcoctl.sh apply projects/kud/composite-apps/$@/v1/deployment-intent-groups/deployment/terminate |
+             awk '/Response Code:/ {code=$3} END{print code}') =~ 2.. ]]
+}
+
+function emcoctl {
+    local -r op=$1
+    shift
+
+    local -r interval=2
+    for ((try=0;try<600;try+=${interval})); do
+        if emco_ready; then break; fi
+        echo "$(date +%H:%M:%S) - Waiting for emco"
+        sleep ${interval}s
+    done
+
+    for ((;try<600;try+=${interval})); do
+	case ${op} in
+	    "apply") if emcoctl_apply $@; then return 0; fi ;;
+	    "delete") if emcoctl_delete $@; then return 0; fi ;;
+	    "instantiate") if emcoctl_instantiate $@; then return 0; fi ;;
+	    "terminate") if emcoctl_terminate $@; then return 0; fi ;;
+	esac
+        echo "$(date +%H:%M:%S) - Waiting for emcoctl ${op} $@"
+        sleep ${interval}s
+    done
+
+    return 1
+}
+
+function addons_instantiated {
+    KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} wait pod -l app.kubernetes.io/instance=r1 --for=condition=Ready --timeout=0s 1>/dev/null 2>/dev/null
+}
+
+function addons_terminated {
+    [[ $(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get pod -l app.kubernetes.io/instance=r1 --no-headers 2>/dev/null | wc -l) == 0 ]]
+}
+
+function networks_instantiated {
+    local -r count=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get sriovnetworknodestate --no-headers 2>/dev/null | wc -l)
+    local -r succeeded=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get sriovnetworknodestate -o jsonpath='{range .items[*]}{.status.syncStatus}{"\n"}{end}' 2>/dev/null | grep "Succeeded" | wc -l)
+    [[ $count == $succeeded ]]
+}
+
+function networks_terminated {
+    # The syncStatus will be the same whether we are instantiating or terminating an SR-IOV network
+    networks_instantiated
+}
+
+function kubevirt_instantiated {
+    [[ $(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get kubevirt -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}' 2>/dev/null | grep "Deployed" | wc -l) == 1 ]]
+    [[ $(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get cdi -o jsonpath='{range .items[*]}{.status.phase}{"\n"}{end}' 2>/dev/null | grep "Deployed" | wc -l) == 1 ]]
+}
+
+function kubevirt_terminated {
+    [[ $(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get kubevirt --no-headers 2>/dev/null | wc -l) == 0 ]]
+    [[ $(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get cdi --no-headers 2>/dev/null | wc -l) == 0 ]]
+}
+
+#Apply addons
+printf "Applying KUD addons\n"
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-emcoctl_apply 00-controllers.yaml
-emcoctl_apply 01-cluster.yaml
-emcoctl_apply 02-project.yaml
-emcoctl_apply 03-addons-app.yaml
+emcoctl apply 00-controllers.yaml
+emcoctl apply 01-cluster.yaml
+emcoctl apply 02-project.yaml
+emcoctl apply 03-addons-app.yaml
 popd
-wait_for_addons_ready
 
-#Workaround for sriov+kubevirt issue on single-node clusters
-# The issue is kubevirt creates a PodDisruptionBudget that prevents
-# sriov from succesfully draining the node.  The workaround is to
-# temporarily scale down the kubevirt operator while the drain occurs.
-KUBEVIRT_OP_REPLICAS=$(KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} get deployments/r1-kubevirt-operator -o jsonpath='{.spec.replicas}')
-KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} scale deployments/r1-kubevirt-operator --replicas=0
-
-#Install addon resources
-printf "Installing KUD addon resources\n"
-pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-emcoctl_apply 04-addon-resources-app.yaml
-popd
-wait_for_addons_ready
-
-#Workaround for sriov+kubevirt issue on single-node clusters
-# Scale the kubevirt operator back up and wait things to be ready
-# again.
-KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl wait nodes --for=condition=Ready --all
-KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n ${ADDONS_NAMESPACE} scale deployments/r1-kubevirt-operator --replicas=${KUBEVIRT_OP_REPLICAS}
-wait_for_addons_ready
+#Instantiate addons
+emcoctl instantiate addons
+wait_for addons_instantiated
+emcoctl instantiate networks
+wait_for networks_instantiated
+emcoctl instantiate kubevirt
+wait_for kubevirt_instantiated
 
 #Test addons
 printf "Testing KUD addons\n"
@@ -145,14 +175,17 @@ printf "All test cases passed\n"
 
 #Tear down setup
 printf "\n\nBeginning BMH E2E Test Teardown\n\n"
-# Workaround known issue with emcoctl resource deletion by retrying
-# until a 404 is received.
+emcoctl terminate kubevirt
+wait_for kubevirt_terminated
+emcoctl terminate networks
+wait_for networks_terminated
+emcoctl terminate addons
+wait_for addons_terminated
 pushd /opt/kud/multi-cluster/${CLUSTER_NAME}/artifacts/addons
-emcoctl_delete 04-addon-resources-app.yaml
-emcoctl_delete 03-addons-app.yaml
-emcoctl_delete 02-project.yaml
-emcoctl_delete 01-cluster.yaml
-emcoctl_delete 00-controllers.yaml
+emcoctl delete 03-addons-app.yaml
+emcoctl delete 02-project.yaml
+emcoctl delete 01-cluster.yaml
+emcoctl delete 00-controllers.yaml
 popd
 kubectl delete -f e2etest/test_bmh_provisioning_cr.yaml
 kubectl delete job kud-${CLUSTER_NAME}
