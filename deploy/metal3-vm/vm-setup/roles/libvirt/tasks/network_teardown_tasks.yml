@@ -18,8 +18,8 @@
   shell: |
      sudo ip link set baremetal down 
      sudo ip link set provisioning down
-     brctl delbr baremetal | true
-     brctl delbr provisioning | true
+     ip link del baremetal type bridge | true
+     ip link del provisioning type bridge | true
 
   when:
     - ansible_distribution == 'Ubuntu'
