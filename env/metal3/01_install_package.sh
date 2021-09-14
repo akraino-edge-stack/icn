@@ -27,8 +27,7 @@ function install_essential_packages {
     vim \
     wget \
     git \
-    software-properties-common \
-    bridge-utils
+    software-properties-common
 
     update-alternatives --install /usr/bin/python python /usr/bin/python3 1
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1

@@ -27,9 +27,9 @@ function check_interface_ip {
 }
 
 function configure_ironic_bridge {
-    brctl addbr provisioning
+    ip link add dev provisioning type bridge
     ip link set provisioning up
-    brctl addif provisioning $IRONIC_INTERFACE
+    ip link set dev $IRONIC_INTERFACE master provisioning
     ip addr add dev provisioning 172.22.0.1/24
 }
 

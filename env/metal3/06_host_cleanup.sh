@@ -12,6 +12,6 @@ for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
 done
 
 ip link set provisioning down || true
-brctl delbr provisioning || true
+ip link del provisioning type bridge || true
 
 rm -rf ${IRONIC_DATA_DIR}
