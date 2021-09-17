@@ -66,41 +66,7 @@ function configure_ironic_interfaces {
     done
 }
 
-function configure_ironic_offline {
-    if [ ! -d $CONTAINER_IMAGES_DIR ] && [ ! -d $BUILD_DIR ]; then
-        exit 1
-    fi
-
-    for image in ironic-inspector-image ironic-image \
-	baremetal-operator socat; do
-	if [ ! -f "$CONTAINER_IMAGES_DIR/$image" ]; then
-	    exit 1
-	fi
-    done
-
-    if [ ! -f "$BUILD_DIR/ironic-python-agent.initramfs"] && [ ! -f \
-	"$BUILD_DIR/ironic-python-agent.kernel" ] && [ ! -f
-	"$BUILD_DIR/$BM_IMAGE" ]; then
-        exit 1
-    fi
-
-    docker load --input $CONTAINER_IMAGES_DIR/baremetal-operator.tar
-    docker load --input $CONTAINER_IMAGES_DIR/socat.tar
-
-    mkdir -p "$IRONIC_DATA_DIR/html/images"
-
-    cp $BUILD_DIR/ironic-python-agent.initramfs $IRONIC_DATA_DIR/html/images/
-    cp $BUILD_DIR/ironic-python-agent.kernel $IRONIC_DATA_DIR/html/images/
-    cp $BUILD_DIR/$BM_IMAGE $IRONIC_DATA_DIR/html/images/
-    md5sum $BUILD_DIR/$BM_IMAGE | awk '{print $1}' > $BUILD_DIR/${BM_IMAGE}.md5sum
-}
-
 function configure_ironic {
-    if [ "$1" == "offline" ]; then
-        configure_ironic_offline
-	return
-    fi
-
     for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
         sudo docker ps | \
             grep -w "$name$" && sudo docker kill "$name"
@@ -124,15 +90,9 @@ function configure_ironic {
 }
 
 function configure {
-    configure_ironic $1
+    configure_ironic
     configure_ironic_bridge
     configure_ironic_interfaces
 }
 
-if [ "$#" -eq 0 ]; then
-    configure online
-elif [ "$1" == "-o" ]; then
-    configure offline
-else
-    exit 1
-fi
+configure

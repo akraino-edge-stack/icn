@@ -76,10 +76,4 @@ function install {
     install_ironic_container
 }
 
-if [ "$#" -eq 0 ]; then
-    install online
-elif [ "$1" == "-o" ]; then
-    install offline
-else
-    exit 1
-fi
+install

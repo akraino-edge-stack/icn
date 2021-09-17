@@ -111,32 +111,6 @@ function clean_apt_cache {
 
 }
 
-function mv_apt_cache {
-    shopt -s extglob
-    pushd /var/cache/apt/archives
-
-    if [ $(ls -1q . | wc -l ) -gt 2 ]; then
-        $(mv !("lock"|"partial") $LOCAL_APT_REPO)
-    fi
-    popd
-}
-
-function check_dir {
-    if [ ! -d $1 ]; then
-        mkdir -p $1
-    fi
-}
-
-function clean_dir {
-    shopt -s extglob
-    pushd $1
-
-    if [ $(ls -1q . | wc -l ) -ne 0 ]; then
-        $(rm -r ./*)
-    fi
-    popd
-}
-
 if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages || true
@@ -152,19 +126,7 @@ fi
 
 check_prerequisite
 clean_apt_cache
-check_dir $LOCAL_APT_REPO
-clean_dir $LOCAL_APT_REPO
-check_dir $PIP_CACHE_DIR
-clean_dir $PIP_CACHE_DIR
-check_dir $BUILD_DIR
-clean_dir $BUILD_DIR
-check_dir $CONTAINER_IMAGES_DIR
-clean_dir $CONTAINER_IMAGES_DIR
 clean_kubernetes_packages
 clean_docker_packages
 clean_ironic_packages
 clean_essential_packages
-rm -rf $LOCAL_APT_REPO
-rm -rf $PIP_CACHE_DIR
-rm -rf $BUILD_DIR
-rm -rf $CONTAINER_IMAGES_DIR
