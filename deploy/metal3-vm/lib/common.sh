@@ -31,8 +31,6 @@ MANAGE_PRO_BRIDGE=${MANAGE_PRO_BRIDGE:-y}
 MANAGE_INT_BRIDGE=${MANAGE_INT_BRIDGE:-y}
 # Internal interface, to bridge virbr0
 INT_IF=${INT_IF:-}
-#Root disk to deploy coreOS - use /dev/sda on BM
-ROOT_DISK_NAME=${ROOT_DISK_NAME-"/dev/sda"}
 #Container runtime
 CONTAINER_RUNTIME=${CONTAINER_RUNTIME:-"docker"}
 
