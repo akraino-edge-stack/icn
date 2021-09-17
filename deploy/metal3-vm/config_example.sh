@@ -17,10 +17,10 @@
 #export SSH_PUB_KEY=~/.ssh/id_rsa.pub
 
 #
-# Select the Container Runtime, can be "podman" or "docker"
-# Defaults to "podman"
+# Select the Container Runtime, can be "docker" or "containerd"
+# Defaults to "docker"
 #
-#export CONTAINER_RUNTIME="podman"
+#export CONTAINER_RUNTIME="docker"
 
 #
 # Set the Baremetal Operator repository to clone

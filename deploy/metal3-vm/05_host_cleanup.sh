@@ -15,13 +15,6 @@ for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
     sudo "${CONTAINER_RUNTIME}" ps --all | grep -w "$name$" && sudo "${CONTAINER_RUNTIME}" rm $name -f
 done
 
-# Remove existing pod
-if [[ "${CONTAINER_RUNTIME}" == "podman" ]]; then
-  if  sudo "${CONTAINER_RUNTIME}" pod exists ironic-pod ; then
-      sudo "${CONTAINER_RUNTIME}" pod rm ironic-pod -f
-  fi
-fi
-
 # Kill the locally running operators
 if [ "${BMO_RUN_LOCAL}" = true ]; then
   kill "$(pgrep "operator-sdk")" 2> /dev/null || true

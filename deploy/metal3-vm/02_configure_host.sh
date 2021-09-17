@@ -169,18 +169,6 @@ done
 # set password for mariadb
 mariadb_password="$(echo "$(date;hostname)"|sha256sum |cut -c-20)"
 
-if [[ "${CONTAINER_RUNTIME}" == "podman" ]]; then
-  # Remove existing pod
-  if  sudo "${CONTAINER_RUNTIME}" pod exists ironic-pod ; then
-      sudo "${CONTAINER_RUNTIME}" pod rm ironic-pod -f
-  fi
-  # Create pod
-  sudo "${CONTAINER_RUNTIME}" pod create -n ironic-pod
-  POD_NAME="--pod ironic-pod"
-else
-  POD_NAME=""
-fi
-
 cat <<EOF > ${PWD}/ironic.env
 PROVISIONING_INTERFACE=provisioning
 DHCP_RANGE=172.22.0.10,172.22.0.100
