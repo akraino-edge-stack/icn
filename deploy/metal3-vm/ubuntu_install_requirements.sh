@@ -6,28 +6,8 @@ source lib/logging.sh
 # shellcheck disable=SC1091
 source lib/common.sh
 
-# sudo apt install -y libselinux-utils
-# if selinuxenabled ; then
-#     sudo setenforce permissive
-#     sudo sed -i "s/=enforcing/=permissive/g" /etc/selinux/config
-# fi
-
 # Update to latest packages first
 sudo apt -y update
-
-# Install EPEL required by some packages
-# if [ ! -f /etc/yum.repos.d/epel.repo ] ; then
-#     if grep -q "Red Hat Enterprise Linux" /etc/redhat-release ; then
-#         sudo yum -y install http://mirror.centos.org/centos/7/extras/x86_64/Packages/epel-release-7-11.noarch.rpm
-#     else
-#         sudo yum -y install epel-release --enablerepo=extras
-#     fi
-# fi
-
-# Work around a conflict with a newer zeromq from epel
-# if ! grep -q zeromq /etc/yum.repos.d/epel.repo; then
-#   sudo sed -i '/enabled=1/a exclude=zeromq*' /etc/yum.repos.d/epel.repo
-# fi
 
 # Install required packages
 
@@ -79,8 +59,6 @@ curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 #curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
 echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
 
-# Add this repository to install podman
-sudo add-apt-repository -y ppa:projectatomic/ppa
 # Add this repository to install Golang 1.12
 sudo add-apt-repository -y ppa:longsleep/golang-backports
 
@@ -100,11 +78,6 @@ sudo apt -y install \
   unzip \
   yarn \
   genisoimage
-
-
-if [[ "${CONTAINER_RUNTIME}" == "podman" ]]; then
-  sudo apt -y install podman
-fi
 
 # Install python packages not included as rpms
 sudo pip install \

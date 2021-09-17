@@ -25,51 +25,6 @@ function download_essential_packages {
     update-alternatives --install /usr/bin/pip pip /usr/bin/pip3 1
 }
 
-function build_baremetal_operator_images {
-    if [ ! -d "$BUILD_DIR/baremetal-operator"]; then
-    return
-    fi
-
-    pushd $BUILD_DIR/baremetal-operator
-    docker build -t $IRONIC_BAREMETAL_IMAGE . -f build/Dockerfile
-    docker save --output \
-    $CONTAINER_IMAGES_DIR/baremetal-operator.tar $IRONIC_BAREMETAL_IMAGE
-    popd
-
-    docker pull $IRONIC_BAREMETAL_SOCAT_IMAGE
-    docker save --output $CONTAINER_IMAGES_DIR/socat.tar $IRONIC_BAREMETAL_SOCAT_IMAGE
-}
-
-function build_ironic_images {
-    for images in ironic-image ironic-inspector-image; do
-    if [ -d "$BUILD_DIR/$images" ]; then
-        pushd $BUILD_DIR/$images
-        podman build -t $images .
-        popd
-    fi
-    done
-
-    if podman images -q localhost/ironic-inspector-image ; then
-    podman tag localhost/ironic-inspector-image $IRONIC_INSPECTOR_IMAGE
-    podman save --output \
-        $CONTAINER_IMAGES_DIR/ironic-inspector-image.tar \
-        $IRONIC_INSPECTOR_IMAGE
-    fi
-
-    if podman images -q localhost/ironic-image ; then
-        podman tag localhost/ironic-inspector-image $IRONIC_IMAGE
-    podman save --output $CONTAINER_IMAGES_DIR/ironic-image.tar \
-        $IRONIC_IMAGE
-    fi
-
-    podman pull k8s.gcr.io/pause:3.1
-    podman save --output $CONTAINER_IMAGES_DIR/podman-pause.tar \
-    k8s.gcr.io/pause:3.1
-
-    #build_baremetal_operator_images
-}
-
-
 function download_container_images {
     check_docker
     pushd $CONTAINER_IMAGES_DIR
@@ -88,13 +43,6 @@ function download_container_images {
     docker pull k8s.gcr.io/coredns:1.3.1
     docker save --output coredns.tar k8s.gcr.io/coredns
 
-    #podman images for Ironic
-    check_podman
-    build_ironic_images
-    #podman pull $IRONIC_IMAGE
-    #podman save --output ironic.tar $IRONIC_IMAGE
-    #podman pull $IRONIC_INSPECTOR_IMAGE
-    #podman save --output ironic-inspector.tar $IRONIC_INSPECTOR_IMAGE
     popd
 }
 
@@ -109,10 +57,6 @@ function download_build_packages {
     if [[ "$BM_IMAGE_URL" && "$BM_IMAGE" ]]; then
     curl -o ${BM_IMAGE} --insecure --compressed -O -L ${BM_IMAGE_URL}
     md5sum ${BM_IMAGE} | awk '{print $1}' > ${BM_IMAGE}.md5sum
-    fi
-
-    if [ ! -f 87-podman-bridge.conflist ]; then
-    curl --insecure --compressed -O -L $PODMAN_CNI_CONFLIST
     fi
 
     if [ ! -d baremetal-operator ]; then
@@ -195,16 +139,6 @@ function check_docker {
     apt-get install docker-ce=19.03.15~3-0~ubuntu-bionic -y
 }
 
-function check_podman {
-    if which podman; then
-    return
-    fi
-
-    add-apt-repository -y ppa:projectatomic/ppa
-    apt-get update
-    apt-get install podman -y
-}
-
 function download_docker_packages {
     apt-get remove -y docker \
         docker-engine \
@@ -227,12 +161,6 @@ function download_docker_packages {
         stable"
     apt-get update
     apt-get -d install docker-ce=19.03.15~3-0~ubuntu-bionic -y
-}
-
-function download_podman_packages {
-    apt-get update
-    add-apt-repository -y ppa:projectatomic/ppa
-    apt-get -d install podman -y
 }
 
 function download_kubernetes_packages {
@@ -290,7 +218,6 @@ clean_dir $CONTAINER_IMAGES_DIR
 download_essential_packages
 download_ironic_packages
 download_docker_packages
-download_podman_packages
 download_kubernetes_packages
 download_build_packages
 download_container_images

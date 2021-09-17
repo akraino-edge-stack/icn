@@ -10,7 +10,6 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 function autoremove {
-    #apt-get autoremove -y
     rm -rf /etc/apt/sources.list.d/*
 }
 
@@ -67,12 +66,6 @@ function clean_docker_packages {
         docker-ce
     apt-get purge docker-* -y --allow-change-held-packages
     apt-get update
-}
-
-function clean_podman_packages {
-    apt-get update
-    add-apt-repository -y ppa:projectatomic/ppa
-    apt-get remove podman -y
 }
 
 function clean_kubernetes_packages {
@@ -147,7 +140,6 @@ function clean_dir {
 if [ "$1" == "--only-packages" ]; then
     check_prerequisite
     clean_docker_packages || true
-    #clean_ironic_packages
     autoremove
     exit 0
 fi
@@ -169,7 +161,6 @@ clean_dir $BUILD_DIR
 check_dir $CONTAINER_IMAGES_DIR
 clean_dir $CONTAINER_IMAGES_DIR
 clean_kubernetes_packages
-clean_podman_packages
 clean_docker_packages
 clean_ironic_packages
 clean_essential_packages

@@ -33,28 +33,7 @@ function configure_ironic_bridge {
     ip addr add dev provisioning 172.22.0.1/24
 }
 
-function configure_kubelet {
-    swapoff -a
-    #Todo addition kubelet configuration
-}
-
-function configure_kubeadm {
-    #Todo error handing
-    if [ "$1" == "offline" ]; then
-        for images in kube-apiserver kube-controller-manager kube-scheduler kube-proxy; do
-            docker load --input $CONTAINER_IMAGES_DIR/$images.tar;
-	done
-
-	docker load --input $CONTAINER_IMAGES_DIR/pause.tar
-	docker load --input $CONTAINER_IMAGES_DIR/etcd.tar
-	docker load --input $CONTAINER_IMAGES_DIR/coredns.tar
-        return
-    fi
-    kubeadm config images pull --kubernetes-version=$KUBE_VERSION
-}
-
 function configure_ironic_interfaces {
-    #Todo later to change the CNI networking for podman networking
     # Add firewall rules to ensure the IPA ramdisk can reach httpd, Ironic and the Inspector API on the host
     if [ "$IRONIC_PROVISIONING_INTERFACE" ]; then
         check_interface_ip $IRONIC_PROVISIONING_INTERFACE $IRONIC_PROVISIONING_INTERFACE_IP
@@ -92,7 +71,7 @@ function configure_ironic_offline {
         exit 1
     fi
 
-    for image in ironic-inspector-image ironic-image podman-pause \
+    for image in ironic-inspector-image ironic-image \
 	baremetal-operator socat; do
 	if [ ! -f "$CONTAINER_IMAGES_DIR/$image" ]; then
 	    exit 1
@@ -104,10 +83,6 @@ function configure_ironic_offline {
 	"$BUILD_DIR/$BM_IMAGE" ]; then
         exit 1
     fi
-
-    podman load --input $CONTAINER_IMAGES_DIR/ironic-inspector-image.tar
-    podman load --input $CONTAINER_IMAGES_DIR/ironic-image.tar
-    podman load --input $CONTAINER_IMAGES_DIR/podman-pause.tar
 
     docker load --input $CONTAINER_IMAGES_DIR/baremetal-operator.tar
     docker load --input $CONTAINER_IMAGES_DIR/socat.tar
@@ -149,9 +124,6 @@ function configure_ironic {
 }
 
 function configure {
-    #Kubeadm usage deprecated for v1.0.0 release
-    #configure_kubeadm $1
-    #configure_kubelet
     configure_ironic $1
     configure_ironic_bridge
     configure_ironic_interfaces
