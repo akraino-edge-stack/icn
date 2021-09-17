@@ -52,12 +52,6 @@ function install_ironic_packages {
     genisoimage \
     whois
 
-    if [ "$1" == "offline" ]; then
-    pip install --no-index
-        --find-links=file:$PIP_CACHE_DIR locat yq
-    return
-    fi
-
     pip install \
     lolcat \
     yq
@@ -65,13 +59,7 @@ function install_ironic_packages {
 
 install() {
     install_essential_packages
-    install_ironic_packages $1
+    install_ironic_packages
 }
 
-if [ "$#" -eq 0 ]; then
-    install online
-elif [ "$1" == "-o" ]; then
-    install offline
-else
-    exit 1
-fi
+install

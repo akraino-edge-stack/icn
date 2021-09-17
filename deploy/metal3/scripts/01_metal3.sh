@@ -31,57 +31,12 @@ function clone_repos {
     popd
 }
 
-function get_default_interface_ipaddress {
-    local _ip=$1
-    local _default_interface=$(awk '$2 == 00000000 { print $1 }' /proc/net/route)
-    local _ipv4address=$(ip addr show dev $_default_interface | awk '$1 == "inet" { sub("/.*", "", $2); print $2 }')
-    eval $_ip="'$_ipv4address'"
-}
-
-function create_ssh_key {
-    #ssh key for compute node to communicate back to bootstrap server
-    mkdir -p $BUILD_DIR/ssh_key
-    ssh-keygen -C "compute.icn.akraino.lfedge.org" -f $BUILD_DIR/ssh_key/id_rsa
-    cat $BUILD_DIR/ssh_key/id_rsa.pub >> $HOME/.ssh/authorized_keys
-}
-
-function set_compute_key {
-    _SSH_LOCAL_KEY=$(cat $BUILD_DIR/ssh_key/id_rsa)
-    cat << EOF
-write_files:
-- path: /opt/ssh_id_rsa
-    owner: root:root
-    permissions: '0600'
-    content: |
-    $_SSH_LOCAL_KEY
-EOF
-}
-
 function deprovision_compute_node {
     name="$1"
     if kubectl get baremetalhost $name -n metal3 &>/dev/null; then
         kubectl patch baremetalhost $name -n metal3 --type merge \
         -p '{"spec":{"image":{"url":"","checksum":""}}}'
     fi
-}
-
-function set_compute_ssh_config {
-    get_default_interface_ipaddress default_addr
-    cat << EOF
-- path: /root/.ssh/config
-    owner: root:root
-    permissions: '0600'
-    content: |
-    Host bootstrapmachine $default_addr
-    HostName $default_addr
-    IdentityFile /opt/ssh_id_rsa
-    User $USER
-- path: /etc/apt/sources.list
-    owner: root:root
-    permissions: '0665'
-    content: |
-    deb [trusted=yes] ssh://$USER@$default_addr:$LOCAL_APT_REPO ./
-EOF
 }
 
 # documentation for the values below may be found at
@@ -338,10 +293,3 @@ echo "deprovision - deprovision baremetal node as specified in common.sh"
 echo "clean       - clean all the bmh resources"
 echo "remove      - remove baremetal operator"
 exit 1
-
-#Following code is tested for the offline mode
-#Will be intergrated for the offline mode for ICNi v.0.1.0 beta
-#create_ssh_key
-#create_userdata
-#set_compute_key
-#set_compute_ssh_config

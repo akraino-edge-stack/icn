@@ -4,12 +4,7 @@ set -eu -o pipefail
 #supported OS version
 UBUNTU_BIONIC=${UBUNTU_BIONIC:-Ubuntu 18.04.2 LTS}
 
-#offline mode variable
 DOWNLOAD_PATH=${DOWNLOAD_PATH:-/opt/icn}
-LOCAL_APT_REPO=${LOCAL_APT_REPO:-$DOWNLOAD_PATH/apt}
-PIP_CACHE_DIR=${PIP_CACHE_DIR:-$DOWNLOAD_PATH/pip-cache-dir}
-BUILD_DIR=${BUILD_DIR:-$DOWNLOAD_PATH/build-dir}
-CONTAINER_IMAGES_DIR=${CONTAINER_IMAGES_DIR:-$DOWNLOAD_PATH/docker-dir}
 
 #set variables
 #Todo include over all variables here
