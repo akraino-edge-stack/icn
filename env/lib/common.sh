@@ -1,22 +1,13 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-#supported OS version
-UBUNTU_BIONIC=${UBUNTU_BIONIC:-Ubuntu 18.04.2 LTS}
-
 DOWNLOAD_PATH=${DOWNLOAD_PATH:-/opt/icn}
-
-#set variables
-#Todo include over all variables here
-KUBE_VERSION=${KUBE_VERSION:-"v1.15.0"}
-POD_NETWORK_CIDR=${POD_NETWORK_CIDR:-"10.244.0.0/16"}
 
 #Ironic variables
 IRONIC_IMAGE=${IRONIC_IMAGE:-"integratedcloudnative/ironic:v1.0-icn"}
 IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"integratedcloudnative/ironic-inspector:v1.0-icn"}
 IRONIC_BAREMETAL_IMAGE=${IRONIC_BAREMETAL_IMAGE:-"integratedcloudnative/baremetal-operator:v2.0-icn"}
 IPA_DOWNLOADER_IMAGE=${IPA_DOWNLOADER_IMAGE:-"integratedcloudnative/ironic-ipa-downloader:v1.0-icn"}
-IRONIC_BAREMETAL_SOCAT_IMAGE=${IRONIC_BAREMETAL_SOCAT_IMAGE:-"alpine/socat:latest"}
 
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
