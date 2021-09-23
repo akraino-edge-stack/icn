@@ -192,7 +192,7 @@ function check_docker {
         $(lsb_release -cs) \
         stable"
     apt-get update
-    apt-get install docker-ce=18.06.0~ce~3-0~ubuntu -y
+    apt-get install docker-ce=19.03.15~3-0~ubuntu-bionic -y
 }
 
 function check_podman {
@@ -226,7 +226,7 @@ function download_docker_packages {
         $(lsb_release -cs) \
         stable"
     apt-get update
-    apt-get -d install docker-ce=18.06.0~ce~3-0~ubuntu -y
+    apt-get -d install docker-ce=19.03.15~3-0~ubuntu-bionic -y
 }
 
 function download_podman_packages {
