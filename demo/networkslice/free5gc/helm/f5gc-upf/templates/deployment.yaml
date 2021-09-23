@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  labels:
+    app: f5gc-upf
+    sliceidx: 6d3d79da-f781-4cd9-813a-dbdad01e01c0
+  annotations:
+    free5gc.org/nssi-id: '27394d25-dbf5-428e-8fc3-f5b2add67115'
+    free5gc.org/nsi-ids: '[
+        { "id": "4e6db941-47d6-4fce-9c71-f7eb35a75d03" },
+    ]'
+spec:
+  #serviceName: "f5gc-upf"
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-upf
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: f5gc-upf
+        baseApp: {{.Values.baseApp}}
+{{- if eq .Values.helmInstallOvn false }}
+      annotations:
+        k8s.v1.cni.cncf.io/networks: '[{
+            "name": "ovn-networkobj",
+            "namespace": "default"
+          }]'
+        k8s.plugin.opnfv.org/nfn-network: '{ "type": "ovn4nfv", "interface": [{ "name": "gtpunetwork", "interface": "n3" }]}'
+{{- end }}
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      nodeSelector:
+{{ .Values.nodeSelector | toYaml | indent 8 }}
+      hostname: {{.Values.hostname}}
+      subdomain: {{.Values.subdomain}}
+      containers:
+        - name: free5g-304-upf 
+          image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: ["./free5gc-upfd"]
+          args:
+            - -f
+            - ../config/upfcfg.yaml
+          securityContext:
+            privileged: false
+            capabilities:
+              add: ["NET_ADMIN", "NET_RAW", "NET_BIND_SERVICE", "SYS_TIME"]
+          volumeMounts:
+            - name: f5gc-upf-config
+              mountPath: /free5gc/config
+            - mountPath: /dev/net/tun
+              name: tun-devdir
+          ports:
+            - containerPort: 2152
+              name: if-n3
+              protocol: UDP
+            - containerPort: 8805
+              name: if-n4
+              protocol: UDP
+        - name: tcpdump
+          image: corfr/tcpdump
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sleep
+            - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: f5gc-upf-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: f5gc-upf-config
+          configMap:
+            name: f5gc-upf-config
+        - name: tun-devdir
+          hostPath:
+            path: /dev/net/tun

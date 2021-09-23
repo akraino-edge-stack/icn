@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: f5gc-webui
+  labels:
+    app: f5gc-webui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: f5gc-webui
+  strategy:
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: f5gc-webui
+        #annotations:
+        #k8s.v1.cni.cncf.io/networks: '[{
+        #    "name": "backbone",
+        #    "namespace": "default",
+        #    "interface": "netb",
+        #    "ip": "1.1.1.150"
+        #  }]'
+    spec:
+      securityContext:
+        runAsUser: 0
+        runAsGroup: 0
+      nodeSelector:
+{{ .Values.nodeSelector | toYaml | indent 8 }}
+      containers:
+        - name: free5g-304-webui 
+          image: free5gc-webui:3.0.5
+          imagePullPolicy: IfNotPresent
+          # imagePullPolicy: Always
+          command: ["./webui"]
+          securityContext:
+            privileged: false
+          volumeMounts:
+            - name: f5gc-webui-config
+              mountPath: /free5gc/config
+          ports:
+            - containerPort: 5000
+              name: f5gc-webui
+              protocol: TCP
+        - name: tcpdump
+          image: corfr/tcpdump
+          imagePullPolicy: IfNotPresent
+          command:
+            - /bin/sleep
+            - infinity
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      serviceAccountName: f5gc-webui-sa
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - name: f5gc-webui-config
+          configMap:
+            name: f5gc-webui-config
