@@ -12,6 +12,11 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
+#Path to clone the metal3 dev env repo
+M3PATH="$(go env GOPATH)/src/github.com/metal3-io"
+#Path to clone the baremetal operator repo
+BMOPATH="${M3PATH}/baremetal-operator"
+
 IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
 IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
 
