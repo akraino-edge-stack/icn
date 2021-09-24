@@ -27,10 +27,6 @@ IRONIC_PROVISIONING_INTERFACE_IP=${IRONIC_PROVISIONING_INTERFACE_IP:-"172.22.0.1
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
-#Path to clone the metal3 dev env repo
-M3PATH="$(go env GOPATH)/src/github.com/metal3-io"
-#Path to clone the baremetal operator repo
-BMOPATH="${M3PATH}/baremetal-operator"
 #Baremetal operator repository URL
 BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
 #Baremetal operator repository branch to checkout
