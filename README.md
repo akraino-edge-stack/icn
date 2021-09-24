@@ -314,10 +314,6 @@ export IRONIC_INTERFACE="eno2"
 #Interface to which Ironic IPMI LAN should bind
 #Net C - IPMI LAN Network
 export IRONIC_IPMI_INTERFACE="eno1"
-
-#Interface IP for the IPMI LAN, ICN verfiy the LAN Connection is active or not
-#Net C - IPMI LAN Network
-export IRONIC_IPMI_INTERFACE_IP="10.10.10.10"
 ```
 
 #### Running
