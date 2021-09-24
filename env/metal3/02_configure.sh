@@ -41,12 +41,6 @@ function configure_ironic_interfaces {
         exit 1
     fi
 
-    if [ "$IRONIC_IPMI_INTERFACE" ]; then
-        check_interface_ip $IRONIC_IPMI_INTERFACE $IRONIC_IPMI_INTERFACE_IP
-    else
-        exit 1
-    fi
-
     for port in 80 5050 6385 ; do
         if ! sudo iptables -C INPUT -i $IRONIC_PROVISIONING_INTERFACE -p tcp -m tcp --dport $port -j ACCEPT > /dev/null 2>&1; then
             sudo iptables -I INPUT -i $IRONIC_PROVISIONING_INTERFACE -p tcp -m tcp --dport $port -j ACCEPT
