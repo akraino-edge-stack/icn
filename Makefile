@@ -2,7 +2,6 @@ SHELL:=/bin/bash
 ENV:=$(CURDIR)/env
 BMDIR:=$(CURDIR)/env/metal3
 METAL3DIR:=$(CURDIR)/deploy/metal3/scripts
-METAL3VMDIR:=$(CURDIR)/deploy/metal3-vm
 BPA_OPERATOR:=$(CURDIR)/cmd/bpa-operator/
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
@@ -74,12 +73,6 @@ kud_vm_deploy:
 kud_bm_reset:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset v1 && popd
 
-metal3_prerequisite:
-	pushd $(METAL3VMDIR) && make bmh_install && popd
-
-metal3_vm:
-	pushd $(METAL3VMDIR) && make bmh && popd
-
 sdwan_verifier:
 	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
 
@@ -92,9 +85,6 @@ bpa_op_install_e2e:
 bpa_op_delete:
 	pushd $(BPA_OPERATOR) && make delete && popd
 
-bpa_op_e2e_vm:
-	pushd $(BPA_OPERATOR) && make e2etest_vm && popd
-
 bpa_op_e2e_bmh:
 	pushd $(BPA_OPERATOR) && make e2etest_bmh && popd
 
@@ -103,8 +93,6 @@ bpa_op_e2e_virtletvm:
 
 bpa_op_unit:
 	pushd $(BPA_OPERATOR) && make unit_test && popd
-
-bpa_op_vm_verifier: bpa_op_install_e2e bpa_op_e2e_vm
 
 bpa_op_bmh_verifier: bpa_op_install_e2e bpa_op_e2e_bmh
 
@@ -142,14 +130,7 @@ bm_verifer: package_prerequisite \
 	bpa_rest_api_verifier \
 	clean_all
 
-verify_all: prerequisite \
-	metal3_prerequisite \
-	kud_bm_deploy_mini \
-	metal3_vm \
-	bpa_op_vm_verifier \
-	bpa_rest_api_verifier
-
-verifier: verify_all
+verifier: bm_verifer
 
 verify_nestedk8s: prerequisite \
 	kud_vm_deploy \
@@ -168,4 +149,3 @@ kud_bm_verifier: prerequisite \
 	clean_bm_packages
 
 .PHONY: all bm_preinstall bm_install bashate
-
