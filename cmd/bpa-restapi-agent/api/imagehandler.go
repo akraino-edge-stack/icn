@@ -255,7 +255,7 @@ func (h imageHandler) patchHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	f, err := os.OpenFile(fp, os.O_APPEND|os.O_WRONLY, 0644)
+	f, err := os.OpenFile(fp, os.O_WRONLY, 0644)
 	if err != nil {
 		log.Printf("unable to open file %s\n", err)
 		w.WriteHeader(http.StatusInternalServerError)
