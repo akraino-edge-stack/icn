@@ -385,9 +385,8 @@ The following steps occurs once the `make install` command is given.
 ![Figure 2](figure-2.png)*Figure 2: Virtual Deployment Architecture*
 
 Virtual deployment is used for the development environment using
-Metal3 virtual deployment to create VM with PXE boot. VM Ansible
-scripts the node inventory file in /opt/ironic. No setting is required
-from the user to deploy the virtual deployment.
+Vagrant to create VMs with PXE boot. No setting is required from the
+user to deploy the virtual deployment.
 
 ### Snapshot Deployment Overview
 No snapshot is implemented in ICN R2.
@@ -399,11 +398,20 @@ Jump server is required to be installed with Ubuntu 18.04. This will
 install all the VMs and install the k8s clusters.
 
 #### Verifying the Setup - VMs
-`make verify_all` installs two VMs with name master-0 and worker-0
-with 8GB RAM and 8 vCPUs and installs k8s cluster on the VMs using the
-ICN BPA operator and install the ICN BPA REST API verifier. BPA
-operator installs the multi-cluster KUD to bring up k8s with all
-addons and plugins.
+To verify the virtual deployment, execute the following commands:
+``` shell
+$ vagrant up --no-parallel
+$ vagrant ssh jump
+vagrant@jump:~$ sudo su
+root@jump:/home/vagrant# cd /icn
+root@jump:/icn# make verifier
+```
+`vagrant up --no-parallel` creates three VMs: vm-jump, vm-machine-1,
+and vm-machine-2, each with 16GB RAM and 8 vCPUs. `make verifier`
+installs the ICN BPA operator and the ICN BPA REST API verifier into
+vm-jump, and then installs a k8s cluster on the vm-machine VMs using
+the ICN BPA operator. The BPA operator installs the multi-cluster KUD
+to bring up k8s with all addons and plugins.
 
 # Verifying the Setup
 ICN blueprint checks all the setup in both bare metal and VM

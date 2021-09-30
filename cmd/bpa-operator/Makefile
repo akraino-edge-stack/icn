@@ -57,10 +57,6 @@ delete:
 unit_test:
 	go test ./pkg/controller/provisioning/
 
-.PHONY: e2etest_vm
-e2etest_vm:
-	./e2etest/bpa_vm_verifier.sh
-
 .PHONY: e2etest_bmh
 e2etest_bmh:
 	./e2etest/bpa_bmh_verifier.sh
