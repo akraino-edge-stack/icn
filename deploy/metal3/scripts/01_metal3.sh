@@ -184,7 +184,7 @@ EOF
 }
 
 function make_bm_hosts {
-    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
         create_userdata $name $os_username $os_password
         apply_userdata_credential $name
         create_networkdata $name
@@ -194,6 +194,7 @@ function make_bm_hosts {
            -address "ipmi://$ipmi_address" \
            -password "$ipmi_password" \
            -user "$ipmi_username" \
+           -boot-mac "$boot_mac" \
            "$name" > $name-bm-node.yaml
 
         printf "  image:" >> $name-bm-node.yaml
@@ -223,13 +224,13 @@ function configure_nodes {
 }
 
 function remove_bm_hosts {
-    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
         deprovision_compute_node $name
     done
 }
 
 function cleanup {
-    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address os_username os_password os_image_name; do
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
         kubectl delete --ignore-not-found=true bmh $name -n metal3
         kubectl delete --ignore-not-found=true secrets $name-bmc-secret -n metal3
         kubectl delete --ignore-not-found=true secrets $name-user-data -n metal3

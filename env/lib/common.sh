@@ -63,17 +63,40 @@ function list_nodes {
         exit 1
     fi
 
-    cat "$NODES_FILE" | \
-        jq -r '.nodes[] | [
-           .name,
-           .ipmi_driver_info.username,
-           .ipmi_driver_info.password,
-           .ipmi_driver_info.address,
-           .os.username,
-           .os.password,
-           .os.image_name
-           ] | @csv' | \
-        sed 's/"//g'
+    # The boot MAC address must be specified when a port is included
+    # in the IPMI driver address (i.e when using the VirtualBMC
+    # controller).  Note that the below is a bit of a hack as it only
+    # checks the first entry in NODES_FILE for the port.
+    if cat "$NODES_FILE" |
+            jq -r '.nodes[0].ipmi_driver_info.address' | grep -c ':[0-9]\+$' >/dev/null; then
+        BOOT_LINK=$(cat "$NODES_FILE" |
+                        jq -r '.nodes[0].net.links | map(.id=="provisioning_nic") | index(true)')
+        cat "$NODES_FILE" |
+            jq -r --argjson BOOT_LINK $BOOT_LINK '.nodes[] | [
+               .name,
+               .ipmi_driver_info.username,
+               .ipmi_driver_info.password,
+               .ipmi_driver_info.address,
+               .net.links[$BOOT_LINK].ethernet_mac_address,
+               .os.username,
+               .os.password,
+               .os.image_name
+               ] | @csv' |
+            sed 's/"//g'
+    else
+        cat "$NODES_FILE" |
+            jq -r '.nodes[] | [
+               .name,
+               .ipmi_driver_info.username,
+               .ipmi_driver_info.password,
+               .ipmi_driver_info.address,
+               "",
+               .os.username,
+               .os.password,
+               .os.image_name
+               ] | @csv' |
+            sed 's/"//g'
+    fi
 }
 
 function node_networkdata {
