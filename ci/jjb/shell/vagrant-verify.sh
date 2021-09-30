@@ -11,13 +11,9 @@ function clean_vm {{
 trap clean_vm EXIT
 
 vagrant destroy -f
-vagrant up
+vagrant up --no-parallel
 vagrant ssh -c "
 set -exuf
-sudo parted -a optimal /dev/sda ---pretend-input-tty resizepart 3 yes 100%
-sudo resize2fs /dev/sda3
-sudo apt update
-sudo apt install -y make
-cd /vagrant
+cd /icn
 sudo su -c 'make {target}'
 "
