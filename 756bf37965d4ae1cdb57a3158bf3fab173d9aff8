@@ -22,6 +22,30 @@
       "revId": "756bf37965d4ae1cdb57a3158bf3fab173d9aff8",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d969b931_2055f2b6",
+        "filename": "cmd/bpa-restapi-agent/api/imagehandler.go",
+        "patchSetId": 2
+      },
+      "lineNbr": 258,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-10-01T16:04:44Z",
+      "side": 1,
+      "message": "golang 1.12 (from the Dockerfile) caused a build error:\n\n  go: error loading module requirements\n\nUpdating the Dockerfile to golang 1.13 resolved that issue but introduced another one (from https://golang.org/doc/go1.13):\n\n  If a File is opened using the O_APPEND flag, its WriteAt method will always return an error.",
+      "parentUuid": "c8d30571_aa70193f",
+      "range": {
+        "startLine": 258,
+        "startChar": 1,
+        "endLine": 258,
+        "endChar": 45
+      },
+      "revId": "756bf37965d4ae1cdb57a3158bf3fab173d9aff8",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
     }
   ]
 }
