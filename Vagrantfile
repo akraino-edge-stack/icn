@@ -49,7 +49,7 @@ Vagrant.configure("2") do |config|
       libvirt.default_prefix = "#{vars[:site]}-"
       libvirt.cpu_mode = 'host-passthrough'
       libvirt.cpus = 8
-      libvirt.memory = 16384
+      libvirt.memory = 24576
       libvirt.nested = true
 
       # The ICN baremetal network is the vagrant management network,
