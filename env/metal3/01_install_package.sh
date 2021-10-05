@@ -14,6 +14,7 @@ fi
 function install_essential_packages {
     apt-get update
     apt-get -y install \
+    ca-certificates \
     crudini \
     curl \
     dnsmasq \
