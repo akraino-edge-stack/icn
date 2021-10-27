@@ -21,7 +21,8 @@ To get started with ICN:
   $ vagrant ssh jump
   vagrant@jump:~$ sudo su
   root@jump:/home/vagrant# cd /icn
-  root@jump:/home/vagrant# make install
+  root@jump:/icn# make jump_server
+  root@jump:/icn# make cluster
 
 ------------------------------------------------------
 MSG
