@@ -11,24 +11,23 @@ BOOTLOADER_ENV:=$(CURDIR)/env/ubuntu/bootloader-env
 help:
 	@echo "  Targets:"
 	@echo "  test             -- run unit tests"
-	@echo "  installer        -- run icn installer"
+	@echo "  jump_server      -- install jump server into this machine"
+	@echo "  cluster          -- provision cluster(s)"
 	@echo "  verifier         -- run verifier tests for CI & CD logs"
 	@echo "  unit             -- run the unit tests"
 	@echo "  help             -- this help output"
 
-install: package_prerequisite \
+install: jump_server \
+	bmh_provision
+
+jump_server: package_prerequisite \
 	kud_bm_deploy_mini \
-	bmh_all \
+	bmh_install \
 	bpa_op_install \
 	bpa_rest_api_install
 
 package_prerequisite:
 	 pushd $(BMDIR) && ./01_install_package.sh && popd
-
-bmh_preinstall:
-	source user_config.sh && env && \
-	pushd $(BMDIR) && ./02_configure.sh && \
-	./03_launch_prereq.sh && popd
 
 bmh_clean:
 	pushd $(METAL3DIR) && ./01_metal3.sh deprovision && \
@@ -46,17 +45,32 @@ clean_bm_packages:
 	pushd $(BOOTLOADER_ENV) && \
         ./02_clean_bootloader_package_req.sh --bm-cleanall && popd
 
-bmh_install:
+bmh_preinstall:
 	source user_config.sh && env && \
-	pushd $(METAL3DIR) && ./01_metal3.sh launch && \
-	 ./01_metal3.sh provision && ./02_verify.sh && popd
+	pushd $(BMDIR) && ./02_configure.sh && \
+	./03_launch_prereq.sh && popd
 
-bmh_all: bmh_preinstall bmh_install
+bmh_install: bmh_preinstall
+	source user_config.sh && env && \
+	pushd $(METAL3DIR) && ./01_metal3.sh launch && popd
+
+bmh_provision:
+	source user_config.sh && env && \
+	pushd $(METAL3DIR) && ./01_metal3.sh provision && \
+	./02_verify.sh && popd
+
+bmh_all: bmh_install bmh_provision
 
 clean_all: bmh_clean \
 	bmh_clean_host \
 	kud_bm_reset \
 	clean_packages
+
+cluster_provision:
+	pushd $(BPA_OPERATOR) && make provision && popd
+
+cluster: bmh_provision \
+	cluster_provision
 
 kud_bm_deploy_mini:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal v1 && popd
