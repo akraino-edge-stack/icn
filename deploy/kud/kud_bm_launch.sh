@@ -5,6 +5,8 @@ LIBDIR="$(dirname "$(dirname "$PWD")")"
 
 source $LIBDIR/env/lib/common.sh
 
+export KUBESPRAY_VERSION=2.16.0
+
 function get_kud_repo {
     if [ -d $DOWNLOAD_PATH/multicloud-k8s ]; then
         rm -rf $DOWNLOAD_PATH/multicloud-k8s
@@ -108,9 +110,7 @@ function kud_install {
 
 function kud_reset {
     pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
-    local version=$(grep "kubespray_version" ../../deployment_infra/playbooks/kud-vars.yml |
-        awk -F ': ' '{print $2}')
-    ansible-playbook -i inventory/hosts.ini /opt/kubespray-${version}/reset.yml \
+    ansible-playbook -i inventory/hosts.ini /opt/kubespray-${KUBESPRAY_VERSION}/reset.yml \
         --become --become-user=root -e reset_confirmation=yes
     popd
 }
