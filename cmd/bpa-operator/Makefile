@@ -59,8 +59,13 @@ unit_test:
 
 .PHONY: e2etest_bmh
 e2etest_bmh:
-	./e2etest/bpa_bmh_verifier.sh
+	./e2etest/bpa_bmh_verifier.sh provision
+	./e2etest/bpa_bmh_verifier.sh teardown
 
 .PHONY: e2etest_virtletvm
 e2etest_virtletvm:
 	cd e2etest && ./bpa_virtletvm_verifier.sh
+
+.PHONY: provision
+provision:
+	./e2etest/bpa_bmh_verifier.sh provision
