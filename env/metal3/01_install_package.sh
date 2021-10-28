@@ -59,6 +59,7 @@ function install_ironic_packages {
 install() {
     install_essential_packages
     install_ironic_packages
+    install_kustomize
 }
 
 install
