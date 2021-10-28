@@ -1,3 +1,4 @@
 deploy/ironic/logs/
 deploy/baremetal-operator/logs/
 deploy/cert-manager/logs/
+deploy/metal3/scripts/machines-values.yaml

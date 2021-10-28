@@ -1,0 +1,40 @@
+{{- define "machines.networkData" -}}
+{{- if .networks -}}
+{
+  "links": [
+{{- $local := dict "first" true -}}
+{{- range $name, $network := .networks }}
+{{- if not $local.first }}
+    },{
+{{- else }}
+    {
+{{- end }}
+{{- $_ := set $local "first" false }}
+      "id": "{{ $name }}_nic",
+      "ethernet_mac_address": "{{ $network.macAddress }}",
+      "type": "phy"
+{{- end }}
+    }
+  ],
+  "networks": [
+{{- $local := dict "first" true -}}
+{{- range $name, $network := .networks }}
+{{- if not $local.first }}
+    },{
+{{- else }}
+    {
+{{- end }}
+{{- $_ := set $local "first" false }}
+      "id": "{{ $name }}",
+      "link": "{{ $name }}_nic",
+      "type": "{{ $network.type }}"{{- if $network.ipAddress }},
+      "ip_address": "{{ $network.ipAddress }}"{{- end }}{{- if $network.gateway }},
+      "gateway": "{{ $network.gateway }}"{{- end }}{{- if $network.nameservers }},
+      "dns_nameservers": {{ $network.nameservers }}{{- end }}
+{{- end }}
+    }
+  ],
+  "services": []
+}
+{{ end }}
+{{- end }}
