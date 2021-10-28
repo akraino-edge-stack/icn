@@ -1,0 +1,13 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: capm3-ironic
+spec:
+  template:
+    spec:
+      volumes:
+        - emptyDir: null
+          name: ironic-data-volume
+          hostPath:
+            path: /opt/ironic
+            type: DirectoryOrCreate
