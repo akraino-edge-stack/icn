@@ -3,12 +3,6 @@ set -eu -o pipefail
 
 DOWNLOAD_PATH=${DOWNLOAD_PATH:-/opt/icn}
 
-#Ironic variables
-IRONIC_IMAGE=${IRONIC_IMAGE:-"integratedcloudnative/ironic:v1.0-icn"}
-IRONIC_INSPECTOR_IMAGE=${IRONIC_INSPECTOR_IMAGE:-"integratedcloudnative/ironic-inspector:v1.0-icn"}
-IRONIC_BAREMETAL_IMAGE=${IRONIC_BAREMETAL_IMAGE:-"integratedcloudnative/baremetal-operator:v2.0-icn"}
-IPA_DOWNLOADER_IMAGE=${IPA_DOWNLOADER_IMAGE:-"integratedcloudnative/ironic-ipa-downloader:v1.0-icn"}
-
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
 IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
@@ -20,10 +14,15 @@ BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
 
 #Baremetal operator repository URL
 BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
-#Baremetal operator repository branch to checkout
-BMOBRANCH="${BMOBRANCH:-10eb5aa3e614d0fdc6315026ebab061cbae6b929}"
+#Path to clone the baremetal operator repo
+BMOPATH="/opt/src/github.com/metal3-io/baremetal-operator"
+#Bare Metal Operator version to use
+BMO_VERSION="capm3-v0.5.1"
 #Discard existing baremetal operator repo directory
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
+
+# The kustomize version to use
+KUSTOMIZE_VERSION="v4.3.0"
 
 #refered from onap
 function call_api {
@@ -123,4 +122,48 @@ function wait_for {
             return 1
         fi
     done
+}
+
+function clone_baremetal_operator_repository {
+    mkdir -p $(dirname ${BMOPATH})
+    if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
+       rm -rf "${BMOPATH}"
+    fi
+    if [ ! -d "${BMOPATH}" ] ; then
+        pushd $(dirname ${BMOPATH})
+        git clone "${BMOREPO}"
+        popd
+    else
+       pushd "${BMOPATH}"
+       git fetch
+       popd
+    fi
+    pushd "${BMOPATH}"
+    git reset --hard "${BMO_VERSION}"
+    popd
+}
+
+function install_kustomize {
+    curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" -o kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
+    tar xzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz --no-same-owner
+    sudo install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
+    rm kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz kustomize
+    kustomize version
+}
+
+function fetch_image {
+    if [[ "${BM_IMAGE_URL}" && "${BM_IMAGE}" ]]; then
+       mkdir -p "${IRONIC_DATA_DIR}/html/images"
+       pushd ${IRONIC_DATA_DIR}/html/images
+       local_checksum="0"
+       if [[ -f "${BM_IMAGE}" ]]; then
+           local_checksum=$(md5sum ${BM_IMAGE} | awk '{print $1}')
+       fi
+       remote_checksum=$(curl -sL "$(dirname ${BM_IMAGE_URL})/MD5SUMS" | grep ${BM_IMAGE} | awk '{print $1}')
+       if [[ ${local_checksum} != ${remote_checksum} ]]; then
+            curl -o ${BM_IMAGE} --insecure --compressed -O -L ${BM_IMAGE_URL}
+            md5sum ${BM_IMAGE} | awk '{print $1}' > ${BM_IMAGE}.md5sum
+       fi
+       popd
+    fi
 }

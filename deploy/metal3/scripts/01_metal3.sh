@@ -12,29 +12,8 @@ if [[ $EUID -ne 0 ]]; then
     exit 1
 fi
 
-#Path to clone the metal3 dev env repo
-M3PATH="$(go env GOPATH)/src/github.com/metal3-io"
-#Path to clone the baremetal operator repo
-BMOPATH="${M3PATH}/baremetal-operator"
-
-IMAGE_URL=http://172.22.0.1/images/${BM_IMAGE}
-IMAGE_CHECKSUM=http://172.22.0.1/images/${BM_IMAGE}.md5sum
-
-function clone_repos {
-    mkdir -p "${M3PATH}"
-    if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
-      rm -rf "${BMOPATH}"
-    fi
-    if [ ! -d "${BMOPATH}" ] ; then
-        pushd "${M3PATH}"
-        git clone "${BMOREPO}"
-        popd
-    fi
-    pushd "${BMOPATH}"
-    git checkout "${BMOBRANCH}"
-    git pull -r || true
-    popd
-}
+IMAGE_URL=http://172.22.0.1:6180/images/${BM_IMAGE}
+IMAGE_CHECKSUM=http://172.22.0.1:6180/images/${BM_IMAGE}.md5sum
 
 function deprovision_compute_node {
     name="$1"
@@ -97,25 +76,6 @@ EOF
 create_networkdata() {
     name="$1"
     node_networkdata $name > $name-networkdata.json
-}
-
-function launch_baremetal_operator {
-    docker pull $IRONIC_BAREMETAL_IMAGE
-    kubectl apply -f bmo/namespace/namespace.yaml
-    kubectl apply -f bmo/rbac/service_account.yaml -n metal3
-    kubectl apply -f bmo/rbac/role.yaml -n metal3
-    kubectl apply -f bmo/rbac/role_binding.yaml
-    kubectl apply -f bmo/crds/metal3.io_baremetalhosts_crd.yaml
-    kubectl apply -f bmo/operator/no_ironic/operator.yaml -n metal3
-}
-
-function remove_baremetal_operator {
-    kubectl delete -f bmo/operator/no_ironic/operator.yaml -n metal3
-    kubectl delete -f bmo/crds/metal3.io_baremetalhosts_crd.yaml
-    kubectl delete -f bmo/rbac/role_binding.yaml
-    kubectl delete -f bmo/rbac/role.yaml -n metal3
-    kubectl delete -f bmo/rbac/service_account.yaml -n metal3
-    kubectl delete -f bmo/namespace/namespace.yaml
 }
 
 function cloud_init_scripts {
@@ -184,13 +144,15 @@ EOF
 }
 
 function make_bm_hosts {
+    kubectl create namespace metal3 --dry-run=client -o yaml | kubectl apply -f -
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
         create_userdata $name $os_username $os_password
         apply_userdata_credential $name
         create_networkdata $name
         apply_networkdata_credential $name
 
-        GO111MODULE=auto go run $GOPATH/src/github.com/metal3-io/baremetal-operator/cmd/make-bm-worker/main.go \
+        GOPATH=$GOPATH:$(echo ${BMOPATH} | cut -d/ -f-2) GO111MODULE=auto \
+	      go run ${BMOPATH}/cmd/make-bm-worker/main.go \
            -address "ipmi://$ipmi_address" \
            -password "$ipmi_password" \
            -user "$ipmi_username" \
@@ -263,12 +225,6 @@ function deprovision_all_hosts {
     list_nodes | remove_bm_hosts
 }
 
-if [ "$1" == "launch" ]; then
-    clone_repos
-    launch_baremetal_operator
-    exit 0
-fi
-
 if [ "$1" == "deprovision" ]; then
     configure_nodes
     deprovision_all_hosts
@@ -287,15 +243,8 @@ if [ "$1" == "clean" ]; then
     exit 0
 fi
 
-if [ "$1" == "remove" ]; then
-    remove_baremetal_operator
-    exit 0
-fi
-
 echo "Usage: metal3.sh"
-echo "launch      - Launch the metal3 operator"
 echo "provision   - provision baremetal node as specified in common.sh"
 echo "deprovision - deprovision baremetal node as specified in common.sh"
 echo "clean       - clean all the bmh resources"
-echo "remove      - remove baremetal operator"
 exit 1
