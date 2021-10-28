@@ -1,0 +1,3 @@
+deploy/ironic/logs/
+deploy/baremetal-operator/logs/
+deploy/cert-manager/logs/

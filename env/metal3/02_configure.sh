@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 set -eux -o pipefail
 
-LIBDIR="$(dirname "$PWD")"
+SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
+LIBDIR="$(dirname ${SCRIPTDIR})/lib"
 
-source $LIBDIR/lib/logging.sh
-source $LIBDIR/lib/common.sh
+source $LIBDIR/logging.sh
+source $LIBDIR/common.sh
 
 if [[ $EUID -ne 0 ]]; then
     echo "confgiure script must be run as root"
@@ -60,31 +61,7 @@ function configure_ironic_interfaces {
     done
 }
 
-function configure_ironic {
-    for name in ironic ironic-inspector dnsmasq httpd mariadb ipa-downloader; do
-        sudo docker ps | \
-            grep -w "$name$" && sudo docker kill "$name"
-        sudo docker ps --all | \
-            grep -w "$name$" && sudo docker rm "$name" -f
-    done
-    rm -rf "$IRONIC_DATA_DIR"
-
-    docker pull $IRONIC_IMAGE
-    docker pull $IRONIC_INSPECTOR_IMAGE
-    docker pull $IPA_DOWNLOADER_IMAGE
-
-    mkdir -p "$IRONIC_DATA_DIR/html/images"
-    pushd $IRONIC_DATA_DIR/html/images
-
-    if [[ "$BM_IMAGE_URL" && "$BM_IMAGE" ]]; then
-    	curl -o ${BM_IMAGE} --insecure --compressed -O -L ${BM_IMAGE_URL}
-    	md5sum ${BM_IMAGE} | awk '{print $1}' > ${BM_IMAGE}.md5sum
-    fi
-    popd
-}
-
 function configure {
-    configure_ironic
     configure_ironic_bridge
     configure_ironic_interfaces
 }

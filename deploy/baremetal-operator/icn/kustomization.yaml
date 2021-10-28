@@ -1,0 +1,16 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: baremetal-operator-system
+
+resources:
+- ../base
+
+images:
+- name: quay.io/metal3-io/baremetal-operator
+  newTag: capm3-v0.5.1
+
+configMapGenerator:
+- envs:
+  - ironic_bmo_configmap.env
+  name: ironic
+  behavior: merge
