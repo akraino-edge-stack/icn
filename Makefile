@@ -47,12 +47,12 @@ clean_bm_packages:
 
 bmh_preinstall:
 	source user_config.sh && env && \
-	pushd $(BMDIR) && ./02_configure.sh && \
-	./03_launch_prereq.sh && popd
+	pushd $(BMDIR) && ./02_configure.sh && popd && \
+	./deploy/ironic/ironic.sh deploy
 
 bmh_install: bmh_preinstall
-	source user_config.sh && env && \
-	pushd $(METAL3DIR) && ./01_metal3.sh launch && popd
+	./deploy/cert-manager/cert-manager.sh deploy && \
+	./deploy/baremetal-operator/baremetal-operator.sh deploy
 
 bmh_provision:
 	source user_config.sh && env && \
