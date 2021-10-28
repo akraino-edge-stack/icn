@@ -1,0 +1,48 @@
+{{- define "machines.userData" -}}
+{{- if .userData -}}
+#cloud-config
+{{- if and .userData.name .userData.hashedPassword }}
+users:
+- name: {{ .userData.name }}
+  lock_passwd: False
+  passwd: {{ .userData.hashedPassword }}
+  sudo: "ALL=(ALL) NOPASSWD:ALL"
+{{- else if .userData.hashedPassword }}
+password: {{ .userData.hashedPassword }}
+{{- end }}
+chpasswd: {expire: False}
+ssh_pwauth: True
+fqdn: {{ .userData.fqdn }}
+disable_root: false
+ssh_authorized_keys:
+- {{ .userData.sshAuthorizedKey }}
+write_files:
+- path: /var/lib/cloud/scripts/per-instance/set_dhcp_identifier.sh
+  # The IP address assigned to the provisioning NIC will change due to
+  # IPA using the MAC address as the client ID and systemd using a
+  # different ID.  Tell systemd to use the MAC as the client ID.  We
+  # can't do this in the network data as only the JSON format is
+  # supported by metal3, and the JSON format does not support the
+  # dhcp-identifier field.
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    sed -i -e '/dhcp4: true$/!b' -e 'h;s/\S.*/dhcp-identifier: mac/;H;g' /etc/netplan/50-cloud-init.yaml
+    netplan apply
+- path: /var/lib/cloud/scripts/per-instance/set_kernel_cmdline.sh
+  # The "intel_iommu=on iommu=pt" kernel command line is necessary for
+  # QAT support.
+  owner: root:root
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    grub_file=${1:-"/etc/default/grub"}
+    kernel_parameters="intel_iommu=on iommu=pt"
+    sed -i~ "/^GRUB_CMDLINE_LINUX=/{h;s/\(=\".*\)\"/\1 ${kernel_parameters}\"/};\${x;/^$/{s//GRUB_CMDLINE_LINUX=\"${kernel_parameters}\"/;H};x}" "$grub_file"
+    update-grub
+    reboot
+{{ end }}
+{{- end }}

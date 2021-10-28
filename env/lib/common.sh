@@ -98,6 +98,24 @@ function list_nodes {
     fi
 }
 
+# Returns "null" when the field is not present
+function networkdata_networks_field {
+    name=$1
+    network=$2
+    field=$3
+    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
+    cat $NODES_FILE | jq -c -r --arg name "$name" --arg network "$network" --arg field "$field" '.nodes[] | select(.name==$name) | .net.networks[] | select(.id==$network).'${field}
+}
+
+# Returns "null" when the field is not present
+function networkdata_links_field {
+    name=$1
+    link=$2
+    field=$3
+    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
+    cat $NODES_FILE | jq -c -r --arg name "$name" --arg link "$link" --arg field "$field" '.nodes[] | select(.name==$name) | .net.links[] | select(.id==$link).'${field}
+}
+
 function node_networkdata {
     name=$1
 
@@ -107,7 +125,30 @@ function node_networkdata {
         exit 1
     fi
 
-    cat $NODES_FILE  | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net'
+    printf "    networks:\n"
+    for network in $(cat $NODES_FILE | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net.networks[].id'); do
+	link=$(networkdata_networks_field $name $network "link")
+	type=$(networkdata_networks_field $name $network "type")
+	mac=$(networkdata_links_field $name $link "ethernet_mac_address")
+
+	# Optional values
+	ip_address=$(networkdata_networks_field $name $network "ip_address")
+	gateway=$(networkdata_networks_field $name $network "gateway")
+	dns_nameservers=$(networkdata_networks_field $name $network "dns_nameservers")
+
+	printf "      ${network}:\n"
+	printf "        macAddress: ${mac}\n"
+	printf "        type: ${type}\n"
+	if [[ $ip_address != "null" ]]; then
+	    printf "        ipAddress: ${ip_address}\n"
+	fi
+	if [[ $gateway != "null" ]]; then
+	    printf "        gateway: ${gateway}\n"
+	fi
+	if [[ $dns_nameservers != "null" ]]; then
+	    printf "        nameservers: ${dns_nameservers}\n"
+	fi
+    done
 }
 
 function wait_for {
