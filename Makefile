@@ -81,9 +81,6 @@ kud_bm_deploy:
 kud_bm_deploy_e2e:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm v2 && popd
 
-kud_vm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh vm v1 && popd
-
 kud_bm_reset:
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset v1 && popd
 
@@ -102,17 +99,10 @@ bpa_op_delete:
 bpa_op_e2e_bmh:
 	pushd $(BPA_OPERATOR) && make e2etest_bmh && popd
 
-bpa_op_e2e_virtletvm:
-	pushd $(BPA_OPERATOR) && make e2etest_virtletvm && popd
-
 bpa_op_unit:
 	pushd $(BPA_OPERATOR) && make unit_test && popd
 
 bpa_op_bmh_verifier: bpa_op_install_e2e bpa_op_e2e_bmh
-
-bpa_op_virtletvm_verifier: bpa_op_install bpa_op_e2e_virtletvm
-
-bpa_op_all: bm_all bpa_op_install
 
 bpa_rest_api_install:
 	pushd $(BPA_REST_API) && make deploy && popd
@@ -145,12 +135,6 @@ bm_verifer: package_prerequisite \
 	clean_all
 
 verifier: bm_verifer
-
-verify_nestedk8s: prerequisite \
-	kud_vm_deploy \
-	bpa_op_virtletvm_verifier \
-	kud_bm_reset \
-	clean_bm_packages
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
