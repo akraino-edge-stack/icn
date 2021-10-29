@@ -1,0 +1,45 @@
+{{- define "clusters.containerRuntime" -}}
+{{- if eq .containerRuntime "containerd" -}}
+- path: /usr/local/bin/install-container-runtime.sh
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    cat <<EOF | tee /etc/modules-load.d/containerd.conf
+    overlay
+    br_netfilter
+    EOF
+    modprobe overlay
+    modprobe br_netfilter
+    cat <<EOF | tee /etc/sysctl.d/99-kubernetes-cri.conf
+    net.bridge.bridge-nf-call-iptables  = 1
+    net.ipv4.ip_forward                 = 1
+    net.bridge.bridge-nf-call-ip6tables = 1
+    EOF
+    sysctl --system
+    apt-get install -y containerd.io={{ .containerdVersion }}
+    mkdir -p /etc/containerd
+    containerd config default | tee /etc/containerd/config.toml
+    sed -i 's/\(.*\)\[plugins\."io\.containerd\.grpc\.v1\.cri"\.containerd\.runtimes\.runc\.options\]/&\n\1  SystemdCgroup = true/' /etc/containerd/config.toml
+    systemctl restart containerd
+{{- else if eq .containerRuntime "docker" -}}
+- path: /usr/local/bin/install-container-runtime.sh
+  permissions: '0777'
+  content: |
+    #!/usr/bin/env bash
+    set -eux -o pipefail
+    apt-get install -y docker-ce={{ .dockerVersion }} docker-ce-cli={{ .dockerVersion }} containerd.io={{ .containerdVersion }}
+    systemctl enable --now docker
+    usermod -aG docker ubuntu
+- path: /etc/docker/daemon.json
+  content: |
+    {
+      "exec-opts": ["native.cgroupdriver=systemd"],
+      "log-driver": "json-file",
+      "log-opts": {
+        "max-size": "100m"
+      },
+      "storage-driver": "overlay2"
+    }
+{{- end }}
+{{- end }}

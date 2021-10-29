@@ -1,0 +1,17 @@
+{{- define "clusters.keepalived" -}}
+{{- if .keepalived -}}
+- path: /etc/keepalived/keepalived.conf
+  content: |
+    ! Configuration File for keepalived
+    vrrp_instance VI_{{ .keepalived.routerId }} {
+      state MASTER
+      interface {{ .keepalived.interface }}
+      virtual_router_id {{ .keepalived.routerId }}
+      priority 101
+      advert_int 1
+      virtual_ipaddress {
+        {{ .controlPlaneEndpoint }}/{{ .controlPlanePrefix }}
+      }
+    }
+{{- end }}
+{{- end }}

@@ -1,0 +1,32 @@
+{{- range $clusterName, $cluster := .Values.clusters }}
+---
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: MachineDeployment
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: {{ $clusterName }}
+  name: {{ $clusterName }}
+spec:
+  clusterName: {{ $clusterName }}
+  replicas: {{ $cluster.numWorkerMachines }}
+  selector:
+    matchLabels:
+      cluster.x-k8s.io/cluster-name: {{ $clusterName }}
+  template:
+    metadata:
+      labels:
+        cluster.x-k8s.io/cluster-name: {{ $clusterName }}
+    spec:
+      bootstrap:
+        configRef:
+          apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
+          kind: KubeadmConfigTemplate
+          name: {{ $clusterName }}-workers
+      clusterName: {{ $clusterName }}
+      infrastructureRef:
+        apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
+        kind: Metal3MachineTemplate
+        name: {{ $clusterName }}-workers
+      nodeDrainTimeout: 0s
+      version: {{ $cluster.k8sVersion }}
+{{- end }}
