@@ -3,3 +3,4 @@ deploy/baremetal-operator/logs/
 deploy/cert-manager/logs/
 deploy/metal3/scripts/machines-values.yaml
 deploy/cluster-api/logs/
+env/metal3/logs/

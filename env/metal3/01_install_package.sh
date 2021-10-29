@@ -63,6 +63,7 @@ install() {
     install_ironic_packages
     install_kustomize
     install_clusterctl
+    install_flux_cli
 }
 
 install
