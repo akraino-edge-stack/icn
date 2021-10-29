@@ -24,6 +24,9 @@ FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
 # The kustomize version to use
 KUSTOMIZE_VERSION="v4.3.0"
 
+#Cluster API version to use
+CAPI_VERSION="v0.4.3"
+
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides
@@ -176,6 +179,13 @@ function install_kustomize {
     sudo install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
     rm kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz kustomize
     kustomize version
+}
+
+function install_clusterctl {
+    curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/${CAPI_VERSION}/clusterctl-linux-amd64 -o clusterctl
+    sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl
+    rm clusterctl
+    clusterctl version
 }
 
 function fetch_image {

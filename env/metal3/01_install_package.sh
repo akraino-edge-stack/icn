@@ -62,6 +62,7 @@ install() {
     install_essential_packages
     install_ironic_packages
     install_kustomize
+    install_clusterctl
 }
 
 install
