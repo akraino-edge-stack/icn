@@ -1,0 +1,26 @@
+{{- range $clusterName, $cluster := .Values.clusters }}
+---
+apiVersion: cluster.x-k8s.io/v1alpha4
+kind: Cluster
+metadata:
+  labels:
+    cluster.x-k8s.io/cluster-name: {{ $clusterName }}
+    {{- toYaml $cluster.clusterLabels | nindent 4 }}
+  name: {{ $clusterName }}
+spec:
+  clusterNetwork:
+    pods:
+      cidrBlocks:
+      - {{ $cluster.podCidr }}
+    services:
+      cidrBlocks:
+      - 10.244.0.0/18
+  controlPlaneRef:
+    apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+    kind: KubeadmControlPlane
+    name: {{ $clusterName }}
+  infrastructureRef:
+    apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
+    kind: Metal3Cluster
+    name: {{ $clusterName }}
+{{- end }}

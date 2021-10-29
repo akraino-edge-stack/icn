@@ -1,0 +1,82 @@
+{{- range $clusterName, $cluster := .Values.clusters }}
+---
+apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
+kind: KubeadmControlPlane
+metadata:
+  name: {{ $clusterName }}
+spec:
+  kubeadmConfigSpec:
+    initConfiguration:
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: metal3.io/uuid={{ "{{" }} ds.meta_data.uuid {{ "}}" }}
+          cpu-manager-policy: static
+          topology-manager-policy: best-effort
+          kube-reserved: cpu=200m,memory=512Mi
+        name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
+    joinConfiguration:
+      controlPlane: {}
+      nodeRegistration:
+        kubeletExtraArgs:
+          node-labels: metal3.io/uuid={{ "{{" }} ds.meta_data.uuid {{ "}}" }}
+        name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
+    preKubeadmCommands:
+{{- if $cluster.networks }}
+    # Without touching up /etc/hosts, kubeadm may pick the wrong
+    # (i.e. provisioning network) address for the node IP
+    - sed -i "1i $(ip -4 addr show dev {{ $cluster.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
+{{- end }}
+    - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
+    - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+    - curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key add -
+    - add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"
+    - apt update -y
+    - apt-get install -y ca-certificates
+{{- if $cluster.keepalived }}
+    - apt-get install -y keepalived
+    - systemctl enable --now keepalived
+{{- end }}
+    - /usr/local/bin/install-container-runtime.sh
+    - apt-get install -y kubelet={{ $cluster.kubeVersion }} kubeadm={{ $cluster.kubeVersion }} kubectl={{ $cluster.kubeVersion }}
+    - systemctl enable --now kubelet
+    postKubeadmCommands:
+    - mkdir -p /home/ubuntu/.kube
+    - cp /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
+    - chown ubuntu:ubuntu /home/ubuntu/.kube/config
+    # This must be done after kubeadm as the cabpk provider relies on
+    # files in /var/run, which won't persist after a reboot
+    - /usr/local/bin/set_kernel_cmdline.sh
+    files:
+{{ include "clusters.keepalived" $cluster | indent 4 }}
+{{ include "clusters.containerRuntime" $cluster | indent 4 }}
+    - path: /etc/systemd/system/containerd.service.d/override.conf
+      content: |
+{{ $.Files.Get "resources/override.conf" | indent 8 }}
+    - path: /usr/local/bin/set_kernel_cmdline.sh
+      permissions: '0777'
+      content: |
+{{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 8 }}
+    users:
+    - name: {{ $cluster.userData.name }}
+      shell: /bin/bash
+      lockPassword: False # Necessary to allow password login
+      passwd: {{ $cluster.userData.hashedPassword }}
+      sshAuthorizedKeys:
+      - {{ $cluster.userData.sshAuthorizedKey }}
+      sudo: "ALL=(ALL) NOPASSWD:ALL"
+    - name: root
+      sshAuthorizedKeys:
+      - {{ $cluster.userData.sshAuthorizedKey }}
+  machineTemplate:
+    infrastructureRef:
+      apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
+      kind: Metal3MachineTemplate
+      name: {{ $clusterName }}-controlplane
+    nodeDrainTimeout: 0s
+  replicas: {{ $cluster.numControlPlaneMachines }}
+  rolloutStrategy:
+    rollingUpdate:
+      maxSurge: 1
+    type: RollingUpdate
+  version: {{ $cluster.k8sVersion }}
+{{- end }}
