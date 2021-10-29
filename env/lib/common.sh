@@ -27,6 +27,9 @@ KUSTOMIZE_VERSION="v4.3.0"
 #Cluster API version to use
 CAPI_VERSION="v0.4.3"
 
+#The flux version to use
+FLUX_VERSION="0.20.0"
+
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides
@@ -186,6 +189,12 @@ function install_clusterctl {
     sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl
     rm clusterctl
     clusterctl version
+}
+
+function install_flux_cli {
+    export FLUX_VERSION
+    curl -s https://fluxcd.io/install.sh | sudo -E bash
+    flux --version
 }
 
 function fetch_image {
