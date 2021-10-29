@@ -5,7 +5,7 @@ LIBDIR="$(dirname "$(dirname "$PWD")")"
 
 source $LIBDIR/env/lib/common.sh
 
-export KUBESPRAY_VERSION=2.14.1
+export KUBESPRAY_VERSION=2.16.0
 
 function get_kud_repo {
     if [ -d $DOWNLOAD_PATH/multicloud-k8s ]; then

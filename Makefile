@@ -23,6 +23,7 @@ install: jump_server \
 jump_server: package_prerequisite \
 	kud_bm_deploy_mini \
 	bmh_install \
+	capi_install \
 	bpa_op_install \
 	bpa_rest_api_install
 
@@ -86,6 +87,9 @@ kud_bm_reset:
 
 sdwan_verifier:
 	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
+
+capi_install:
+	./deploy/cluster-api/cluster-api.sh deploy
 
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
