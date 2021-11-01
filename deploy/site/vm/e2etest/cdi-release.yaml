@@ -18,3 +18,5 @@ spec:
   targetNamespace: kud
   install:
     createNamespace: true
+  dependsOn:
+  - name: cdi-operator
