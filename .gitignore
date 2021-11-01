@@ -8,3 +8,4 @@ env/metal3/logs/
 deploy/clusters/addons/
 build/
 .vagrant/
+deploy/kata/logs/
