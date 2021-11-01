@@ -1,0 +1,49 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: emco-services
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: deployments/helm/emcoOpenNESS/emco-services
+      sourceRef:
+        kind: GitRepository
+        name: emco
+        namespace: flux-system
+      interval: 1m
+  releaseName: services
+  targetNamespace: emco
+  install:
+    createNamespace: true
+  values:
+    global:
+      repository: integratedcloudnative/
+      pullPolicy: IfNotPresent
+      loglevel: warn
+    orchestrator:
+      imageTag: openness-21.03.06
+    ncm:
+      imageTag: openness-21.03.06
+    rsync:
+      imageTag: openness-21.03.06
+    clm:
+      imageTag: openness-21.03.06
+    ovnaction:
+      imageTag: openness-21.03.06
+    dcm:
+      imageTag: openness-21.03.06
+    dtc:
+      imageTag: openness-21.03.06
+    nps:
+      imageTag: openness-21.03.06
+    sds:
+      imageTag: openness-21.03.06
+    gac:
+      imageTag: openness-21.03.06
+    sfc:
+      imageTag: openness-21.03.06
+    sfcclient:
+      imageTag: openness-21.03.06
