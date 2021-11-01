@@ -1,0 +1,14 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: kud
+  namespace: flux-system
+spec:
+  interval: 1m
+  url: https://gerrit.onap.org/r/multicloud/k8s
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/kud/deployment_infra/helm
