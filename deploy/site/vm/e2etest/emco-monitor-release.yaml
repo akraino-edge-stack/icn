@@ -1,0 +1,23 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: emco-monitor
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: deployments/helm/monitor
+      sourceRef:
+        kind: GitRepository
+        name: emco
+        namespace: flux-system
+      interval: 1m
+  releaseName: monitor
+  targetNamespace: emco
+  install:
+    createNamespace: true
+  values:
+    registryPrefix: integratedcloudnative/
+    tag: openness-21.03.06

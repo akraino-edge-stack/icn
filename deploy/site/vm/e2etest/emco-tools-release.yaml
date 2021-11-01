@@ -1,0 +1,26 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: emco-tools
+  namespace: flux-system
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: deployments/helm/emcoOpenNESS/emco-tools
+      sourceRef:
+        kind: GitRepository
+        name: emco
+        namespace: flux-system
+      interval: 1m
+  releaseName: tools
+  targetNamespace: emco
+  install:
+    createNamespace: true
+  values:
+    global:
+      repository: integratedcloudnative/
+      pullPolicy: IfNotPresent
+    fluentd:
+      clusterDomain: cluster.local
