@@ -6,3 +6,5 @@ deploy/cluster-api/logs/
 deploy/clusters/logs/
 env/metal3/logs/
 deploy/clusters/addons/
+build/
+.vagrant/

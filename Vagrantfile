@@ -147,6 +147,10 @@ Vagrant.configure("2") do |config|
           trigger.run = {inline: "./tools/vagrant/create_provisioning_cr.sh #{vars[:num_machines]} #{vars[:site]} machine-"}
         end
       end
+      m.trigger.after [:up] do |trigger|
+        trigger.name = 'Creating machine resource'
+        trigger.run = {inline: "./tools/vagrant/create_machine_resource.sh #{i} #{vars[:site]} machine-#{i}"}
+      end
     end
   end
 end
