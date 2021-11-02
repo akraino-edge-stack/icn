@@ -9,3 +9,4 @@ deploy/clusters/addons/
 build/
 .vagrant/
 deploy/kata/logs/
+deploy/addons/logs/
