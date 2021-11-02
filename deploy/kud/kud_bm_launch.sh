@@ -8,19 +8,10 @@ source $LIBDIR/env/lib/common.sh
 export KUBESPRAY_VERSION=2.16.0
 
 function get_kud_repo {
-    if [ -d $DOWNLOAD_PATH/multicloud-k8s ]; then
-        rm -rf $DOWNLOAD_PATH/multicloud-k8s
-    fi
-
-    mkdir -p $DOWNLOAD_PATH
-    pushd $DOWNLOAD_PATH
+    clone_kud_repository
     if [ "$1" == "v1" ] ; then
         export KUD_ADDONS=multus
-        git clone https://github.com/onap/multicloud-k8s.git
-    else
-        git clone https://github.com/onap/multicloud-k8s.git
     fi
-    popd
 }
 
 function set_ssh_key {
@@ -37,7 +28,7 @@ function set_ssh_key {
 }
 
 function set_bm_kud {
-    pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/inventory
+    pushd ${KUDPATH}/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
     if [ "$1" == "minimal" ] ; then
         cat <<EOL > hosts.ini
@@ -89,7 +80,7 @@ EOL
 }
 
 function kud_install {
-    pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
+    pushd ${KUDPATH}/kud/hosting_providers/vagrant/
     if [ "$1" == "all" ]; then
         sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
     fi
@@ -97,7 +88,7 @@ function kud_install {
 
     if [ "$1" == "bm" ]; then
         for addon in ${KUD_ADDONS:-multus ovn4nfv nfd sriov qat cmk optane}; do
-            pushd $DOWNLOAD_PATH/multicloud-k8s/kud/tests/
+            pushd ${KUDPATH}/kud/tests/
                 bash ${addon}.sh
             popd
         done
@@ -106,7 +97,7 @@ function kud_install {
 }
 
 function kud_reset {
-    pushd $DOWNLOAD_PATH/multicloud-k8s/kud/hosting_providers/vagrant/
+    pushd ${KUDPATH}/kud/hosting_providers/vagrant/
     ansible-playbook -i inventory/hosts.ini /opt/kubespray-${KUBESPRAY_VERSION}/reset.yml \
         --become --become-user=root -e reset_confirmation=yes
     popd

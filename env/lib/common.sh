@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-DOWNLOAD_PATH=${DOWNLOAD_PATH:-/opt/icn}
-
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
 IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
@@ -18,7 +16,15 @@ BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
 BMOPATH="/opt/src/github.com/metal3-io/baremetal-operator"
 #Bare Metal Operator version to use
 BMO_VERSION="capm3-v0.5.1"
-#Discard existing baremetal operator repo directory
+
+#KuD repository URL
+KUDREPO="${KUDREPO:-https://github.com/onap/multicloud-k8s.git}"
+#Path to clone the KuD repo
+KUDPATH="/opt/src/github.com/onap/multicloud-k8s"
+#KuD version to use
+KUD_VERSION="ed96bca7fe415f1636d82c26af15d7474bdfe876"
+
+#Discard existing repo directory
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
 
 # The kustomize version to use
@@ -157,23 +163,34 @@ function node_networkdata {
     done
 }
 
-function clone_baremetal_operator_repository {
-    mkdir -p $(dirname ${BMOPATH})
-    if [[ -d ${BMOPATH} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
-       rm -rf "${BMOPATH}"
+function clone_repository {
+    local -r path=$1
+    local -r repo=$2
+    local -r version=$3
+    mkdir -p $(dirname ${path})
+    if [[ -d ${path} && "${FORCE_REPO_UPDATE}" == "true" ]]; then
+       rm -rf "${path}"
     fi
-    if [ ! -d "${BMOPATH}" ] ; then
-        pushd $(dirname ${BMOPATH})
-        git clone "${BMOREPO}"
+    if [ ! -d "${path}" ] ; then
+        pushd $(dirname ${path})
+        git clone "${repo}"
         popd
     else
-       pushd "${BMOPATH}"
+       pushd "${path}"
        git fetch
        popd
     fi
-    pushd "${BMOPATH}"
-    git reset --hard "${BMO_VERSION}"
+    pushd "${path}"
+    git reset --hard "${version}"
     popd
+}
+
+function clone_baremetal_operator_repository {
+    clone_repository ${BMOPATH} ${BMOREPO} ${BMO_VERSION}
+}
+
+function clone_kud_repository {
+    clone_repository ${KUDPATH} ${KUDREPO} ${KUD_VERSION}
 }
 
 function install_kustomize {
