@@ -18,6 +18,8 @@ spec:
   targetNamespace: emco
   install:
     createNamespace: true
+  dependsOn:
+  - name: emco-db
   values:
     global:
       repository: integratedcloudnative/
