@@ -7,6 +7,9 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
+BUILDDIR=${SCRIPTDIR/deploy/build}
+mkdir -p ${BUILDDIR}
+
 KATA_VERSION="2.1.0-rc0"
 KATA_WEBHOOK_VERSION="2.1.0-rc0"
 
@@ -25,13 +28,77 @@ function build_source {
     pushd ${SCRIPTDIR}/base && kustomize create --autodetect && popd
 }
 
+function deploy_webhook {
+    local -r cluster_name=$1
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+
+    # Note that the webhook-registration.yaml.tpl file is fetched here
+    # but webhook-registration.yaml is deployed: this is intentional,
+    # create-certs.sh takes care of converting the .yaml.tpl into the
+    # .yaml file
+    mkdir -p ${BUILDDIR}/webhook/base/deploy
+    curl -sL ${KATA_WEBHOOK_URL}/create-certs.sh -o ${BUILDDIR}/webhook/base/create-certs.sh
+    curl -sL ${KATA_WEBHOOK_URL}/deploy/webhook-registration.yaml.tpl -o ${BUILDDIR}/webhook/base/deploy/webhook-registration.yaml.tpl
+    curl -sL ${KATA_WEBHOOK_URL}/deploy/webhook.yaml -o ${BUILDDIR}/webhook/base/deploy/webhook.yaml
+
+    chmod +x ${BUILDDIR}/webhook/base/create-certs.sh
+    sed 's/value: kata/value: ${KATA_WEBHOOK_RUNTIMECLASS}/g' ${BUILDDIR}/webhook/base/deploy/webhook.yaml | tee ${BUILDDIR}/webhook/base/deploy/webhook-${KATA_WEBHOOK_RUNTIMECLASS}.yaml
+    pushd ${BUILDDIR}/webhook/base && ./create-certs.sh && popd
+
+    cat <<EOF >${BUILDDIR}/webhook/base/kustomization.yaml
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- deploy/webhook-certs.yaml
+- deploy/webhook-registration.yaml
+- deploy/webhook-${KATA_WEBHOOK_RUNTIMECLASS}.yaml
+EOF
+
+    kustomize build ${BUILDDIR}/webhook/base | KUBECONFIG=${cluster_kubeconfig} kubectl apply -f -
+}
+
+function clean_webhook {
+    local -r cluster_name=$1
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+
+    kustomize build ${BUILDDIR}/webhook/base | KUBECONFIG=${cluster_kubeconfig} kubectl delete -f -
+}
+
+function test_kata {
+    # Create a temporary kubeconfig file for the tests
+    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
+
+    deploy_webhook ${cluster_name}
+    clone_kud_repository
+    pushd ${KUDPATH}/kud/tests
+    failed_kud_tests=""
+    KUBECONFIG=${cluster_kubeconfig} bash kata.sh || failed_kud_tests="${failed_kud_tests} ${test}"
+    popd
+    clean_webhook ${cluster_name}
+    if [[ ! -z "$failed_kud_tests" ]]; then
+        echo "Test cases failed:${failed_kud_tests}"
+        exit 1
+    fi
+    echo "All test cases passed"
+
+    rm ${cluster_kubeconfig}
+}
+
 case $1 in
     "build-source") build_source ;;
+    "test") test_kata ;;
     *) cat <<EOF
 Usage: $(basename $0) COMMAND
 
+The "test" command looks for the CLUSTER_NAME variable in the
+environment (default: "e2etest").  This should be the name of the
+Cluster resource to execute the tests in.
+
 Commands:
   build-source  - Rebuild the in-tree Kata YAML files
+  test          - Test Kata
 EOF
        ;;
 esac
