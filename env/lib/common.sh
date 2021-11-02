@@ -24,6 +24,13 @@ KUDPATH="/opt/src/github.com/onap/multicloud-k8s"
 #KuD version to use
 KUD_VERSION="ed96bca7fe415f1636d82c26af15d7474bdfe876"
 
+#EMCO repository URL
+EMCOREPO="${EMCOREPO:-https://github.com/open-ness/EMCO.git}"
+#Path to clone the EMCO repo
+EMCOPATH="/opt/src/github.com/open-ness/EMCO"
+#EMCO version to use
+EMCO_VERSION="openness-21.03.06"
+
 #Discard existing repo directory
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
 
@@ -207,6 +214,10 @@ function clone_kud_repository {
     clone_repository ${KUDPATH} ${KUDREPO} ${KUD_VERSION}
 }
 
+function clone_emco_repository {
+    clone_repository ${EMCOPATH} ${EMCOREPO} ${EMCO_VERSION}
+}
+
 function install_kustomize {
     curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" -o kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
     tar xzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz --no-same-owner
@@ -226,6 +237,12 @@ function install_flux_cli {
     export FLUX_VERSION
     curl -s https://fluxcd.io/install.sh | sudo -E bash
     flux --version
+}
+
+function install_emcoctl {
+    clone_emco_repository
+    make -C ${EMCOPATH}/src/tools/emcoctl
+    sudo install -o root -g root -m 0755 ${EMCOPATH}/bin/emcoctl/emcoctl /usr/local/bin/emcoctl
 }
 
 function fetch_image {
