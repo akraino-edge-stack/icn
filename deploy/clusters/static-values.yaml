@@ -35,8 +35,8 @@ clusters:
     # The user account created in all the machines.
     userData:
       name: ubuntu
-      # mkpasswd --method=SHA-512 --rounds 4096 "mypasswd"
-      hashedPassword: $6$rounds=4096$acxyX2VqfHJSAc2$sgVf5uTHHPCX6u50NHnJmhIoqbcL9J12jlBAaWKvd3w8uYO0iXgcBrEhtvHLgSGU7dcU.eqm9JwXEYbbRjPAi1
+      # mkpasswd --method=SHA-512 --rounds 10000 "mypasswd"
+      hashedPassword: $6$rounds=10000$PJLOBdyTv23pNp$9RpaAOcibbXUMvgJScKK2JRQioXW4XAVFMRKqgCB5jC4QmtAdbA70DU2jTcpAd6pRdEZIaWFjLCNQMBmiiL40.
       # This key will also be authorized to login as the root user
       sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrxu+fSrU51vgAO5zP5xWcTU8uLv4MkUZptE2m1BJE88JdQ80kz9DmUmq2AniMkVTy4pNeUW5PsmGJa+anN3MPM99CR9I37zRqy5i6rUDQgKjz8W12RauyeRMIBrbdy7AX1xasoTRnd6Ta47bP0egiFb+vUGnlTFhgfrbYfjbkJhVfVLCTgRw8Yj0NSK16YEyhYLbLXpix5udRpXSiFYIyAEWRCCsWJWljACr99P7EF82vCGI0UDGCCd/1upbUwZeTouD/FJBw9qppe6/1eaqRp7D36UYe3KzLpfHQNgm9AzwgYYZrD4tNN6QBMq/VUIuam0G1aLgG8IYRLs41HYkJ root@jump
 

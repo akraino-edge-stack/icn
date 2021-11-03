@@ -43,6 +43,13 @@ spec:
     - mkdir -p /home/ubuntu/.kube
     - cp /etc/kubernetes/admin.conf /home/ubuntu/.kube/config
     - chown ubuntu:ubuntu /home/ubuntu/.kube/config
+    - mkdir -p /root/.kube
+    - cp /etc/kubernetes/admin.conf /root/.kube/config
+    - /usr/local/bin/harden_os.sh
+    # Normally any bootstrap resources needed would be applied with a
+    # ClusterResourceSet.  However instead of apply, replace must be
+    # used to harden K8s.
+    - /usr/local/bin/harden_k8s.sh
     # This must be done after kubeadm as the cabpk provider relies on
     # files in /var/run, which won't persist after a reboot
     - /usr/local/bin/set_kernel_cmdline.sh
@@ -52,6 +59,14 @@ spec:
     - path: /etc/systemd/system/containerd.service.d/override.conf
       content: |
 {{ $.Files.Get "resources/override.conf" | indent 8 }}
+    - path: /usr/local/bin/harden_os.sh
+      permissions: '0777'
+      content: |
+{{ $.Files.Get "resources/harden_os.sh" | indent 8 }}
+    - path: /usr/local/bin/harden_k8s.sh
+      permissions: '0777'
+      content: |
+{{ $.Files.Get "resources/harden_k8s.sh" | indent 8 }}
     - path: /usr/local/bin/set_kernel_cmdline.sh
       permissions: '0777'
       content: |
@@ -64,6 +79,7 @@ spec:
       sshAuthorizedKeys:
       - {{ $cluster.userData.sshAuthorizedKey }}
       sudo: "ALL=(ALL) NOPASSWD:ALL"
+      groups: sudo # Necessary to allow SSH logins (see /etc/ssh/sshd_config)
     - name: root
       sshAuthorizedKeys:
       - {{ $cluster.userData.sshAuthorizedKey }}
