@@ -14,73 +14,82 @@ server.  To override the listening address/domain name, please set
 `admin/admin`. To override it, please set `jenkins_admin_username` and
 `jenkins_admin_password`.
 
-1. Fetch the source for ICN and Akraino CI management.The ICN jenkins
-job macros require that the the icn and ci-management directories are
-peers.
+1. If deploying the Jenkins server on a machine configured with KuD
+   (i.e. an ICN jump server), first remove the `ANSIBLE_CONFIG` line
+   from `/etc/environment` and login again.
 
-** Note: Switch the branch of the repositories below as needed.**
+   ``` shell
+   ./ci.sh cleanup-after-kud
+   logout
+   ```
+
+2. Install the Jenkins server into the machine. If the VM verifier
+   Jenkins job will not be added later, set `WITH_VAGRANT=no` in the
+   environment before running the install step.
+
+   ``` shell
+   # Use one of the following
+   WITH_VAGRANT=no ./ci.sh install-jenkins
+   ./ci.sh install-jenkins
+   ```
+
+   After the script has completed, the Jenkins server can be visited
+   at http://<listen_address>:8080.
+
+3. Add the Gerrit ssh key as Jenkins credential, so that the jobs can
+   pull code from Gerrit. `JENKINS_SSH_PRIVATE_KEY` is the path to the
+   private key file of the `icn.jenkins` Gerrit account.
+
+   ``` shell
+   JENKINS_SSH_PRIVATE_KEY="path/to/icn.jenkins/id_rsa"
+   ./ci.sh install-credentials
+   ```
+
+  To use a different account, edit `git-url` in `jjb/defaults.yaml`
+  with the account name and execute the above command with the
+  username specified.
+
+   ``` shell
+   JENKINS_SSH_USERNAME="username"
+   JENKINS_SSH_PRIVATE_KEY="path/to/username/id_rsa"
+   ./ci.sh install-credentials
+   ```
+
+4. To push the logs to Akraino Nexus server, we need to create the
+   authentication file for lftools.
+
+   ``` shell
+   JENKINS_LFTOOLS_USERNAME="username"
+   JENKINS_LFTOOLS_PASSWORD="password"
+   ./ci.sh install-lftools-credentials
+   ```
+
+5. Add the ICN Jenkins jobs to Jenkins. The script adds only a subset
+   of the available jobs; review the script for information about
+   other jobs.
+
+   ``` shell
+   ./ci.sh update-jobs
+   ```
+
+## Job specific instructions
+
+### icn-bluval
+
+The Bluval job requires that Jenkins ssh into the cluster control
+plane. The script can be used to create a new keypair for the
+`jenkins` user and install the credentials into an existing cluster.
+
+For example, where the control plane endpoint is at `192.168.151.254`
+and there exists `/home/ubuntu/.kube/config`:
 
 ``` shell
-git clone https://gerrit.akraino.org/r/icn
-git clone --recursive https://gerrit.akraino.org/r/ci-management
+CLUSTER_MASTER_IP=192.168.151.254
+CLUSTER_SSH_USER=root
+./ci.sh install-jenkins-id
 ```
 
-2. Install Jenkins.
-
-```shell
-cd icn/ci
-sudo -H ./install_ansible.sh
-sudo -H ansible-playbook site_jenkins.yaml --extra-vars "@vars.yaml" -v
-```
-
-Once the playbook is successful, we can visit the Jenkins server at
-http://<listen_address>:8080.
-
-## What to do next
-
-1. Add the gerrit ssh key as Jenkins credential, so that our jobs can
-pull code from the gerrit.  The credential ID field must be
-`jenkins-ssh`, as this is hard coded in the jobs. The type should be
-private key. The user name is the gerrit account name.
-
-2. To push the logs to Akraino Nexus server, we need to create the
-authentication file for lftools.  The file should be owned by Jenkins
-user. The file path is `/var/lib/jenkins/.netrc` and the content
-should be one line `machine nexus.akraino.org login the_name password
-the_pass`
-
-3. The last step is to deploy our CD jobs by jenkins-job-builder tool.
-
-Basic Jenkins Job Builder (JJB) configuration using admin/admin
-credentials.
-
-``` shell
-mkdir -p ~/.config/jenkins_jobs
-cat << EOF | tee ~/.config/jenkins_jobs/jenkins_jobs.ini
-[job_builder]
-ignore_cache=True
-keep_descriptions=False
-recursive=True
-retain_anchors=True
-update=jobs
-
-[jenkins]
-user=admin
-password=admin
-url=http://localhost:8080
-EOF
-```
-
-Install jenkins-job-builder.
-
-``` shell
-sudo -H pip3 install jenkins-job-builder
-```
-
-Install the job into Jenkins. The test command displays the output of
-the job builder that will be installed into Jenkins; it is optional.
-
-``` shell
-jenkins-jobs test ci-management/jjb:icn/ci/jjb icn-master-verify
-jenkins-jobs update ci-management/jjb:icn/ci/jjb icn-master-verify
-```
+The same values of `CLUSTER_MASTER_IP` and `CLUSTER_SSH_USER` should
+be provided to the icn-bluval job in Jenkins. Note that
+`CLUSTER_SSH_USER` must be `root` for the Bluval Lynis testing to
+succeed.

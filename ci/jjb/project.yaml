@@ -45,6 +45,6 @@
           disabled: false
     validation_lab:
       - intel
-    build-node: master
+    build-node: built-in
     jobs:
       - icn-bluval-run-daily-tests
