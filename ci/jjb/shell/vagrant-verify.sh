@@ -10,9 +10,12 @@ function clean_vm {{
 }}
 trap clean_vm EXIT
 
+# TODO Improve VM performance by only using cores on the same node
+#sed -i -e '/^\s\+libvirt.cpus/!b' -e "h;s/\S.*/libvirt.cpuset = '0-21,44-65'/;H;g" Vagrantfile
+
 vagrant destroy -f
 vagrant up --no-parallel
-vagrant ssh -c "
+vagrant ssh jump -c "
 set -exuf
 cd /icn
 sudo su -c 'make {target}'

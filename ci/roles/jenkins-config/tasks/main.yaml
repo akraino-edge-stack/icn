@@ -9,18 +9,33 @@
 
 - name: install and configure vagrant
   block:
-    - name: install libvirt and vagrant
+    - name: install vagrant dependencies
       package:
         name: "{{ item }}"
       with_items:
-        - libvirt-bin
-        - vagrant
+        - libvirt-daemon-system
+        - libvirt-clients
+        - libvirt-dev
+        - nfs-kernel-server
+
+    - name: install vagrant repository key
+      apt_key:
+        url: https://apt.releases.hashicorp.com/gpg
+
+    - name: add vagrant repository
+      apt_repository:
+        repo: deb https://apt.releases.hashicorp.com  {{ ansible_distribution_release | lower }} main
+
+    - name: install vagrant
+      package:
+        name: vagrant
 
     - name: add jenkins user to libvirt and vagrant group
       user:
         name: jenkins
         append: yes
         groups:
+          - kvm
           - libvirt
 
     - name: setup vagrant-libvirt plugin

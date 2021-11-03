@@ -11,6 +11,7 @@ require 'yaml'
 # by vagrant from the jump machine definition) is up.
 
 site = ENV['ICN_SITE'] || 'vm'
+with_jenkins = ENV['WITH_JENKINS'] || false
 
 # Calculate the baremetal network address from the bmcAddress (aka
 # IPMI address) specified in the machine pool values.  IPMI in the
@@ -70,8 +71,14 @@ Vagrant.configure("2") do |config|
       libvirt.graphics_ip = '0.0.0.0'
       libvirt.default_prefix = "#{site}-"
       libvirt.cpu_mode = 'host-passthrough'
-      libvirt.cpus = 8
-      libvirt.memory = 24576
+      if with_jenkins
+        # With Jenkins and nested VMs increase cpus, memory
+        libvirt.cpus = 32
+        libvirt.memory = 65536
+      else
+        libvirt.cpus = 8
+        libvirt.memory = 24576
+      end
       libvirt.nested = true
 
       # The ICN baremetal network is the vagrant management network,
@@ -114,6 +121,11 @@ Vagrant.configure("2") do |config|
       DEBIAN_FRONTEND=noninteractive apt-get install -y make
     SHELL
     m.vm.post_up_message = $post_up_message
+
+    if with_jenkins
+      # Set up a port forward for an instance of Jenkins
+      m.vm.network "forwarded_port", guest: 8080, host: 8080
+    end
   end
 
   # Look for any HelmReleases in the site directory with machineName in
