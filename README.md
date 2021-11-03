@@ -149,7 +149,7 @@ ICN provides DHCP servers for the provisioning network.
       "address": "10.10.10.11"
     },
     "os": {
-      "image_name": "bionic-server-cloudimg-amd64.img",
+      "image_name": "focal-server-cloudimg-amd64.img",
       "username": "ubuntu",
       "password": "mypasswd"
     },
@@ -203,7 +203,7 @@ ICN provides DHCP servers for the provisioning network.
       "address": "10.10.10.12"
     },
     "os": {
-      "image_name": "bionic-server-cloudimg-amd64.img",
+      "image_name": "focal-server-cloudimg-amd64.img",
       "username": "ubuntu",
       "password": "mypasswd"
     },

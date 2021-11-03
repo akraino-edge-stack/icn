@@ -27,8 +27,8 @@ clusters:
     containerRuntime: containerd
     podCidr: 10.244.64.0/18
     cni: flannel
-    imageName: bionic-server-cloudimg-amd64.img
+    imageName: focal-server-cloudimg-amd64.img
     k8sVersion: v1.21.6
     kubeVersion: 1.21.6-00
     containerdVersion: 1.4.11-1
-    dockerVersion: 5:20.10.10~3-0~ubuntu-bionic
+    dockerVersion: 5:20.10.10~3-0~ubuntu-focal

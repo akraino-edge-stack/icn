@@ -27,7 +27,7 @@ for ((i=1;i<=num_machines;++i)); do
         "address": "${ipmi_host}:${ipmi_port}"
       },
       "os": {
-        "image_name": "bionic-server-cloudimg-amd64.img",
+        "image_name": "focal-server-cloudimg-amd64.img",
         "username": "ubuntu",
         "password": "mypasswd"
       },

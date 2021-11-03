@@ -8,7 +8,7 @@
         "address": "10.10.110.12"
       },
       "os": {
-        "image_name": "bionic-server-cloudimg-amd64.img",
+        "image_name": "focal-server-cloudimg-amd64.img",
         "username": "ubuntu",
         "password": "mypasswd"
       },
@@ -62,7 +62,7 @@
         "address": "10.10.110.13"
       },
       "os": {
-        "image_name": "bionic-server-cloudimg-amd64.img",
+        "image_name": "focal-server-cloudimg-amd64.img",
         "username": "ubuntu",
         "password": "mypasswd"
       },
