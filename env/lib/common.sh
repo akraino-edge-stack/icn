@@ -110,3 +110,17 @@ function node_networkdata {
 
     cat $NODES_FILE  | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net'
 }
+
+function wait_for {
+    local -r interval=${WAIT_FOR_INTERVAL:-30s}
+    local -r max_tries=${WAIT_FOR_TRIES:-20}
+    local try=0
+    until "$@"; do
+        echo "[${try}/${max_tries}] - Waiting ${interval} for $*"
+        sleep ${interval}
+        try=$((try+1))
+        if [[ ${try} -ge ${max_tries} ]]; then
+            return 1
+        fi
+    done
+}
