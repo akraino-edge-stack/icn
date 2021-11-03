@@ -30,9 +30,13 @@ jump_server: package_prerequisite \
 package_prerequisite:
 	 pushd $(BMDIR) && ./01_install_package.sh && popd
 
-bmh_clean:
+bmh_clean: bmh_deprevision bmo_clean
+
+bmh_deprovision:
 	pushd $(METAL3DIR) && ./01_metal3.sh deprovision && \
-	./03_verify_deprovisioning.sh && ./01_metal3.sh clean && popd && \
+	./03_verify_deprovisioning.sh && ./01_metal3.sh clean && popd
+
+bmo_clean:
 	./deploy/baremetal-operator/baremetal-operator.sh clean
 
 bmh_clean_host:
@@ -59,8 +63,6 @@ bmh_provision:
 	source user_config.sh && env && \
 	pushd $(METAL3DIR) && ./01_metal3.sh provision && \
 	./02_verify.sh && popd
-
-bmh_all: bmh_install bmh_provision
 
 clean_all: bmh_clean \
 	bmh_clean_host \
@@ -132,13 +134,34 @@ prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
 
 bm_verifer: package_prerequisite \
-        kud_bm_deploy_mini \
-        bmh_all \
+	kud_bm_deploy_mini \
+	bmh_install \
+	bmh_provision \
 	bpa_op_bmh_verifier \
 	bpa_rest_api_verifier \
 	clean_all
 
 verifier: bm_verifer
+
+vm_verifier: jump_server \
+	vm_cluster \
+	vm_clean_all
+
+vm_cluster:
+	./deploy/site/vm/vm.sh build
+	./deploy/site/vm/vm.sh deploy
+	./deploy/site/vm/vm.sh wait
+	./deploy/kata/kata.sh test
+	./deploy/addons/addons.sh test
+
+vm_clean_cluster:
+	./deploy/site/vm/vm.sh clean
+
+vm_clean_all: vm_clean_cluster \
+	bmo_clean \
+	bmh_clean_host \
+	kud_bm_reset \
+	clean_packages
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
