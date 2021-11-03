@@ -66,14 +66,14 @@ clusters:
     #
     # Refer to the below for further information:
     # - https://github.com/kubernetes/kubernetes/blob/master/build/dependencies.yaml
-    # - https://download.docker.com/linux/ubuntu/dists/bionic/stable/binary-amd64/Packages
+    # - https://download.docker.com/linux/ubuntu/dists/focal/stable/binary-amd64/Packages
     #
     # The OS image.
-    imageName: bionic-server-cloudimg-amd64.img
+    imageName: focal-server-cloudimg-amd64.img
     # The version of Kubernetes installed.
     k8sVersion: v1.21.6
     # The version of the kubelet, kubeadm, and kubectl packages.
     kubeVersion: 1.21.6-00
     # The version of the CRI installed.
     containerdVersion: 1.4.11-1
-    dockerVersion: 5:20.10.10~3-0~ubuntu-bionic
+    dockerVersion: 5:20.10.10~3-0~ubuntu-focal

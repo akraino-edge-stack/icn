@@ -9,8 +9,8 @@ IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE=${IRONIC_PROVISIONING_INTERFACE:-"provisioning"}
 IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE_IP=${IRONIC_PROVISIONING_INTERFACE_IP:-"172.22.0.1"}
-BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/bionic/current/bionic-server-cloudimg-amd64.img"}
-BM_IMAGE=${BM_IMAGE:-"bionic-server-cloudimg-amd64.img"}
+BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img"}
+BM_IMAGE=${BM_IMAGE:-"focal-server-cloudimg-amd64.img"}
 
 #Baremetal operator repository URL
 BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
