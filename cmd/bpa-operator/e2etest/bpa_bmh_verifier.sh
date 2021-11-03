@@ -1,18 +1,13 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
+SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
+LIBDIR="$(dirname $(dirname $(dirname ${SCRIPTDIR})))/env/lib"
+
+source $LIBDIR/common.sh
+
 CLUSTER_NAME=test-bmh-cluster
 ADDONS_NAMESPACE=kud
-
-function wait_for {
-    local -r interval=30
-    for ((try=0;try<600;try+=${interval})); do
-        echo "$(date +%H:%M:%S) - Waiting for $*"
-        sleep ${interval}s
-        if $*; then return 0; fi
-    done
-    return 1
-}
 
 function emco_ready {
     KUBECONFIG=${CLUSTER_KUBECONFIG} kubectl -n emco wait pod --all --for=condition=Ready --timeout=0s 1>/dev/null 2>/dev/null
