@@ -50,9 +50,19 @@ Vagrant.configure("2") do |config|
       libvirt.graphics_ip = '0.0.0.0'
       libvirt.default_prefix = "#{vars[:site]}-"
       libvirt.cpu_mode = 'host-passthrough'
+      # If running Jenkins and the vagrant-verify job, increase cpus
+      # to 32, memory to 65536, and machine_virtual_size to 80
       libvirt.cpus = 8
       libvirt.memory = 24576
+      libvirt.machine_virtual_size = 30 # GB
       libvirt.nested = true
+
+      # The machine_virtual_size option increases the disk system, but
+      # extra steps are still required to update the filesystem
+      m.vm.provision 'Resizing root partition', type: 'shell', privileged: true, inline: <<-SHELL
+        parted -a optimal /dev/sda ---pretend-input-tty resizepart 3 yes 100%
+        resize2fs /dev/sda3
+      SHELL
 
       # The ICN baremetal network is the vagrant management network,
       # and is created by vagrant for us
@@ -94,6 +104,9 @@ Vagrant.configure("2") do |config|
       DEBIAN_FRONTEND=noninteractive apt-get install -y make
     SHELL
     m.vm.post_up_message = $post_up_message
+
+    # Set up a port forward for a potential instance of Jenkins
+    m.vm.network "forwarded_port", guest: 8080, host: 8080
   end
 
   # The machine pool used by cluster creation

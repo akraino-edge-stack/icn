@@ -12,7 +12,7 @@ trap clean_vm EXIT
 
 vagrant destroy -f
 vagrant up --no-parallel
-vagrant ssh -c "
+vagrant ssh jump -c "
 set -exuf
 cd /icn
 sudo su -c 'make {target}'
