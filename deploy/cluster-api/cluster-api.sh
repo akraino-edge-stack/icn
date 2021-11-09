@@ -9,7 +9,7 @@ source $LIBDIR/common.sh
 
 function deploy {
     export EXP_CLUSTER_RESOURCE_SET=true
-    clusterctl init --infrastructure=metal3
+    clusterctl init --infrastructure=metal3:${CAPM3_VERSION}
 }
 
 function clean {
