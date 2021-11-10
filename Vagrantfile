@@ -42,6 +42,7 @@ Vagrant.configure("2") do |config|
   config.vm.define 'jump' do |m|
     # Note the apparent typo in the name below, it is correct as-is
     m.vm.box = 'intergratedcloudnative/ubuntu1804'
+    m.vm.box_version = '1.0.0'
     m.vm.hostname = 'jump'
     m.vm.synced_folder '.', '/icn'
     m.vm.provider :libvirt do |libvirt|
