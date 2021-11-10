@@ -1,0 +1,3 @@
+# Under ICN, roleRef may be psp:restricted, psp:baseline, or
+# psp:privileged
+roleRef: psp:baseline
