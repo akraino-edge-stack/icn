@@ -64,11 +64,20 @@ function clean_webhook {
     kustomize build ${BUILDDIR}/webhook/base | KUBECONFIG=${cluster_kubeconfig} kubectl delete -f -
 }
 
+function is_kata_deployed {
+    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    kubectl --kubeconfig=${cluster_kubeconfig} get runtimeclass/kata-qemu
+}
+
 function test_kata {
     # Create a temporary kubeconfig file for the tests
     local -r cluster_name=${CLUSTER_NAME:-e2etest}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
+
+    # Ensure that Kata has been deployed first
+    wait_for is_kata_deployed
 
     deploy_webhook ${cluster_name}
     clone_kud_repository
