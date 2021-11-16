@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "aac07b49_e99a3e8e",
+        "filename": "Makefile",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:26:33Z",
+      "side": 1,
+      "message": "Typo error",
+      "range": {
+        "startLine": 33,
+        "startChar": 11,
+        "endLine": 33,
+        "endChar": 26
+      },
+      "revId": "10d04f3518df295417737caa49130de347c7e042",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
