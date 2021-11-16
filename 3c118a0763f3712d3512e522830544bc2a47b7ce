@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "70065993_8bc13a3c",
+        "filename": "deploy/site/vm/clusters-values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-11-16T22:15:12Z",
+      "side": 1,
+      "message": "This is just the public key (https://cloudinit.readthedocs.io/en/latest/topics/modules.html#users-and-groups).",
+      "parentUuid": "959991ec_1a4db016",
+      "range": {
+        "startLine": 21,
+        "startChar": 6,
+        "endLine": 21,
+        "endChar": 414
+      },
+      "revId": "3c118a0763f3712d3512e522830544bc2a47b7ce",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "8cc0d7d9_eb5c66c1",
         "filename": "deploy/site/vm/e2etest/flux-system/gotk-components.yaml",
         "patchSetId": 1
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "877fb407_71c62584",
+        "filename": "deploy/site/vm/e2etest/flux-system/gotk-components.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-11-16T22:15:12Z",
+      "side": 1,
+      "message": "This is part of the flux bootstrapping, it will be responsible for ensuring that the flux controllers in the cluster are up to date.",
+      "parentUuid": "8cc0d7d9_eb5c66c1",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 5,
+        "endChar": 15
+      },
+      "revId": "3c118a0763f3712d3512e522830544bc2a47b7ce",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "be42b5e1_6c838ae5",
         "filename": "deploy/site/vm/vm.sh",
         "patchSetId": 1
@@ -59,6 +107,30 @@
       "writtenOn": "2021-11-16T18:07:29Z",
       "side": 1,
       "message": "Is this variable static by definition ? Are we getting this as a input from the user ? Can we have feature, when the user didn\u0027t provide his value. Are we generate the sshkey on the fly and use it. Instead of having a static variable.",
+      "range": {
+        "startLine": 16,
+        "startChar": 57,
+        "endLine": 16,
+        "endChar": 75
+      },
+      "revId": "3c118a0763f3712d3512e522830544bc2a47b7ce",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "14d34189_df70b3af",
+        "filename": "deploy/site/vm/vm.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-11-16T22:15:12Z",
+      "side": 1,
+      "message": "At this point, this is just for the VM deploy so the keypair is dynamically generated when the jump server is created.\n\nI will add a task to review this when I get to updating the baremetal deploy.",
+      "parentUuid": "be42b5e1_6c838ae5",
       "range": {
         "startLine": 16,
         "startChar": 57,
