@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6da97b4f_28575518",
+        "filename": "deploy/site/vm/e2etest/emco-db-release.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:12:00Z",
+      "side": 1,
+      "message": "LF gitlab EMCO instead of OpenNESS. Openness is deprecated.",
+      "range": {
+        "startLine": 11,
+        "startChar": 30,
+        "endLine": 11,
+        "endChar": 42
+      },
+      "revId": "dad12523efb0fd0898f20be29f57304f032e130f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "897dbf4a_79e4c1e7",
+        "filename": "deploy/site/vm/e2etest/emco-monitor-release.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:12:00Z",
+      "side": 1,
+      "message": "LF gitlab EMCO instead of OpenNESS. Openness is deprecated.",
+      "range": {
+        "startLine": 23,
+        "startChar": 9,
+        "endLine": 23,
+        "endChar": 26
+      },
+      "revId": "dad12523efb0fd0898f20be29f57304f032e130f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "9bb0ab34_cdae68d0",
+        "filename": "deploy/site/vm/e2etest/emco-services-release.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:12:00Z",
+      "side": 1,
+      "message": "LF gitlab instead of OpenNESS.",
+      "range": {
+        "startLine": 11,
+        "startChar": 30,
+        "endLine": 11,
+        "endChar": 42
+      },
+      "revId": "dad12523efb0fd0898f20be29f57304f032e130f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "71e598d6_795fa2c9",
+        "filename": "deploy/site/vm/e2etest/emco-source.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:12:00Z",
+      "side": 1,
+      "message": "Is emco moved to gitlab in LF. Can we change this tag and the url in #9",
+      "range": {
+        "startLine": 11,
+        "startChar": 9,
+        "endLine": 11,
+        "endChar": 26
+      },
+      "revId": "dad12523efb0fd0898f20be29f57304f032e130f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "00077456_7f8dc791",
+        "filename": "deploy/site/vm/e2etest/emco-tools-release.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-16T18:12:00Z",
+      "side": 1,
+      "message": "gitlab LF should be there instead of openness. Openness project is deprecated.",
+      "range": {
+        "startLine": 11,
+        "startChar": 29,
+        "endLine": 11,
+        "endChar": 53
+      },
+      "revId": "dad12523efb0fd0898f20be29f57304f032e130f",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
