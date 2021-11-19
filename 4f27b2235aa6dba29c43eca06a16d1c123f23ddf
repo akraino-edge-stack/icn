@@ -49,6 +49,30 @@
     },
     {
       "key": {
+        "uuid": "e3c6cd2d_bacb7da5",
+        "filename": "deploy/clusters/ha-dhcp-values.yaml",
+        "patchSetId": 1
+      },
+      "lineNbr": 45,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-11-19T22:32:39Z",
+      "side": 1,
+      "message": "How can use add their key here ? It should be customizable right ?",
+      "parentUuid": "47108136_99aaa796",
+      "range": {
+        "startLine": 44,
+        "startChar": 4,
+        "endLine": 45,
+        "endChar": 414
+      },
+      "revId": "4f27b2235aa6dba29c43eca06a16d1c123f23ddf",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "70e41db2_8cacce7a",
         "filename": "deploy/clusters/static-values.yaml",
         "patchSetId": 1
