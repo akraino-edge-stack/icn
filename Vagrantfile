@@ -22,7 +22,7 @@ To get started with ICN:
   vagrant@jump:~$ sudo su
   root@jump:/home/vagrant# cd /icn
   root@jump:/icn# make jump_server
-  root@jump:/icn# make cluster
+  root@jump:/icn# make vm_cluster
 
 ------------------------------------------------------
 MSG
