@@ -2,6 +2,7 @@
 set -eu -o pipefail
 
 IRONIC_DATA_DIR=${IRONIC_DATA_DIR:-"/opt/ironic"}
+NODES_FILE=${NODES_FILE:-"${IRONIC_DATA_DIR}/nodes.json"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
 IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE=${IRONIC_PROVISIONING_INTERFACE:-"provisioning"}
@@ -78,8 +79,6 @@ function call_api {
 }
 
 function list_nodes {
-    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
-
     if [ ! -f "$NODES_FILE" ]; then
         exit 1
     fi
@@ -125,7 +124,6 @@ function networkdata_networks_field {
     name=$1
     network=$2
     field=$3
-    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
     cat $NODES_FILE | jq -c -r --arg name "$name" --arg network "$network" --arg field "$field" '.nodes[] | select(.name==$name) | .net.networks[] | select(.id==$network).'${field}
 }
 
@@ -134,14 +132,11 @@ function networkdata_links_field {
     name=$1
     link=$2
     field=$3
-    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
     cat $NODES_FILE | jq -c -r --arg name "$name" --arg link "$link" --arg field "$field" '.nodes[] | select(.name==$name) | .net.links[] | select(.id==$link).'${field}
 }
 
 function node_networkdata {
     name=$1
-
-    NODES_FILE="${IRONIC_DATA_DIR}/nodes.json"
 
     if [ ! -f "$NODES_FILE" ]; then
         exit 1

@@ -86,8 +86,8 @@ function configure_nodes {
     fi
 
     #make sure nodes.json file in /opt/ironic/ are configured
-    if [ ! -f $IRONIC_DATA_DIR/nodes.json ]; then
-        cp ${SCRIPTDIR}/nodes.json.sample $IRONIC_DATA_DIR/nodes.json
+    if [ ! -f $NODES_FILE ]; then
+        cp ${SCRIPTDIR}/nodes.json.sample $NODES_FILE
     fi
 }
 
@@ -106,8 +106,8 @@ function clean_bm_hosts {
 
 function clean_all {
     list_nodes | clean_bm_hosts
-    if [ -f $IRONIC_DATA_DIR/nodes.json ]; then
-        rm -rf $IRONIC_DATA_DIR/nodes.json
+    if [ -f $NODES_FILE ]; then
+        rm -rf $NODES_FILE
     fi
 }
 
