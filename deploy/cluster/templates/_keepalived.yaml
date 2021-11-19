@@ -1,4 +1,4 @@
-{{- define "clusters.keepalived" -}}
+{{- define "cluster.keepalived" -}}
 {{- if .keepalived -}}
 - path: /etc/keepalived/keepalived.conf
   content: |

@@ -1,5 +1,4 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
-{{- if $cluster.flux }}
+{{- if .Values.flux }}
 ---
 apiVersion: v1
 data:
@@ -4122,31 +4121,30 @@ data:
     apiVersion: source.toolkit.fluxcd.io/v1beta1
     kind: GitRepository
     metadata:
-      name: {{ $cluster.flux.repositoryName }}
+      name: {{ .Values.flux.repositoryName }}
       namespace: flux-system
     spec:
       gitImplementation: go-git
       interval: 1m0s
       ref:
-        branch: {{ $cluster.flux.branch }}
+        branch: {{ .Values.flux.branch }}
       timeout: 20s
-      url: {{ $cluster.flux.url }}
+      url: {{ .Values.flux.url }}
     ---
     apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
     kind: Kustomization
     metadata:
-      name: {{ $clusterName }}-flux-sync
+      name: {{ .Values.clusterName }}-flux-sync
       namespace: flux-system
     spec:
       interval: 10m0s
-      path: {{ $cluster.flux.path }}
+      path: {{ .Values.flux.path }}
       prune: true
       sourceRef:
         kind: GitRepository
-        name: {{ $cluster.flux.repositoryName }}
+        name: {{ .Values.flux.repositoryName }}
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: {{ $clusterName }}-flux-addon
-{{- end }}
+  name: {{ .Values.clusterName }}-flux-addon
 {{- end }}

@@ -1,0 +1,21 @@
+Thank you for installing the {{ .Chart.Name }} chart of Akraino ICN.
+
+Your release is named {{ .Release.Name }}.
+
+To learn more about this release, try:
+
+  $ helm status {{ .Release.Name }}
+  $ helm get all {{ .Release.Name }}
+
+To get a brief description of this cluster and its resources, try:
+
+  $ clusterctl describe cluster {{ .Values.clusterName }}
+
+To view the status of this cluster's control plane, try:
+
+  $ kubectl get kubeadmcontrolplane {{ .Values.clusterName }}
+
+Once the first control plane node is up and running, retrieve this
+cluster's kubeconfig with:
+
+  $ clusterctl get kubeconfig {{ .Values.clusterName }} > {{ .Values.clusterName }}.kubeconfig

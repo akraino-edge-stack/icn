@@ -9,16 +9,11 @@ ipmi_host=$(virsh -c qemu:///system net-dumpxml ${site}-baremetal | xmlstarlet s
 ipmi_port=$((6230+index-1))
 boot_mac=$(virsh -c qemu:///system dumpxml "${site}-${name}" | xmlstarlet sel -t -v "//interface[source/@network='${site}-provisioning']/mac/@address")
 
-if [[ ${index} == 1 ]]; then
-    mkdir -p build/site/${site}
-    cat <<EOF >build/site/${site}/machines-values.yaml
-machines:
-EOF
-fi
-cat <<EOF >>build/site/${site}/machines-values.yaml
-  machine-${index}:
-    bootMACAddress: ${boot_mac}
-    bmcAddress: ipmi://${ipmi_host}:${ipmi_port}
-    bmcUsername: admin
-    bmcPassword: password
+mkdir -p build/site/${site}
+cat <<EOF >build/site/${site}/machine-${index}-values.yaml
+machineName: machine-${index}
+bootMACAddress: ${boot_mac}
+bmcAddress: ipmi://${ipmi_host}:${ipmi_port}
+bmcUsername: admin
+bmcPassword: password
 EOF

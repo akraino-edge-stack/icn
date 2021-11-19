@@ -37,43 +37,46 @@ EOF
         exit 1
     fi
 
-    printf "    userData:\n" >>${SCRIPTDIR}/machines-values.yaml
+    printf "userData:\n" >>${SCRIPTDIR}/${name}-values.yaml
     if [ -n "$username" ]; then
-	printf "      name: ${username}\n" >>${SCRIPTDIR}/machines-values.yaml
+	printf "  name: ${username}\n" >>${SCRIPTDIR}/${name}-values.yaml
     fi
     if [ -n "$password" ]; then
         passwd=$(mkpasswd --method=SHA-512 --rounds 4096 "$password")
-        printf "      hashedPassword: ${passwd}\n" >>${SCRIPTDIR}/machines-values.yaml
+        printf "  hashedPassword: ${passwd}\n" >>${SCRIPTDIR}/${name}-values.yaml
     fi
 
     if [ -n "$COMPUTE_NODE_FQDN" ]; then
-        printf "      fqdn: ${COMPUTE_NODE_FQDN}\n" >>${SCRIPTDIR}/machines-values.yaml
+        printf "  fqdn: ${COMPUTE_NODE_FQDN}\n" >>${SCRIPTDIR}/${name}-values.yaml
     fi
 
     if [ ! -f $HOME/.ssh/id_rsa.pub ]; then
         yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
     fi
 
-    printf "      sshAuthorizedKey: $(cat $HOME/.ssh/id_rsa.pub)\n" >>${SCRIPTDIR}/machines-values.yaml
+    printf "  sshAuthorizedKey: $(cat $HOME/.ssh/id_rsa.pub)\n" >>${SCRIPTDIR}/${name}-values.yaml
 }
 
 create_networkdata() {
     name="$1"
-    node_networkdata $name >>${SCRIPTDIR}/machines-values.yaml
+    node_networkdata $name >>${SCRIPTDIR}/${name}-values.yaml
 }
 
 function make_bm_hosts {
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
-        printf "  ${name}:\n" >>${SCRIPTDIR}/machines-values.yaml
-        printf "    bmcUsername: ${ipmi_username}\n" >>${SCRIPTDIR}/machines-values.yaml
-        printf "    bmcPassword: ${ipmi_password}\n" >>${SCRIPTDIR}/machines-values.yaml
-        printf "    bmcAddress: ipmi://${ipmi_address}\n" >>${SCRIPTDIR}/machines-values.yaml
+        printf "machineName: ${name}\n" >${SCRIPTDIR}/${name}-values.yaml
+        printf "bmcUsername: ${ipmi_username}\n" >>${SCRIPTDIR}/${name}-values.yaml
+        printf "bmcPassword: ${ipmi_password}\n" >>${SCRIPTDIR}/${name}-values.yaml
+        printf "bmcAddress: ipmi://${ipmi_address}\n" >>${SCRIPTDIR}/${name}-values.yaml
 	if [[ ! -z ${boot_mac} ]]; then
-            printf "    bootMACAddress: ${boot_mac}\n" >>${SCRIPTDIR}/machines-values.yaml
+            printf "bootMACAddress: ${boot_mac}\n" >>${SCRIPTDIR}/${name}-values.yaml
 	fi
-        printf "    imageName: ${BM_IMAGE}\n" >>${SCRIPTDIR}/machines-values.yaml
+        printf "imageName: ${BM_IMAGE}\n" >>${SCRIPTDIR}/${name}-values.yaml
         create_userdata $name $os_username $os_password
         create_networkdata $name
+
+	helm -n metal3 install ${name} ${SCRIPTDIR}/../../machine --create-namespace -f ${SCRIPTDIR}/${name}-values.yaml
+
     done
 }
 
@@ -94,18 +97,22 @@ function deprovision_bm_hosts {
     done
 }
 
+function clean_bm_hosts {
+    while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
+	helm -n metal3 uninstall ${name}
+	rm -rf ${SCRIPTDIR}/${name}-values.yaml
+    done
+}
+
 function clean_all {
-    helm -n metal3 uninstall machines
-    rm -f ${SCRIPTDIR}/machines-values.yaml
+    list_nodes | clean_bm_hosts
     if [ -f $IRONIC_DATA_DIR/nodes.json ]; then
         rm -rf $IRONIC_DATA_DIR/nodes.json
     fi
 }
 
 function apply_bm_hosts {
-    printf "machines:\n" >${SCRIPTDIR}/machines-values.yaml
     list_nodes | make_bm_hosts
-    helm -n metal3 install machines ${SCRIPTDIR}/../../machines --create-namespace -f ${SCRIPTDIR}/machines-values.yaml
 }
 
 function deprovision_all_hosts {

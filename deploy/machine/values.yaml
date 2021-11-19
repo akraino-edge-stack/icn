@@ -1,0 +1,59 @@
+# machineName is the host name of the machine.
+machineName: machine-1
+
+# machineLabels is a dictionary of labels.  The machine label is shown
+# as an example only; additional labels may be provided.
+#machineLabels:
+#  machine: machine-1
+
+# bmcAddress is the address of the machine's bare metal controller.
+bmcAddress: ipmi://10.10.110.11
+# bmcUsername is the username used to access the machine's bare metal
+# controller.
+bmcUsername: admin
+# bmcPassword is the password used to access the machine's bare metal
+# controller.
+bmcPassword: password
+
+# bootMACAddress is the MAC address of the NIC that will PXE boot.
+# This is only required when using virtual machines.
+#bootMACAddress: 00:1e:67:fe:f4:1a
+
+# networks is used to provide per-machine network configuration.
+# Where feasible (such as when DHCP is available or static IP pools
+# can be used), the use of templates at the cluster level is
+# encouraged instead.
+#networks:
+#  baremetal:
+#    macAddress: 00:1e:67:fe:f4:19
+#    # type is either ipv4 or ipv4_dhcp
+#    type: ipv4
+#    # ipAddress is only valid for type ipv4
+#    ipAddress: 10.10.110.21/24
+#    # gateway is only valid for type ipv4
+#    gateway: 10.10.110.1
+#    # nameservers is an array of DNS servers; only valid for type ipv4
+#    nameservers: ["8.8.8.8"]
+#  provisioning:
+#    macAddress: 00:1e:67:fe:f4:1a
+#    type: ipv4_dhcp
+#  private:
+#    macAddress: 00:1e:67:f8:6a:40
+#    type: ipv4
+#    ipAddress: 10.10.112.2/24
+#  storage:
+#    macAddress: 00:1e:67:f8:6a:41
+#    type: ipv4
+#    ipAddress: 10.10.113.2/24
+
+# userData is used to provide per-machine cloud-init data.  Again,
+# where feasible, the use of templates at the cluster level is
+# encouraged instead.
+#userData:
+#  name: ubuntu
+#  hashedPassword: $6$rounds=10000$PJLOBdyTv23pNp$9RpaAOcibbXUMvgJScKK2JRQioXW4XAVFMRKqgCB5jC4QmtAdbA70DU2jTcpAd6pRdEZIaWFjLCNQMBmiiL40.
+#  sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrxu+fSrU51vgAO5zP5xWcTU8uLv4MkUZptE2m1BJE88JdQ80kz9DmUmq2AniMkVTy4pNeUW5PsmGJa+anN3MPM99CR9I37zRqy5i6rUDQgKjz8W12RauyeRMIBrbdy7AX1xasoTRnd6Ta47bP0egiFb+vUGnlTFhgfrbYfjbkJhVfVLCTgRw8Yj0NSK16YEyhYLbLXpix5udRpXSiFYIyAEWRCCsWJWljACr99P7EF82vCGI0UDGCCd/1upbUwZeTouD/FJBw9qppe6/1eaqRp7D36UYe3KzLpfHQNgm9AzwgYYZrD4tNN6QBMq/VUIuam0G1aLgG8IYRLs41HYkJ root@jump
+#  fqdn: machine-1.akraino.icn.org
+
+# Legacy ICN support only, do not use with R6 or later
+#imageName: focal-server-cloudimg-amd64.img

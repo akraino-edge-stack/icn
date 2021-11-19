@@ -147,7 +147,7 @@ function node_networkdata {
         exit 1
     fi
 
-    printf "    networks:\n"
+    printf "networks:\n"
     for network in $(cat $NODES_FILE | jq -r --arg name "$name" '.nodes[] | select(.name==$name) | .net.networks[].id'); do
 	link=$(networkdata_networks_field $name $network "link")
 	type=$(networkdata_networks_field $name $network "type")
@@ -158,17 +158,17 @@ function node_networkdata {
 	gateway=$(networkdata_networks_field $name $network "gateway")
 	dns_nameservers=$(networkdata_networks_field $name $network "dns_nameservers")
 
-	printf "      ${network}:\n"
-	printf "        macAddress: ${mac}\n"
-	printf "        type: ${type}\n"
+	printf "  ${network}:\n"
+	printf "    macAddress: ${mac}\n"
+	printf "    type: ${type}\n"
 	if [[ $ip_address != "null" ]]; then
-	    printf "        ipAddress: ${ip_address}\n"
+	    printf "    ipAddress: ${ip_address}\n"
 	fi
 	if [[ $gateway != "null" ]]; then
-	    printf "        gateway: ${gateway}\n"
+	    printf "    gateway: ${gateway}\n"
 	fi
 	if [[ $dns_nameservers != "null" ]]; then
-	    printf "        nameservers: ${dns_nameservers}\n"
+	    printf "    nameservers: ${dns_nameservers}\n"
 	fi
     done
 }

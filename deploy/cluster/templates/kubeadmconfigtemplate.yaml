@@ -1,9 +1,8 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
 ---
 apiVersion: bootstrap.cluster.x-k8s.io/v1alpha4
 kind: KubeadmConfigTemplate
 metadata:
-  name: {{ $clusterName }}-workers
+  name: {{ .Values.clusterName }}-workers
 spec:
   template:
     spec:
@@ -16,10 +15,10 @@ spec:
             kube-reserved: cpu=100m,memory=256Mi
           name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
       preKubeadmCommands:
-{{- if $cluster.networks }}
+{{- if .Values.networks }}
       # Without touching up /etc/hosts, kubeadm may pick the wrong
       # (i.e. provisioning network) address for the node IP
-      - sed -i "1i $(ip -4 addr show dev {{ $cluster.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
+      - sed -i "1i $(ip -4 addr show dev {{ .Values.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
 {{- end }}
       - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
       - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -28,7 +27,7 @@ spec:
       - apt update -y
       - apt-get install -y ca-certificates
       - /usr/local/bin/install-container-runtime.sh
-      - apt-get install -y kubelet={{ $cluster.kubeVersion }} kubeadm={{ $cluster.kubeVersion }} kubectl={{ $cluster.kubeVersion }}
+      - apt-get install -y kubelet={{ .Values.kubeVersion }} kubeadm={{ .Values.kubeVersion }} kubectl={{ .Values.kubeVersion }}
       - systemctl enable --now kubelet
       postKubeadmCommands:
       - /usr/local/bin/harden_os.sh
@@ -36,7 +35,7 @@ spec:
       # on files in /var/run, which won't persist after a reboot
       - /usr/local/bin/set_kernel_cmdline.sh
       files:
-{{ include "clusters.containerRuntime" $cluster | indent 6 }}
+{{ include "cluster.containerRuntime" .Values | indent 6 }}
       - path: /etc/systemd/system/containerd.service.d/override.conf
         content: |
 {{ $.Files.Get "resources/override.conf" | indent 10 }}
@@ -49,15 +48,14 @@ spec:
         content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 10 }}
       users:
-      - name: {{ $cluster.userData.name }}
+      - name: {{ .Values.userData.name }}
         shell: /bin/bash
         lockPassword: False # Necessary to allow password login
-        passwd: {{ $cluster.userData.hashedPassword }}
+        passwd: {{ .Values.userData.hashedPassword }}
         sshAuthorizedKeys:
-        - {{ $cluster.userData.sshAuthorizedKey }}
+        - {{ .Values.userData.sshAuthorizedKey }}
         sudo: "ALL=(ALL) NOPASSWD:ALL"
         groups: sudo # Necessary to allow SSH logins (see /etc/ssh/sshd_config)
       - name: root
         sshAuthorizedKeys:
-        - {{ $cluster.userData.sshAuthorizedKey }}
-{{- end }}
+        - {{ .Values.userData.sshAuthorizedKey }}

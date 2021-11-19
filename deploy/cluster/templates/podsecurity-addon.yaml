@@ -1,4 +1,3 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
 ---
 apiVersion: v1
 data:
@@ -297,5 +296,4 @@ data:
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: {{ $clusterName }}-podsecurity-addon
-{{- end }}
+  name: {{ .Values.clusterName }}-podsecurity-addon

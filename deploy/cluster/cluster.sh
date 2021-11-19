@@ -17,15 +17,13 @@ function build_source {
     # Flannel
     curl -sL https://raw.githubusercontent.com/coreos/flannel/${FLANNEL_VERSION}/Documentation/kube-flannel.yml -o ${SCRIPTDIR}/addons/flannel.yaml
     cat <<EOF >${SCRIPTDIR}/templates/flannel-addon.yaml
-{{- range \$clusterName, \$cluster := .Values.clusters }}
-{{- if eq \$cluster.cni "flannel" }}
+{{- if eq .Values.cni "flannel" }}
 ---
 $(kubectl create configmap flannel-addon --from-file=${SCRIPTDIR}/addons/flannel.yaml -o yaml --dry-run=client)
 {{- end }}
-{{- end }}
 EOF
-    sed -i -e 's/  name: flannel-addon/  name: {{ $clusterName }}-flannel-addon/' ${SCRIPTDIR}/templates/flannel-addon.yaml
-    sed -i -e 's/10.244.0.0\/16/{{ $cluster.podCidr }}/' ${SCRIPTDIR}/templates/flannel-addon.yaml
+    sed -i -e 's/  name: flannel-addon/  name: {{ .Values.clusterName }}-flannel-addon/' ${SCRIPTDIR}/templates/flannel-addon.yaml
+    sed -i -e 's/10.244.0.0\/16/{{ .Values.podCidr }}/' ${SCRIPTDIR}/templates/flannel-addon.yaml
 
     # Flux
     flux install --export >${SCRIPTDIR}/addons/flux-system.yaml
@@ -36,38 +34,36 @@ EOF
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
-  name: {{ $cluster.flux.repositoryName }}
+  name: {{ .Values.flux.repositoryName }}
   namespace: flux-system
 spec:
   gitImplementation: go-git
   interval: 1m0s
   ref:
-    branch: {{ $cluster.flux.branch }}
+    branch: {{ .Values.flux.branch }}
   timeout: 20s
-  url: {{ $cluster.flux.url }}
+  url: {{ .Values.flux.url }}
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: {{ $clusterName }}-flux-sync
+  name: {{ .Values.clusterName }}-flux-sync
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: {{ $cluster.flux.path }}
+  path: {{ .Values.flux.path }}
   prune: true
   sourceRef:
     kind: GitRepository
-    name: {{ $cluster.flux.repositoryName }}
+    name: {{ .Values.flux.repositoryName }}
 EOF
     cat <<EOF >${SCRIPTDIR}/templates/flux-addon.yaml
-{{- range \$clusterName, \$cluster := .Values.clusters }}
-{{- if \$cluster.flux }}
+{{- if .Values.flux }}
 ---
 $(kubectl create configmap flux-addon --from-file=${SCRIPTDIR}/addons/flux-system.yaml,${SCRIPTDIR}/addons/sync.yaml -o yaml --dry-run=client)
 {{- end }}
-{{- end }}
 EOF
-    sed -i -e 's/  name: flux-addon/  name: {{ $clusterName }}-flux-addon/' ${SCRIPTDIR}/templates/flux-addon.yaml
+    sed -i -e 's/  name: flux-addon/  name: {{ .Values.clusterName }}-flux-addon/' ${SCRIPTDIR}/templates/flux-addon.yaml
 
     # PodSecurityPolicy is being replaced in future versions of K8s.
     # The recommended practice is described by K8s at
@@ -209,12 +205,10 @@ subjects:
   apiGroup: rbac.authorization.k8s.io
 EOF
     cat <<EOF >${SCRIPTDIR}/templates/podsecurity-addon.yaml
-{{- range \$clusterName, \$cluster := .Values.clusters }}
 ---
 $(kubectl create configmap podsecurity-addon --from-file=${SCRIPTDIR}/addons/podsecurity.yaml -o yaml --dry-run=client)
-{{- end }}
 EOF
-    sed -i -e 's/  name: podsecurity-addon/  name: {{ $clusterName }}-podsecurity-addon/' ${SCRIPTDIR}/templates/podsecurity-addon.yaml
+    sed -i -e 's/  name: podsecurity-addon/  name: {{ .Values.clusterName }}-podsecurity-addon/' ${SCRIPTDIR}/templates/podsecurity-addon.yaml
 
 }
 

@@ -1,5 +1,4 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
-{{- if eq $cluster.cni "flannel" }}
+{{- if eq .Values.cni "flannel" }}
 ---
 apiVersion: v1
 data:
@@ -131,7 +130,7 @@ data:
         }
       net-conf.json: |
         {
-          "Network": "{{ $cluster.podCidr }}",
+          "Network": "{{ .Values.podCidr }}",
           "Backend": {
             "Type": "vxlan"
           }
@@ -244,6 +243,5 @@ data:
 kind: ConfigMap
 metadata:
   creationTimestamp: null
-  name: {{ $clusterName }}-flannel-addon
-{{- end }}
+  name: {{ .Values.clusterName }}-flannel-addon
 {{- end }}

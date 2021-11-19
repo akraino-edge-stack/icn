@@ -13,17 +13,27 @@ function build {
     SSH_AUTHORIZED_KEY=$(cat ${HOME}/.ssh/id_rsa.pub)
     # Use ! instead of usual / to avoid escaping / in
     # SSH_AUTHORIZED_KEY
-    sed -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/clusters-values.yaml >${BUILDDIR}/clusters-values.yaml
+    sed -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/cluster-e2etest-values.yaml >${BUILDDIR}/cluster-e2etest-values.yaml
+}
+
+function release_name {
+    local -r values_path=$1
+    name=$(basename ${values_path})
+    echo ${name%-values.yaml}
 }
 
 function deploy {
-    helm -n metal3 install machines ${SCRIPTDIR}/../../machines --create-namespace -f ${BUILDDIR}/machines-values.yaml
-    helm -n metal3 install clusters ${SCRIPTDIR}/../../clusters --create-namespace -f ${BUILDDIR}/clusters-values.yaml
+    for values in build/site/vm/machine-*-values.yaml; do
+	helm -n metal3 install $(release_name ${values}) ${SCRIPTDIR}/../../machine --create-namespace -f ${values}
+    done
+    helm -n metal3 install cluster-e2etest ${SCRIPTDIR}/../../cluster --create-namespace -f ${BUILDDIR}/cluster-e2etest-values.yaml
 }
 
 function clean {
-    helm -n metal3 uninstall clusters
-    helm -n metal3 uninstall machines
+    helm -n metal3 uninstall cluster-e2etest
+    for values in build/site/vm/machine-*-values.yaml; do
+	helm -n metal3 uninstall $(release_name ${values})
+    done
 }
 
 function is_cluster_ready {

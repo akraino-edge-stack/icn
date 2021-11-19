@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.machineName }}-bmc-secret
+type: Opaque
+data:
+  username: {{ .Values.bmcUsername | b64enc }}
+  password: {{ .Values.bmcPassword | b64enc }}
+{{- if .Values.networks }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.machineName }}-network-data
+type: Opaque
+data:
+  networkData: {{ include "machine.networkData" .Values | b64enc }}
+{{- end }}
+{{- if .Values.userData }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ .Values.machineName }}-user-data
+type: Opaque
+data:
+  userData: {{ include "machine.userData" .Values | b64enc }}
+{{- end }}
+---
+apiVersion: metal3.io/v1alpha1
+kind: BareMetalHost
+metadata:
+  name: {{ .Values.machineName }}
+{{- if .Values.machineLabels }}
+  labels:
+    {{- toYaml .Values.machineLabels | nindent 4 }}
+{{- end }}
+spec:
+  online: true
+{{- if .Values.bootMACAddress }}
+  bootMACAddress: {{ .Values.bootMACAddress }}
+{{- end }}
+  bmc:
+    address: {{ .Values.bmcAddress }}
+    credentialsName: {{ .Values.machineName }}-bmc-secret
+{{- if .Values.networks }}
+  networkData:
+    name: {{ .Values.machineName }}-network-data
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+{{- if .Values.userData }}
+  userData:
+    name: {{ .Values.machineName }}-user-data
+    namespace: {{ .Release.Namespace }}
+{{- end }}
+  rootDeviceHints:
+    minSizeGigabytes: 48
+{{- if .Values.imageName }}
+  image:
+    url: http://172.22.0.1:6180/images/{{ .Values.imageName }}
+    checksum: http://172.22.0.1:6180/images/{{ .Values.imageName }}.md5sum
+{{- end }}

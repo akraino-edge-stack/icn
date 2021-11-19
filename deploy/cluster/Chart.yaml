@@ -1,0 +1,7 @@
+apiVersion: v2
+name: cluster
+version: 0.1.0
+description: A Cluster API bare metal cluster
+type: application
+sources:
+- https://gerrit.akraino.org/r/icn

@@ -1,9 +1,8 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
 ---
 apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
 kind: KubeadmControlPlane
 metadata:
-  name: {{ $clusterName }}
+  name: {{ .Values.clusterName }}
 spec:
   kubeadmConfigSpec:
     clusterConfiguration:
@@ -25,10 +24,10 @@ spec:
           node-labels: metal3.io/uuid={{ "{{" }} ds.meta_data.uuid {{ "}}" }}
         name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
     preKubeadmCommands:
-{{- if $cluster.networks }}
+{{- if .Values.networks }}
     # Without touching up /etc/hosts, kubeadm may pick the wrong
     # (i.e. provisioning network) address for the node IP
-    - sed -i "1i $(ip -4 addr show dev {{ $cluster.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
+    - sed -i "1i $(ip -4 addr show dev {{ .Values.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
 {{- end }}
     - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
     - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -36,12 +35,12 @@ spec:
     - add-apt-repository "deb https://apt.kubernetes.io/ kubernetes-xenial main"
     - apt update -y
     - apt-get install -y ca-certificates
-{{- if $cluster.keepalived }}
+{{- if .Values.keepalived }}
     - apt-get install -y keepalived
     - systemctl enable --now keepalived
 {{- end }}
     - /usr/local/bin/install-container-runtime.sh
-    - apt-get install -y kubelet={{ $cluster.kubeVersion }} kubeadm={{ $cluster.kubeVersion }} kubectl={{ $cluster.kubeVersion }}
+    - apt-get install -y kubelet={{ .Values.kubeVersion }} kubeadm={{ .Values.kubeVersion }} kubectl={{ .Values.kubeVersion }}
     - systemctl enable --now kubelet
     postKubeadmCommands:
     - mkdir -p /home/ubuntu/.kube
@@ -58,8 +57,8 @@ spec:
     # files in /var/run, which won't persist after a reboot
     - /usr/local/bin/set_kernel_cmdline.sh
     files:
-{{ include "clusters.keepalived" $cluster | indent 4 }}
-{{ include "clusters.containerRuntime" $cluster | indent 4 }}
+{{ include "cluster.keepalived" .Values | indent 4 }}
+{{ include "cluster.containerRuntime" .Values | indent 4 }}
     - path: /etc/systemd/system/containerd.service.d/override.conf
       content: |
 {{ $.Files.Get "resources/override.conf" | indent 8 }}
@@ -76,27 +75,26 @@ spec:
       content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 8 }}
     users:
-    - name: {{ $cluster.userData.name }}
+    - name: {{ .Values.userData.name }}
       shell: /bin/bash
       lockPassword: False # Necessary to allow password login
-      passwd: {{ $cluster.userData.hashedPassword }}
+      passwd: {{ .Values.userData.hashedPassword }}
       sshAuthorizedKeys:
-      - {{ $cluster.userData.sshAuthorizedKey }}
+      - {{ .Values.userData.sshAuthorizedKey }}
       sudo: "ALL=(ALL) NOPASSWD:ALL"
       groups: sudo # Necessary to allow SSH logins (see /etc/ssh/sshd_config)
     - name: root
       sshAuthorizedKeys:
-      - {{ $cluster.userData.sshAuthorizedKey }}
+      - {{ .Values.userData.sshAuthorizedKey }}
   machineTemplate:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
       kind: Metal3MachineTemplate
-      name: {{ $clusterName }}-controlplane
+      name: {{ .Values.clusterName }}-controlplane
     nodeDrainTimeout: 0s
-  replicas: {{ $cluster.numControlPlaneMachines }}
+  replicas: {{ .Values.numControlPlaneMachines }}
   rolloutStrategy:
     rollingUpdate:
       maxSurge: 1
     type: RollingUpdate
-  version: {{ $cluster.k8sVersion }}
-{{- end }}
+  version: {{ .Values.k8sVersion }}

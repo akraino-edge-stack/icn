@@ -1,4 +1,4 @@
-{{- define "machines.userData" -}}
+{{- define "machine.userData" -}}
 {{- if .userData -}}
 #cloud-config
 {{- if and .userData.name .userData.hashedPassword }}

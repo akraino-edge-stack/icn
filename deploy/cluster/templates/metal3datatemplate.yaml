@@ -1,16 +1,15 @@
-{{- range $clusterName, $cluster := .Values.clusters }}
-{{- if $cluster.networks }}
+{{- if .Values.networks }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
 kind: Metal3DataTemplate
 metadata:
-  name: {{ $clusterName }}-nodepool
+  name: {{ .Values.clusterName }}-nodepool
 spec:
-  clusterName: {{ $clusterName }}
+  clusterName: {{ .Values.clusterName }}
   networkData:
     links:
       ethernets:
-{{- range $name, $network := $cluster.networks }}
+{{- range $name, $network := .Values.networks }}
       - id: {{ $name }}_nic
         macAddress:
           fromHostInterface: {{ $network.interface }}
@@ -18,9 +17,8 @@ spec:
 {{- end }}
     networks:
       ipv4DHCP:
-{{- range $name, $network := $cluster.networks }}
+{{- range $name, $network := .Values.networks }}
       - id: {{ $name }}
         link: {{ $name }}_nic
-{{- end }}
 {{- end }}
 {{- end }}

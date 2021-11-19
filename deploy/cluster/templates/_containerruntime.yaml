@@ -1,4 +1,4 @@
-{{- define "clusters.containerRuntime" -}}
+{{- define "cluster.containerRuntime" -}}
 {{- if eq .containerRuntime "containerd" -}}
 - path: /usr/local/bin/install-container-runtime.sh
   permissions: '0777'

@@ -1,0 +1,15 @@
+clusterName: e2etest
+clusterLabels:
+  site: vm
+keepalived:
+  interface: ens6
+  routerId: 3
+networks:
+  baremetal:
+    interface: ens6
+  provisioning:
+    interface: ens5
+userData:
+  sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrxu+fSrU51vgAO5zP5xWcTU8uLv4MkUZptE2m1BJE88JdQ80kz9DmUmq2AniMkVTy4pNeUW5PsmGJa+anN3MPM99CR9I37zRqy5i6rUDQgKjz8W12RauyeRMIBrbdy7AX1xasoTRnd6Ta47bP0egiFb+vUGnlTFhgfrbYfjbkJhVfVLCTgRw8Yj0NSK16YEyhYLbLXpix5udRpXSiFYIyAEWRCCsWJWljACr99P7EF82vCGI0UDGCCd/1upbUwZeTouD/FJBw9qppe6/1eaqRp7D36UYe3KzLpfHQNgm9AzwgYYZrD4tNN6QBMq/VUIuam0G1aLgG8IYRLs41HYkJ root@jump
+flux:
+  path: ./deploy/site/vm/e2etest

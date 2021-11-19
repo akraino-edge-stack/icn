@@ -1,0 +1,21 @@
+---
+apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
+kind: Metal3MachineTemplate
+metadata:
+  name: {{ .Values.clusterName }}-workers
+spec:
+  nodeReuse: false
+  template:
+    spec:
+      automatedCleaningMode: metadata
+{{- if .Values.workersHostSelector }}
+      hostSelector:
+        {{- toYaml .Values.workersHostSelector | nindent 8 }}
+{{- end }}
+{{- if .Values.networks }}
+      dataTemplate:
+        name: {{ .Values.clusterName }}-nodepool
+{{- end }}
+      image:
+        checksum: http://172.22.0.1:6180/images/{{ .Values.imageName }}.md5sum
+        url: http://172.22.0.1:6180/images/{{ .Values.imageName }}

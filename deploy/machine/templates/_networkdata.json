@@ -1,4 +1,4 @@
-{{- define "machines.networkData" -}}
+{{- define "machine.networkData" -}}
 {{- if .networks -}}
 {
   "links": [
