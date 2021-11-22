@@ -8,7 +8,7 @@ machines:
     bootMACAddress: 52:54:00:2b:bc:3a
 
     # Optional
-    imageName: bionic-server-cloudimg-amd64.img
+    imageName: focal-server-cloudimg-amd64.img
 
     # Optional
     networks:
