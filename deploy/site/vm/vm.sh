@@ -23,7 +23,7 @@ function release_name {
 }
 
 function deploy {
-    for values in build/site/vm/machine-*-values.yaml; do
+    for values in ${BUILDDIR}/machine-*-values.yaml; do
 	helm -n metal3 install $(release_name ${values}) ${SCRIPTDIR}/../../machine --create-namespace -f ${values}
     done
     helm -n metal3 install cluster-e2etest ${SCRIPTDIR}/../../cluster --create-namespace -f ${BUILDDIR}/cluster-e2etest-values.yaml
@@ -31,7 +31,7 @@ function deploy {
 
 function clean {
     helm -n metal3 uninstall cluster-e2etest
-    for values in build/site/vm/machine-*-values.yaml; do
+    for values in ${BUILDDIR}/machine-*-values.yaml; do
 	helm -n metal3 uninstall $(release_name ${values})
     done
 }
