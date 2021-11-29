@@ -23,7 +23,7 @@ clusters:
       repositoryName: icn
       url: https://gerrit.akraino.org/r/icn
       branch: master
-      path: ./deploy/site/vm/e2etest/
+      path: ./deploy/site/cluster-e2etest/
     containerRuntime: containerd
     podCidr: 10.244.64.0/18
     cni: flannel
