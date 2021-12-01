@@ -1,29 +1,30 @@
 # Introduction
 ICN strives to automate the process of installing the local cluster
 controller to the greatest degree possible – "zero touch
-installation". Most of the work is done simply by booting up the jump
-server (Local Controller). Once booted, the controller is fully
-provisioned and begins to inspect and provision the bare metal
-servers, until the cluster is entirely configured. This document shows
-step-by-step how to configure the network and deployment architecture
-for the ICN blueprint.
+installation". Once the jump server (Local Controller) is booted and
+the compute cluster-specific values are provided, the controller
+begins to inspect and provision the bare metal servers until the
+cluster is entirely configured. This document shows step-by-step how
+to configure the network and deployment architecture for the ICN
+blueprint.
 
 # License
 Apache license v2.0
 
 # Deployment Architecture
-The Local Controller is provisioned with the Metal3 Baremetal Operator
-and Ironic, which enable provisioning of bare metal servers. The
-controller has three network connections to the bare metal servers:
-network A connects bare metal servers, network B is a private network
-used for provisioning the bare metal servers and network C is the IPMI
-network, used for control during provisioning. In addition, the
-bare metal servers connect to the network D, the SRIOV network.
+The Local Controller is provisioned with the Cluster API controllers
+and the Metal3 infrastructure provider, which enable provisioning of
+bare metal servers. The controller has three network connections to
+the bare metal servers: network A connects bare metal servers, network
+B is a private network used for provisioning the bare metal servers
+and network C is the IPMI network, used for control during
+provisioning. In addition, the bare metal servers connect to the
+network D, the SRIOV network.
 
 ![Figure 1](figure-1.png)*Figure 1: Deployment Architecture*
 
 - Net A -- Bare metal network, lab networking for ssh. It is used as
-  the control plane for k8s, used by OVN and Flannel for the overlay
+  the control plane for K8s, used by OVN and Flannel for the overlay
   networking.
 - Net B (internal network) -- Provisioning network used by Ironic to
   do inspection.
@@ -43,15 +44,15 @@ one of the NICs.
 
 # Pre-installation Requirements
 There are two main components in ICN Infra Local Controller - Local
-Controller and k8s compute cluster.
+Controller and K8s compute cluster.
 
 ### Local Controller
-The Local Controller will reside in the jump server to run the Metal3
-operator, Binary Provisioning Agent (BPA) operator and BPA REST API
-controller.
+The Local Controller will reside in the jump server to run the Cluster
+API controllers with the Kubeadm bootstrap provider and Metal3
+infrastructure provider.
 
-### k8s Compute Cluster
-The k8s compute cluster will actually run the workloads and is
+### K8s Compute Cluster
+The K8s compute cluster will actually run the workloads and is
 installed on bare metal servers.
 
 ## Hardware Requirements
@@ -86,7 +87,7 @@ jump0 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>e
 
 #### Jump Server Software Requirements
 ICN supports Ubuntu 18.04. The ICN blueprint installs all required
-software during `make install`.
+software during `make jump_server`.
 
 ### Network Requirements
 Please refer to figure 1 for all the network requirements of the ICN
@@ -98,7 +99,7 @@ Net C to provision the bare metal servers to do the OS provisioning.
 
 ### Bare Metal Server Requirements
 
-### k8s Compute Cluster
+### K8s Compute Cluster
 
 #### Compute Server Hardware Requirements
 (Tested as below)
@@ -110,185 +111,20 @@ node3 | Intel 2xE5-2699 | 64GB | 3TB (Sata)<br/>180 (SSD) | eth0: VLAN 110<br/>e
 
 #### Compute Server Software Requirements
 The Local Controller will install all the software in compute servers
-from the OS to the software required to bring up the k8s cluster.
+from the OS to the software required to bring up the K8s cluster.
 
 ### Execution Requirements (Bare Metal Only)
 The ICN blueprint checks all the precondition and execution
 requirements for bare metal.
 
 # Installation High-Level Overview
-Installation is two-step process and everything starts with one
-command `make install`.
+Installation is two-step process:
 - Installation of the Local Controller.
-- Installation of compute cluster.
+- Installation of a compute cluster.
 
 ## Bare Metal Deployment Guide
 
 ### Install Bare Metal Jump Server
-
-#### Creating a Node Inventory File
-
-##### Preconfiguration for the Local Controller in Jump Server
-The user is required to provide the IPMI information of the servers
-they connect to the Local Controller by editing node JSON sample file
-in the directory icn/deploy/metal3/scripts/nodes.json.sample as
-below. This example only shows 2 servers, statically configured on the
-baremetal network. If you want to increase servers, just add another
-array.  If the baremetal network provides a DHCP server with gateway
-and DNS server information, just change the baremetal type to "ipv4".
-ICN provides DHCP servers for the provisioning network.
-
-`node.json.sample`
-``` json
-{
-  "nodes": [{
-    "name": "node1",
-    "ipmi_driver_info": {
-      "username": "admin",
-      "password": "admin",
-      "address": "10.10.10.11"
-    },
-    "os": {
-      "image_name": "focal-server-cloudimg-amd64.img",
-      "username": "ubuntu",
-      "password": "mypasswd"
-    },
-    "net": {
-      "links": [
-        {
-          "id": "baremetal_nic",
-          "ethernet_mac_address": "00:1e:67:fe:f4:19",
-          "type": "phy"
-        },
-        {
-          "id": "provisioning_nic",
-          "ethernet_mac_address": "00:1e:67:fe:f4:1a",
-          "type": "phy"
-        },
-        {
-          "id": "sriov_nic",
-          "ethernet_mac_address": "00:1e:67:f8:6a:41",
-          "type": "phy"
-        }
-      ],
-      "networks": [
-        {
-          "id": "baremetal",
-          "link": "baremetal_nic",
-          "type": "ipv4",
-          "ip_address": "10.10.110.21/24",
-          "gateway": "10.10.110.1",
-          "dns_nameservers": ["8.8.8.8"]
-        },
-        {
-          "id": "provisioning",
-          "link": "provisioning_nic",
-          "type": "ipv4_dhcp"
-        },
-        {
-          "id": "sriov",
-          "link": "sriov_nic",
-          "type": "ipv4",
-          "ip_address": "10.10.113.2/24"
-        }
-      ],
-      "services": []
-    }
-  },
-  {
-    "name": "node2",
-    "ipmi_driver_info": {
-      "username": "admin",
-      "password": "admin",
-      "address": "10.10.10.12"
-    },
-    "os": {
-      "image_name": "focal-server-cloudimg-amd64.img",
-      "username": "ubuntu",
-      "password": "mypasswd"
-    },
-    "net": {
-      "links": [
-        {
-          "id": "baremetal_nic",
-          "ethernet_mac_address": "00:1e:67:f1:5b:90",
-          "type": "phy"
-        },
-        {
-          "id": "provisioning_nic",
-          "ethernet_mac_address": "00:1e:67:f1:5b:91",
-          "type": "phy"
-        },
-        {
-          "id": "sriov_nic",
-          "ethernet_mac_address": "00:1e:67:f8:69:81",
-          "type": "phy"
-        }
-      ],
-      "networks": [
-        {
-          "id": "baremetal",
-          "link": "baremetal_nic",
-          "type": "ipv4",
-          "ip_address": "10.10.110.22/24",
-          "gateway": "10.10.110.1",
-          "dns_nameservers": ["8.8.8.8"]
-        },
-        {
-          "id": "provisioning",
-          "link": "provisioning_nic",
-          "type": "ipv4_dhcp"
-        },
-        {
-          "id": "sriov",
-          "link": "sriov_nic",
-          "type": "ipv4",
-          "ip_address": "10.10.113.3/24"
-        }
-      ],
-      "services": []
-    }
-  }]
-}
-```
-
-##### Local Controller Metal3 Configuration Reference
-- *node*: The array of nodes required to add to Local Controller.
-- *name*: This will be the hostname for the machine, once it is
-  provisioned by Metal3.
-- *ipmi_driver_info*: IPMI driver info is a json field. It currently
-  holds the IPMI information required for Ironic to send the IPMI tool
-  command.
-  - *username*: BMC username required to be provided for Ironic.
-  - *password*: BMC password required to be provided for Ironic.
-  - *address*: BMC server IPMI LAN IP address.
-- *os*: Bare metal machine OS information is a json field. It
-  currently holds the image name to be provisioned, username and
-  password for the login.
-  - *image_name*: Images name should be in qcow2 format.
-  - *username*: Login username for the OS provisioned.
-  - *password*: Login password for the OS provisioned.
-- *net*: Bare metal network information is a json field.  It describes
-  the interfaces and networks used by ICN.  For more information,
-  refer to the *networkData* field of the BareMetalHost resource
-  definition.
-  - *links*: An array of interfaces.
-	- *id*: The ID of the interface.  This is used in the network
-      definitions to associate the interface with its network
-      configuration.
-    - *ethernet_mac_address*: The MAC address of the interface.
-	- *type*: The type of interface.  Valid values are "phy".
-  - *networks*: An array of networks.
-    - *id*: The ID of the network.
-    - *link*: The ID of the link this network definition applies to.
-    - *type*: The type of network, either dynamic ("ipv4_dhcp") or
-      static ("ipv4").
-    - *ip_address*: Only valid for type "ipv4"; the IP address of the
-      interface.
-    - *gateway*: Only valid for type "ipv4"; the gateway of this
-      network.
-    - *dns_nameservers*: Only valid for type "ipv4"; an array of DNS
-      servers.
 
 #### Creating the Settings Files
 
@@ -300,80 +136,277 @@ The user will find the network configuration file named as
 ``` shell
 #!/bin/bash
 
-#Edge Location Provider Network configuration
-#Net A - Provider Network
-#If provider having specific Gateway and DNS server details in the edge location,
-#supply those values in nodes.json.
-
-#Ironic Metal3 settings for provisioning network
-#Interface to which Ironic provision network to be connected
-#Net B - Provisioning Network
+#Ironic Metal3 settings for provisioning network (Net B)
 export IRONIC_INTERFACE="eno2"
 
-#Ironic Metal3 setting for IPMI LAN Network
-#Interface to which Ironic IPMI LAN should bind
-#Net C - IPMI LAN Network
+#Ironic Metal3 setting for IPMI LAN Network (Net C)
 export IRONIC_IPMI_INTERFACE="eno1"
 ```
 
 #### Running
-After configuring the node inventory file and network configuration
-files, please run `make install` from the ICN parent directory as
-shown below:
+After configuring the network configuration file, please run `make
+jump_server` from the ICN parent directory as shown below:
 
 ``` shell
-root@pod11-jump:# git clone "https://gerrit.akraino.org/r/icn"
+root@jump0:# git clone "https://gerrit.akraino.org/r/icn"
 Cloning into 'icn'...
 remote: Counting objects: 69, done
 remote: Finding sources: 100% (69/69)
 remote: Total 4248 (delta 13), reused 4221 (delta 13)
 Receiving objects: 100% (4248/4248), 7.74 MiB | 21.84 MiB/s, done.
 Resolving deltas: 100% (1078/1078), done.
-root@pod11-jump:# cd icn/
-root@pod11-jump:# vim Makefile
-root@pod11-jump:# make install
+root@jump0:# cd icn/
+root@jump0:# make jump_server
 ```
 
-The following steps occurs once the `make install` command is given.
+The following steps occurs once the `make jump_server` command is
+given.
 1. All the software required to run the bootstrap cluster is
    downloaded and installed.
-2. k8s cluster to maintain the bootstrap cluster and all the servers
+2. K8s cluster to maintain the bootstrap cluster and all the servers
    in the edge location is installed.
 3. Metal3 specific network configuration such as local DHCP server
    networking for each edge location, Ironic networking for both
    provisioning network and IPMI LAN network are identified and
    created.
-4. Metal3 is launched with IPMI configuration as configured in
-   "user_config.sh" and provisions the bare metal servers using IPMI
-   LAN network. For more information refer to the [Debugging
-   Failures](#debugging-failures) section.
-5. Metal3 launch verification runs with a timeout of 60 mins by
-   checking the status of all the servers being provisioned or not.
-   1. All servers are provisioned in parallel. For example, if your
-      deployment is having 10 servers in the edge location, all the 10
-      servers are provisioned at the same time.
-   2. Metal3 launch verification takes care of checking all the
-      servers are provisioned, the network interfaces are up and
-      provisioned with a provider network gateway and DNS server.
-   3. Metal3 launch verification checks the status of all servers
-      given in user_config.sh to make sure all the servers are
-      provisioned. For example, if 8 servers are provisioned and 2
-      servers are not provisioned, launch verification makes sure all
-      servers are provisioned before launch k8s clusters on those
-      servers.
-6. BPA bare metal components are invoked with the MAC address of the
-   servers provisioned by Metal3, BPA bare metal components decide the
-   cluster size and also the number of clusters required in the edge
-   location.
-7. BPA bare metal runs the containerized Kuberenetes Reference
-   Deployment (KUD) as a job for each cluster. KUD installs the k8s
-   cluster on the slice of servers and install ONAP4K8S and all other
-   default plugins such as Multus, OVN, OVN4NFV, NFD, Virtlet and
-   SRIOV.
-8. BPA REST API agent installed in the bootstrap cluster or jump
-   server, and this install rest-api, rook/ceph, MinIO as the cloud
-   storage. This provides a way for user to upload their own software,
-   container images or OS image to jump server.
+4. The Cluster API controllers, bootstrap, and infrastructure
+   providers and configured and installed.
+5. The Flux controllers are installed.
+
+#### Creating a compute cluster
+A compute cluster is composed of installations of two types of Helm
+charts: machine and cluster. The specific installations of these Helm
+charts are defined in HelmRelease resources consumed by the Flux
+controllers in the jump server. The user is required to provide the
+machine and cluster specific values in the HelmRelease resources.
+
+##### Preconfiguration for the compute cluster in Jump Server
+The user is required to provide the IPMI information of the servers
+and the values of the compute cluster they connect to the Local
+Controller.
+
+If the baremetal network provides a DHCP server with gateway and DNS
+server information, and each server has identical hardware then a
+cluster template can be used. Otherwise these values must also be
+provided with the values for each server. Refer to the machine chart
+in icn/deploy/machine for more details. In the example below, no DHCP
+server is present in the baremetal network.
+
+`site.yaml`
+``` yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: metal3
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+    name: icn
+    namespace: metal3
+spec:
+    gitImplementation: go-git
+    interval: 1m0s
+    ref:
+        branch: master
+    timeout: 20s
+    url: https://gerrit.akraino.org/r/icn
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-node1
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        machineName: node1
+        machineLabels:
+            machine: node1
+        bmcAddress: ipmi://10.10.110.11
+        bmcUsername: admin
+        bmcPassword: password
+        networks:
+            baremetal:
+                macAddress: 00:1e:67:fe:f4:19
+                type: ipv4
+                ipAddress: 10.10.110.21/24
+                gateway: 10.10.110.1
+                nameservers: ["8.8.8.8"]
+            provisioning:
+                macAddress: 00:1e:67:fe:f4:1a
+                type: ipv4_dhcp
+            sriov:
+                macAddress: 00:1e:67:f8:6a:41
+                type: ipv4
+                ipAddress: 10.10.113.3/24
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-node2
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        machineName: node2
+        machineLabels:
+            machine: node2
+        bmcAddress: ipmi://10.10.110.12
+        bmcUsername: admin
+        bmcPassword: password
+        networks:
+            baremetal:
+                macAddress: 00:1e:67:f1:5b:90
+                type: ipv4
+                ipAddress: 10.10.110.22/24
+                gateway: 10.10.110.1
+                nameservers: ["8.8.8.8"]
+            provisioning:
+                macAddress: 00:1e:67:f1:5b:91
+                type: ipv4_dhcp
+            sriov:
+                macAddress: 00:1e:67:f8:69:81
+                type: ipv4
+                ipAddress: 10.10.113.4/24
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: cluster-compute
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/cluster
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        clusterName: compute
+        controlPlaneEndpoint: 10.10.110.21
+        controlPlaneHostSelector:
+            matchLabels:
+                machine: node1
+        workersHostSelector:
+            matchLabels:
+                machine: node2
+        userData:
+            hashedPassword: $6$rounds=10000$PJLOBdyTv23pNp$9RpaAOcibbXUMvgJScKK2JRQioXW4XAVFMRKqgCB5jC4QmtAdbA70DU2jTcpAd6pRdEZIaWFjLCNQMBmiiL40.
+            sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCrxu+fSrU51vgAO5zP5xWcTU8uLv4MkUZptE2m1BJE88JdQ80kz9DmUmq2AniMkVTy4pNeUW5PsmGJa+anN3MPM99CR9I37zRqy5i6rUDQgKjz8W12RauyeRMIBrbdy7AX1xasoTRnd6Ta47bP0egiFb+vUGnlTFhgfrbYfjbkJhVfVLCTgRw8Yj0NSK16YEyhYLbLXpix5udRpXSiFYIyAEWRCCsWJWljACr99P7EF82vCGI0UDGCCd/1upbUwZeTouD/FJBw9qppe6/1eaqRp7D36UYe3KzLpfHQNgm9AzwgYYZrD4tNN6QBMq/VUIuam0G1aLgG8IYRLs41HYkJ root@jump0
+        flux:
+            url: https://gerrit.akraino.org/r/icn
+            branch: master
+            path: ./deploy/site/cluster-e2etest
+```
+
+A brief overview of the values is below. Refer to the machine and
+cluster charts in deploy/machine and deploy/cluster respectively for
+more details.
+
+- *machineName*: This will be the hostname for the machine, once it is
+  provisioned by Metal3.
+- *bmcUsername*: BMC username required to be provided for Ironic.
+- *bmcPassword*: BMC password required to be provided for Ironic.
+- *bmcAddress*: BMC server IPMI LAN IP address.
+- *networks*: A dictionary of the networks used by ICN.  For more
+  information, refer to the *networkData* field of the BareMetalHost
+  resource definition.
+  - *macAddress*: The MAC address of the interface.
+  - *type*: The type of network, either dynamic ("ipv4_dhcp") or
+    static ("ipv4").
+  - *ipAddress*: Only valid for type "ipv4"; the IP address of the
+    interface.
+  - *gateway*: Only valid for type "ipv4"; the gateway of this
+    network.
+  - *nameservers*: Only valid for type "ipv4"; an array of DNS
+     servers.
+- *clusterName*: The name of the cluster.
+- *controlPlaneEndpoint*: The K8s control plane endpoint. This works
+  in cooperation with the *controlPlaneHostSelector* to ensure that it
+  addresses the control plane node.
+- *controlPlaneHostSelector*: A K8s match expression against labels on
+  the *BareMetalHost* machine resource (from the *machineLabels* value
+  of the machine Helm chart).  This will be used by Cluster API to
+  select machines for the control plane.
+- *workersHostSelector*: A K8s match expression selecting worker
+  machines.
+- *userData*: User data values to be provisioned into each machine in
+  the cluster.
+  - *hashedPassword*: The hashed password of the default user on each
+    machine.
+  - *sshAuthorizedKey*: An authorized public key of the *root* user on
+    each machine.
+- *flux*: An optional repository to continuously reconcile the created
+  K8s cluster against.
+
+#### Running
+After configuring the machine and cluster site values, the next steps
+are to encrypt the secrets contained in the file, commit the file to
+source control, and create the Flux resources on the jump server
+pointing to the committed files.
+
+1. Create a key protect the secrets in the values if one does not
+   already exist. The key created below will be named "site-secrets".
+
+``` shell
+root@jump0:# ./deploy/site/site.sh create-gpg-key site-secrets
+```
+
+2. Encrypt the secrets in the site values.
+
+``` shell
+root@jump0:# ./deploy/site/site.sh sops-encrypt-site site.yaml site-secrets
+```
+
+3. Commit the site.yaml and additional files (sops.pub.asc,
+   .sops.yaml) created by sops-encrypt-site to a Git repository. For
+   the purposes of the next step, site.yaml will be committed to a Git
+   repository hosted at URL, on the specified BRANCH, and at location
+   PATH inside the source tree.
+
+4. Create the Flux resources to deploy the resources described by the
+   repository in step 3. This creates a GitRepository resource
+   containing the URL and BRANCH to synchronize, a Secret resource
+   containing the private key used to decrypt the secrets in the site
+   values, and a Kustomization resource with the PATH to the site.yaml
+   file at the GitRepository.
+
+```shell
+root@jump0:# ./deploy/site/site.sh flux-create-site URL BRANCH PATH site-secrets
+```
+
+The progress of the deployment may be monitored in a number of ways:
+
+``` shell
+root@jump0:# kubectl -n metal3 get baremetalhost
+root@jump0:# kubectl -n metal3 get cluster compute
+root@jump0:# clusterctl -n metal3 describe cluster compute
+```
+
+When the control plane is ready, the kubeconfig can be obtained with
+clusterctl and used to access the compute cluster:
+
+``` shell
+root@jump0:# clusterctl -n metal3 get kubeconfig compute >compute-admin.conf
+root@jump0:# kubectl --kubeconfig=compute-admin.conf cluster-info
+```
 
 ## Virtual Deployment Guide
 
@@ -385,13 +418,13 @@ Vagrant to create VMs with PXE boot. No setting is required from the
 user to deploy the virtual deployment.
 
 ### Snapshot Deployment Overview
-No snapshot is implemented in ICN R2.
+No snapshot is implemented in ICN R6.
 
 ### Special Requirements for Virtual Deployment
 
 #### Install Jump Server
 Jump server is required to be installed with Ubuntu 18.04. This will
-install all the VMs and install the k8s clusters.
+install all the VMs and install the K8s clusters.
 
 #### Verifying the Setup - VMs
 To verify the virtual deployment, execute the following commands:
@@ -400,22 +433,20 @@ $ vagrant up --no-parallel
 $ vagrant ssh jump
 vagrant@jump:~$ sudo su
 root@jump:/home/vagrant# cd /icn
-root@jump:/icn# make verifier
+root@jump:/icn# make jump_server
+root@jump:/icn# make vm_cluster
 ```
 `vagrant up --no-parallel` creates three VMs: vm-jump, vm-machine-1,
-and vm-machine-2, each with 16GB RAM and 8 vCPUs. `make verifier`
-installs the ICN BPA operator and the ICN BPA REST API verifier into
-vm-jump, and then installs a k8s cluster on the vm-machine VMs using
-the ICN BPA operator. The BPA operator installs the multi-cluster KUD
-to bring up k8s with all addons and plugins.
+and vm-machine-2, each with 16GB RAM and 8 vCPUs. `make jump_server`
+installs the jump server components into vm-jump, and `make
+vm_cluster` installs a K8s cluster on the vm-machine VMs using Cluster
+API. The cluster is configured to use Flux to bring up the cluster
+with all addons and plugins.
 
 # Verifying the Setup
 ICN blueprint checks all the setup in both bare metal and VM
-deployment. Verify script will check that Metal3 provisioned the OS in
-each bare metal servers by checking with a timeout period of 60 sec
-and interval of 30. BPA operator verifier will check whether the KUD
-installation is complete by doing plain curl command to the k8s
-cluster installed in bare metal and VM setup.
+deployment. Verify script will first confirm that the cluster control
+plane is ready then run self tests of all addons and plugins.
 
 **Bare Metal Verifier**: Run the `make bm_verifer`, it will verify the
 bare-metal deployment.
@@ -425,8 +456,7 @@ deployment.
 
 # Developer Guide and Troubleshooting
 For development uses the virtual deployment, it take up to 10 mins to
-bring up the virtual BMC VMs with PXE boot.  Virtual deployment works
-well for the BPA operator development for Metal3 installation scripts.
+bring up the virtual BMC VMs with PXE boot.
 
 ## Utilization of Images
 No images provided in this ICN release.
@@ -455,7 +485,6 @@ No post-deployment configuration required in this ICN release.
 * It is not possible to change the state from provision to deprovision
   or deprovision to provision without completing that state. All the
   issues are handled in ICN scripts.
-* k8s cluster failure can be debugged by KUD Pod logs.
 
 ## Reporting a Bug
 Required Linux Foundation ID to launch bug in ICN:
@@ -472,16 +501,14 @@ The command `make clean_all` uninstalls all the components installed by
   container.
 * Network configuration such internal DHCP server, provisioning
   interfaces and IPMI LAN interfaces are deleted.
-* docker images built during the `make install` are deleted, such as
-  all Ironic, baremetal operator, BPA operator and KUD images.
-* KUD will reset the bootstrap cluster - k8s cluster is torn down in
+* It will reset the bootstrap cluster - K8s cluster is torn down in
   the jump server and all the associated docker images are removed.
-* All software packages installed by `make install_all` are removed,
+* All software packages installed by `make jump_server` are removed,
   such as Ironic, openstack utility tool, docker packages and basic
   prerequisite packages.
 
 ## Virtual deployment
-The command `make vm_clean_all` uninstalls all the components for the
+The command `vagrant destroy -f` uninstalls all the components for the
 virtual deployments.
 
 # Troubleshooting
