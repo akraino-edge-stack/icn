@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: cdi-operator
-  namespace: flux-system
+  namespace: kud
 spec:
   interval: 5m
   chart:
@@ -12,11 +12,6 @@ spec:
       sourceRef:
         kind: GitRepository
         name: kud
-        namespace: flux-system
       interval: 1m
-  releaseName: cdi-operator
-  targetNamespace: kud
-  install:
-    createNamespace: true
   dependsOn:
-  - name: kud-podsecurity
+  - name: podsecurity

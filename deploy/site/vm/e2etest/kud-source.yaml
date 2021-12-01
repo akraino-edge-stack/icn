@@ -3,7 +3,7 @@ apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
 metadata:
   name: kud
-  namespace: flux-system
+  namespace: kud
 spec:
   interval: 1m
   url: https://gerrit.onap.org/r/multicloud/k8s
