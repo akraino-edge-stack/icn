@@ -148,7 +148,6 @@ vm_verifier: jump_server \
 	vm_clean_all
 
 vm_cluster:
-	./deploy/site/vm/vm.sh build
 	./deploy/site/vm/vm.sh deploy
 	./deploy/site/vm/vm.sh wait
 	./deploy/kata/kata.sh test
