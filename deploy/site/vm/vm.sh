@@ -5,35 +5,48 @@ SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 LIBDIR="$(dirname $(dirname $(dirname ${SCRIPTDIR})))/env/lib"
 
 source $LIBDIR/common.sh
+source $SCRIPTDIR/../common.sh
 
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
-function build {
-    SSH_AUTHORIZED_KEY=$(cat ${HOME}/.ssh/id_rsa.pub)
+FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"}
+
+# !!!NOTE!!! THE KEYS USED BELOW ARE FOR TEST PURPOSES ONLY.  DO NOT
+# USE THESE OUTSIDE OF THIS ICN VIRTUAL TEST ENVIRONMENT.
+function build_source {
+    # First decrypt the existing site YAML, otherwise we'll be
+    # attempting to encrypt it twice below
+    if [[ -f ${SCRIPTDIR}/sops.asc ]]; then
+	gpg --import ${SCRIPTDIR}/sops.asc
+	sops_decrypt_site ${SCRIPTDIR}/site.yaml
+    fi
+
+    # Generate user password and authorized key in site YAML
+    # To login to guest, ssh -i ${SCRIPTDIR}/id_rsa
+    HASHED_PASSWORD=$(mkpasswd --method=SHA-512 --rounds 10000 "mypasswd")
+    sed -i -e 's!hashedPassword: .*!hashedPassword: '"${HASHED_PASSWORD}"'!' ${SCRIPTDIR}/site.yaml
+    ssh-keygen -t rsa -N "" -f ${SCRIPTDIR}/id_rsa <<<y
+    SSH_AUTHORIZED_KEY=$(cat ${SCRIPTDIR}/id_rsa.pub)
     # Use ! instead of usual / to avoid escaping / in
     # SSH_AUTHORIZED_KEY
-    sed -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/cluster-e2etest-values.yaml >${BUILDDIR}/cluster-e2etest-values.yaml
-}
+    sed -i -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/site.yaml
 
-function release_name {
-    local -r values_path=$1
-    name=$(basename ${values_path})
-    echo ${name%-values.yaml}
+    # Encrypt the site YAML
+    create_gpg_key icn-site-vm
+    sops_encrypt_site ${SCRIPTDIR}/site.yaml icn-site-vm
+
+    # ONLY FOR TEST ENVIRONMENT: save the private key used
+    export_gpg_private_key icn-site-vm >${SCRIPTDIR}/sops.asc
 }
 
 function deploy {
-    for values in ${BUILDDIR}/machine-*-values.yaml; do
-	helm -n metal3 install $(release_name ${values}) ${SCRIPTDIR}/../../machine --create-namespace -f ${values}
-    done
-    helm -n metal3 install cluster-e2etest ${SCRIPTDIR}/../../cluster --create-namespace -f ${BUILDDIR}/cluster-e2etest-values.yaml
+    gpg --import ${SCRIPTDIR}/sops.asc
+    flux_create_site https://gerrit.akraino.org/r/icn master deploy/site/vm icn-site-vm
 }
 
 function clean {
-    helm -n metal3 uninstall cluster-e2etest
-    for values in ${BUILDDIR}/machine-*-values.yaml; do
-	helm -n metal3 uninstall $(release_name ${values})
-    done
+    kubectl -n flux-system delete kustomization icn-master-site-vm
 }
 
 function is_cluster_ready {
@@ -58,7 +71,7 @@ function wait_for_all_ready {
 }
 
 case $1 in
-    "build") build ;;
+    "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;
@@ -66,7 +79,7 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 Commands:
-  build         - Build the site deployment values
+  build-source  - Build the in-tree site values
   clean         - Remove the site
   deploy        - Deploy the site
   wait          - Wait for the site to be ready

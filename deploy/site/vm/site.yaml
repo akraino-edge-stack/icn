@@ -1,0 +1,207 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+    name: metal3
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2021-12-09T23:55:10Z"
+    mac: ENC[AES256_GCM,data:mVhrZpzAo0LN1q3qSBnDcZ3pbcq0SFV4S/uMCNZ+ARjkIB1tndIWKrllrnwpAXFPlZsSVMUDWMHsmk1di5pmyTuSOetMEpmwLagvBYl3DslBH4Ok5iH8uqXmhA8Oh+qS4cu1F6yPYnePMk1RPavvRyZq/3xNekRDgxIw6wxHk/E=,iv:B1whoIIIGfVihiJgAWehOPgzlScPHQlp3HFdMlpQruE=,tag:eQHYUDzyPvG8aET03OW7ZQ==,type:str]
+    pgp:
+        - created_at: "2021-12-09T23:55:09Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAhiOejwBRWgqD0XWSSmsLJAgLBQwd6OKqCLORNDo32cwk
+            z23spbzBESvlPyZTKYc/MHqsOpstZk4qvHfottrPcpETHJO2fwl/bjOck/LhmMXz
+            hqP2NxdFCYY5RejG93Rlz8FlmWyD3EbKe10AAX5i0otMrRKGP6/OG1kaIaUgvjvY
+            bDukVevz7QtlyHeRPWZocWsthshO6F/22t81+qQr8BsjoeW3kMmeCR6b3uYL0nG7
+            BQh684k//U2CqiG0FvjO6PVdiwWt7bJ6TpZvMlyrtu4Iv5bmgMrVA/RneTBw23Os
+            ZpRtRUcYTn2f4MhmihRmCiFMUxxMvl0sHDuhH7Ix8pdWIDISETNG/jP7mMdMdoI6
+            D1OUv2NzHTMtqEU8kec9u/bTf4DAfyj9KYjgufVVbdOl2QAY/fAalOhjd3BdjAqe
+            wMRHlpwP5sxtW4rrZNQhE23bc8O9vvwWZHg9dOwVmNrKi+Zw2N3A+S7hUaDWubTI
+            wUhLOsIjxJPtyMcSMFMwDsLWBVVETOvV5V60fljP5DOwxeXvWClqqcBA5hcMo9L2
+            EL7tvoc3wZDVta8vGt0WX9kN6ovkHTPpZYAXf0YhL8zizQh7qUunGfgSAj2YeGLW
+            eIEPS3eirEvmEDe4n1BfNmD+XCdU9xQmV/GTUPCiReewMsFgc0D4StopC06T3gzS
+            XgH8/QovyJAGBUkAZ5dZ/ez36wekg/d/sjSYyPKHducXhVDiyGPZLus9L2XH8r3A
+            /tEziFPV5NJpr1VFVgTKANX1fc7PluRh2h043iBhUBCDuXQlhKcc91mOka3WdBs=
+            =yUUG
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-1
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+                namespace: flux-system
+            interval: 1m
+    values:
+        machineName: machine-1
+        bootMACAddress: 52:54:00:c6:75:40
+        bmcAddress: ipmi://192.168.151.1:6230
+        bmcUsername: admin
+        bmcPassword: ENC[AES256_GCM,data:aiTRK2GFq4w=,iv:5uJQNbnTleLJpSP+0hjZUzlxDtQmH0Gr8EgQBMuO8bI=,tag:NGHLrK2YP5qmUrN0SHCCbQ==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2021-12-09T23:55:10Z"
+    mac: ENC[AES256_GCM,data:mVhrZpzAo0LN1q3qSBnDcZ3pbcq0SFV4S/uMCNZ+ARjkIB1tndIWKrllrnwpAXFPlZsSVMUDWMHsmk1di5pmyTuSOetMEpmwLagvBYl3DslBH4Ok5iH8uqXmhA8Oh+qS4cu1F6yPYnePMk1RPavvRyZq/3xNekRDgxIw6wxHk/E=,iv:B1whoIIIGfVihiJgAWehOPgzlScPHQlp3HFdMlpQruE=,tag:eQHYUDzyPvG8aET03OW7ZQ==,type:str]
+    pgp:
+        - created_at: "2021-12-09T23:55:09Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAhiOejwBRWgqD0XWSSmsLJAgLBQwd6OKqCLORNDo32cwk
+            z23spbzBESvlPyZTKYc/MHqsOpstZk4qvHfottrPcpETHJO2fwl/bjOck/LhmMXz
+            hqP2NxdFCYY5RejG93Rlz8FlmWyD3EbKe10AAX5i0otMrRKGP6/OG1kaIaUgvjvY
+            bDukVevz7QtlyHeRPWZocWsthshO6F/22t81+qQr8BsjoeW3kMmeCR6b3uYL0nG7
+            BQh684k//U2CqiG0FvjO6PVdiwWt7bJ6TpZvMlyrtu4Iv5bmgMrVA/RneTBw23Os
+            ZpRtRUcYTn2f4MhmihRmCiFMUxxMvl0sHDuhH7Ix8pdWIDISETNG/jP7mMdMdoI6
+            D1OUv2NzHTMtqEU8kec9u/bTf4DAfyj9KYjgufVVbdOl2QAY/fAalOhjd3BdjAqe
+            wMRHlpwP5sxtW4rrZNQhE23bc8O9vvwWZHg9dOwVmNrKi+Zw2N3A+S7hUaDWubTI
+            wUhLOsIjxJPtyMcSMFMwDsLWBVVETOvV5V60fljP5DOwxeXvWClqqcBA5hcMo9L2
+            EL7tvoc3wZDVta8vGt0WX9kN6ovkHTPpZYAXf0YhL8zizQh7qUunGfgSAj2YeGLW
+            eIEPS3eirEvmEDe4n1BfNmD+XCdU9xQmV/GTUPCiReewMsFgc0D4StopC06T3gzS
+            XgH8/QovyJAGBUkAZ5dZ/ez36wekg/d/sjSYyPKHducXhVDiyGPZLus9L2XH8r3A
+            /tEziFPV5NJpr1VFVgTKANX1fc7PluRh2h043iBhUBCDuXQlhKcc91mOka3WdBs=
+            =yUUG
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-2
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+                namespace: flux-system
+            interval: 1m
+    values:
+        machineName: machine-2
+        bootMACAddress: 52:54:00:6f:d6:97
+        bmcAddress: ipmi://192.168.151.1:6231
+        bmcUsername: admin
+        bmcPassword: ENC[AES256_GCM,data:2AHrnox52K8=,iv:EuUdwq2jNlvOdw+LsaNjQ/viHAWyq2QBVbQSklor3ig=,tag:LVZXdnTJp9pDfDIE8o2nBA==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2021-12-09T23:55:10Z"
+    mac: ENC[AES256_GCM,data:mVhrZpzAo0LN1q3qSBnDcZ3pbcq0SFV4S/uMCNZ+ARjkIB1tndIWKrllrnwpAXFPlZsSVMUDWMHsmk1di5pmyTuSOetMEpmwLagvBYl3DslBH4Ok5iH8uqXmhA8Oh+qS4cu1F6yPYnePMk1RPavvRyZq/3xNekRDgxIw6wxHk/E=,iv:B1whoIIIGfVihiJgAWehOPgzlScPHQlp3HFdMlpQruE=,tag:eQHYUDzyPvG8aET03OW7ZQ==,type:str]
+    pgp:
+        - created_at: "2021-12-09T23:55:09Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAhiOejwBRWgqD0XWSSmsLJAgLBQwd6OKqCLORNDo32cwk
+            z23spbzBESvlPyZTKYc/MHqsOpstZk4qvHfottrPcpETHJO2fwl/bjOck/LhmMXz
+            hqP2NxdFCYY5RejG93Rlz8FlmWyD3EbKe10AAX5i0otMrRKGP6/OG1kaIaUgvjvY
+            bDukVevz7QtlyHeRPWZocWsthshO6F/22t81+qQr8BsjoeW3kMmeCR6b3uYL0nG7
+            BQh684k//U2CqiG0FvjO6PVdiwWt7bJ6TpZvMlyrtu4Iv5bmgMrVA/RneTBw23Os
+            ZpRtRUcYTn2f4MhmihRmCiFMUxxMvl0sHDuhH7Ix8pdWIDISETNG/jP7mMdMdoI6
+            D1OUv2NzHTMtqEU8kec9u/bTf4DAfyj9KYjgufVVbdOl2QAY/fAalOhjd3BdjAqe
+            wMRHlpwP5sxtW4rrZNQhE23bc8O9vvwWZHg9dOwVmNrKi+Zw2N3A+S7hUaDWubTI
+            wUhLOsIjxJPtyMcSMFMwDsLWBVVETOvV5V60fljP5DOwxeXvWClqqcBA5hcMo9L2
+            EL7tvoc3wZDVta8vGt0WX9kN6ovkHTPpZYAXf0YhL8zizQh7qUunGfgSAj2YeGLW
+            eIEPS3eirEvmEDe4n1BfNmD+XCdU9xQmV/GTUPCiReewMsFgc0D4StopC06T3gzS
+            XgH8/QovyJAGBUkAZ5dZ/ez36wekg/d/sjSYyPKHducXhVDiyGPZLus9L2XH8r3A
+            /tEziFPV5NJpr1VFVgTKANX1fc7PluRh2h043iBhUBCDuXQlhKcc91mOka3WdBs=
+            =yUUG
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: cluster-e2etest
+    namespace: metal3
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/cluster
+            sourceRef:
+                kind: GitRepository
+                name: icn
+                namespace: flux-system
+            interval: 1m
+    values:
+        clusterName: e2etest
+        clusterLabels:
+            site: vm
+        keepalived:
+            interface: ens6
+            routerId: 3
+        networks:
+            baremetal:
+                interface: ens6
+            provisioning:
+                interface: ens5
+        userData:
+            hashedPassword: ENC[AES256_GCM,data:DbGVBOg0Qif+NwAmykiMzjhWoCYjJtx3fnOQ3aaFwuPZWFC6VbnIJqA75TRILDaEGlCliIHytpJyaz87Ybo2Q9GLGLgRn92WKyEijVFy5d/XlO83hLgj8j4U5FjAfeZSrtSb1WUgrxKauxkfB6XHMZ/BfrM=,iv:CI2Onaqc+aijn/HA9vSj4s4Nolz6WKTOZeVFZqW8Ros=,tag:HCChjtUqzPOFt1pXBg+3ng==,type:str]
+            sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDP9Q+b+4tjZuSdL6kDoa2h4ikD3AG6dhxSQQjpUir8Uu2yF6u1WAHq8cBA4KuOnL1eLQqaDRNNeK42Eai7Hi5QlhbNa3MD4hEh8LM1kUDstll6TWUk1LVAX8vcHRPuhHC93yeGWzXLdxSl2jiB0snPyRuNaW9NHz8uNbFsZUtJ3J8pQov85dgCGjdHwhxdDjiprESQLseD5igKz7yhlPdAHrH+1Zmzsng1OUBYsUt62OJnVI0kkvT0H/unFl6rqkmZU8Q14NNqEkwMFGjcOcE95ZPz5Zc9EdjPce0mDLosn9x5gsKe2MairbJLYRp9qQf7JgzOuH2s9gnJ4sklkB83 root@jump
+        flux:
+            url: https://gerrit.akraino.org/r/icn
+            branch: master
+            path: ./deploy/site/cluster-e2etest
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2021-12-09T23:55:10Z"
+    mac: ENC[AES256_GCM,data:mVhrZpzAo0LN1q3qSBnDcZ3pbcq0SFV4S/uMCNZ+ARjkIB1tndIWKrllrnwpAXFPlZsSVMUDWMHsmk1di5pmyTuSOetMEpmwLagvBYl3DslBH4Ok5iH8uqXmhA8Oh+qS4cu1F6yPYnePMk1RPavvRyZq/3xNekRDgxIw6wxHk/E=,iv:B1whoIIIGfVihiJgAWehOPgzlScPHQlp3HFdMlpQruE=,tag:eQHYUDzyPvG8aET03OW7ZQ==,type:str]
+    pgp:
+        - created_at: "2021-12-09T23:55:09Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAhiOejwBRWgqD0XWSSmsLJAgLBQwd6OKqCLORNDo32cwk
+            z23spbzBESvlPyZTKYc/MHqsOpstZk4qvHfottrPcpETHJO2fwl/bjOck/LhmMXz
+            hqP2NxdFCYY5RejG93Rlz8FlmWyD3EbKe10AAX5i0otMrRKGP6/OG1kaIaUgvjvY
+            bDukVevz7QtlyHeRPWZocWsthshO6F/22t81+qQr8BsjoeW3kMmeCR6b3uYL0nG7
+            BQh684k//U2CqiG0FvjO6PVdiwWt7bJ6TpZvMlyrtu4Iv5bmgMrVA/RneTBw23Os
+            ZpRtRUcYTn2f4MhmihRmCiFMUxxMvl0sHDuhH7Ix8pdWIDISETNG/jP7mMdMdoI6
+            D1OUv2NzHTMtqEU8kec9u/bTf4DAfyj9KYjgufVVbdOl2QAY/fAalOhjd3BdjAqe
+            wMRHlpwP5sxtW4rrZNQhE23bc8O9vvwWZHg9dOwVmNrKi+Zw2N3A+S7hUaDWubTI
+            wUhLOsIjxJPtyMcSMFMwDsLWBVVETOvV5V60fljP5DOwxeXvWClqqcBA5hcMo9L2
+            EL7tvoc3wZDVta8vGt0WX9kN6ovkHTPpZYAXf0YhL8zizQh7qUunGfgSAj2YeGLW
+            eIEPS3eirEvmEDe4n1BfNmD+XCdU9xQmV/GTUPCiReewMsFgc0D4StopC06T3gzS
+            XgH8/QovyJAGBUkAZ5dZ/ez36wekg/d/sjSYyPKHducXhVDiyGPZLus9L2XH8r3A
+            /tEziFPV5NJpr1VFVgTKANX1fc7PluRh2h043iBhUBCDuXQlhKcc91mOka3WdBs=
+            =yUUG
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    version: 3.7.1

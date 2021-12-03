@@ -64,6 +64,7 @@ install() {
     install_kustomize
     install_clusterctl
     install_flux_cli
+    install_sops
     install_emcoctl
 }
 
