@@ -24,6 +24,7 @@ jump_server: package_prerequisite \
 	kud_bm_deploy_mini \
 	bmh_install \
 	capi_install \
+	flux_install \
 	bpa_op_install \
 	bpa_rest_api_install
 
@@ -92,6 +93,9 @@ sdwan_verifier:
 
 capi_install:
 	./deploy/cluster-api/cluster-api.sh deploy
+
+flux_install:
+	./deploy/flux/flux.sh deploy
 
 bpa_op_install:
 	pushd $(BPA_OPERATOR) && make docker && make deploy && popd
