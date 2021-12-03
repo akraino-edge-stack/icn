@@ -9,31 +9,74 @@ source $LIBDIR/common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
-function build {
-    SSH_AUTHORIZED_KEY=$(cat ${HOME}/.ssh/id_rsa.pub)
+# !!!NOTE!!! THE KEYS USED BELOW ARE FOR TEST PURPOSES ONLY.  DO NOT
+# USE THESE OUTSIDE OF THIS ICN VIRTUAL TEST ENVIRONMENT.
+function build_source {
+    # First decrypt the existing site YAML, otherwise we'll be
+    # attempting to encrypt it twice below
+    if [[ -f ${SCRIPTDIR}/sops.asc ]]; then
+	gpg --import ${SCRIPTDIR}/sops.asc
+	sops --decrypt --in-place --config=${SCRIPTDIR}/.sops.yaml ${SCRIPTDIR}/site.yaml || true
+    fi
+
+    # To login to guest, ssh -i ${SCRIPTDIR/id_rsa
+    ssh-keygen -t rsa -N "" -f ${SCRIPTDIR}/id_rsa <<<y
+    SSH_AUTHORIZED_KEY=$(cat ${SCRIPTDIR}/id_rsa.pub)
     # Use ! instead of usual / to avoid escaping / in
     # SSH_AUTHORIZED_KEY
-    sed -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/cluster-e2etest-values.yaml >${BUILDDIR}/cluster-e2etest-values.yaml
-}
+    sed -i -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/site.yaml
 
-function release_name {
-    local -r values_path=$1
-    name=$(basename ${values_path})
-    echo ${name%-values.yaml}
+    # The SOPS portions below are based on the guide located at
+    # https://fluxcd.io/docs/guides/mozilla-sops/
+    local -r key_name="icn-site-vm"
+    # Create an rsa4096 key that does not expire
+    gpg --batch --full-generate-key <<EOF
+%no-protection
+Key-Type: 1
+Key-Length: 4096
+Subkey-Type: 1
+Subkey-Length: 4096
+Expire-Date: 0
+Name-Real: ${key_name}
+EOF
+    # Export the public and private keypair from the local GPG keyring
+    local -r key_fp=$(gpg --with-colons --list-secret-keys ${key_name} | awk -F: '/fpr/ {print $10;exit}')
+    gpg --export-secret-keys --armor "${key_fp}" >${SCRIPTDIR}/sops.asc
+    gpg --export --armor "${key_fp}" >${SCRIPTDIR}/sops.pub.asc
+    # Add .sops.yaml so users won't have to worry about specifying the
+    # proper key for the target cluster or namespace
+    cat <<EOF > ${SCRIPTDIR}/.sops.yaml
+creation_rules:
+  - path_regex: .*.yaml
+    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    pgp: ${key_fp}
+EOF
+
+    # SOPS is used to protect the bmcPassword of the machine values
+    # and hashedPassword of the cluster values
+    HASHED_PASSWORD=$(mkpasswd --method=SHA-512 --rounds 10000 "mypasswd")
+    sed -i -e 's!hashedPassword: .*!hashedPassword: '"${HASHED_PASSWORD}"'!' ${SCRIPTDIR}/site.yaml
+
+    sops --encrypt --in-place --config=${SCRIPTDIR}/.sops.yaml ${SCRIPTDIR}/site.yaml
 }
 
 function deploy {
-    for values in ${BUILDDIR}/machine-*-values.yaml; do
-	helm -n metal3 install $(release_name ${values}) ${SCRIPTDIR}/../../machine --create-namespace -f ${values}
-    done
-    helm -n metal3 install cluster-e2etest ${SCRIPTDIR}/../../cluster --create-namespace -f ${BUILDDIR}/cluster-e2etest-values.yaml
+    flux create source git icn --url=https://gerrit.akraino.org/r/icn --branch=master
+
+    gpg --import ${SCRIPTDIR}/sops.asc
+    local -r key_name="icn-site-vm"
+    local -r key_fp=$(gpg --with-colons --list-secret-keys ${key_name} | awk -F: '/fpr/ {print $10;exit}')
+    local -r secret_name="icn-site-vm-sops-gpg"
+    kubectl -n flux-system delete secret ${secret_name} || true
+    gpg --export-secret-keys --armor "${key_fp}" |
+	kubectl -n flux-system create secret generic ${secret_name} --from-file=sops.asc=/dev/stdin
+
+    flux create kustomization site-vm --path=./deploy/site/vm --source=GitRepository/icn --prune=true \
+	 --decryption-provider=sops --decryption-secret=${secret_name}
 }
 
 function clean {
-    helm -n metal3 uninstall cluster-e2etest
-    for values in ${BUILDDIR}/machine-*-values.yaml; do
-	helm -n metal3 uninstall $(release_name ${values})
-    done
+    kubectl -n flux-system delete kustomization site-vm
 }
 
 function is_cluster_ready {
@@ -58,7 +101,7 @@ function wait_for_all_ready {
 }
 
 case $1 in
-    "build") build ;;
+    "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;

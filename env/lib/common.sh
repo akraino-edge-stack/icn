@@ -46,6 +46,9 @@ CAPM3_VERSION="v0.5.1"
 #The flux version to use
 FLUX_VERSION="0.20.0"
 
+#The sops version to use
+SOPS_VERSION="v3.7.1"
+
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides
@@ -246,6 +249,13 @@ function install_emcoctl {
     clone_emco_repository
     make -C ${EMCOPATH}/src/tools/emcoctl
     sudo install -o root -g root -m 0755 ${EMCOPATH}/bin/emcoctl/emcoctl /usr/local/bin/emcoctl
+}
+
+function install_sops {
+    curl -L https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux -o sops
+    sudo install -o root -g root -m 0755 sops /usr/local/bin/sops
+    rm sops
+    sops --version
 }
 
 function fetch_image {
