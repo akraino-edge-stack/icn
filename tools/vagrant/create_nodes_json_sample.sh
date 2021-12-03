@@ -1,9 +1,7 @@
 #!/bin/bash
 set -eu -o pipefail
 
-num_machines=$1
-site=$2
-name_prefix=$3
+site=$1; shift
 
 nodes_json_path="deploy/metal3/scripts/nodes.json.sample"
 ipmi_host=$(virsh -c qemu:///system net-dumpxml ${site}-baremetal | xmlstarlet sel -t -v "//network/ip/@address")
@@ -12,12 +10,13 @@ cat <<EOF >${nodes_json_path}
 {
   "nodes": [
 EOF
-for ((i=1;i<=num_machines;++i)); do
-    name="${name_prefix}${i}"
-    ipmi_port=$((6230+i-1))
+
+while (("$#")); do
+    name=$1; shift
+    ipmi_port=$1; shift
     baremetal_mac=$(virsh -c qemu:///system dumpxml "${site}-${name}" | xmlstarlet sel -t -v "//interface[source/@network='${site}-baremetal']/mac/@address")
     provisioning_mac=$(virsh -c qemu:///system dumpxml "${site}-${name}" | xmlstarlet sel -t -v "//interface[source/@network='${site}-provisioning']/mac/@address")
-    if ((i<num_machines)); then comma=","; else comma=""; fi
+    if (("$#")); then comma=","; else comma=""; fi
     cat <<EOF >>${nodes_json_path}
     {
       "name": "${name}",
