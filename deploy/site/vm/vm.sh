@@ -46,6 +46,7 @@ function is_control_plane_ready {
 
 function wait_for_all_ready {
     WAIT_FOR_INTERVAL=60s
+    WAIT_FOR_TRIES=30
     wait_for is_cluster_ready
     clusterctl -n metal3 get kubeconfig e2etest >${BUILDDIR}/e2etest-admin.conf
     chmod 600 ${BUILDDIR}/e2etest-admin.conf
