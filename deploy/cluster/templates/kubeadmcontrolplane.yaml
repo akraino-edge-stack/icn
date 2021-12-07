@@ -56,6 +56,11 @@ spec:
     # ClusterResourceSet.  However instead of apply, replace must be
     # used to harden K8s.
     - /usr/local/bin/harden_k8s.sh
+{{- if eq (int .Values.numWorkerMachines) 0 }}
+    # Allow scheduling Pods on the control plane when there are no
+    # workers.
+    - kubectl --kubeconfig=/etc/kubernetes/admin.conf taint nodes --all node-role.kubernetes.io/master-
+{{- end }}
     # This must be done after kubeadm as the cabpk provider relies on
     # files in /var/run, which won't persist after a reboot
     - /usr/local/bin/set_kernel_cmdline.sh
