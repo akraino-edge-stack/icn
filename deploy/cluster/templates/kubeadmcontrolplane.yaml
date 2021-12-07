@@ -22,6 +22,9 @@ spec:
       nodeRegistration:
         kubeletExtraArgs:
           node-labels: metal3.io/uuid={{ "{{" }} ds.meta_data.uuid {{ "}}" }}
+          cpu-manager-policy: static
+          topology-manager-policy: best-effort
+          kube-reserved: cpu=200m,memory=512Mi
         name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
     preKubeadmCommands:
 {{- if .Values.networks }}
