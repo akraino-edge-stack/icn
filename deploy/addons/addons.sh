@@ -80,11 +80,15 @@ function test_addons {
     pushd ${KUDPATH}/kud/tests
     failed_kud_tests=""
     container_runtime=$(KUBECONFIG=${cluster_kubeconfig} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
+    # TODO Temporarily remove kubevirt from kud_tests below.  The
+    # kubevirt self-test needs AllowTcpForwarding yes in
+    # /etc/ssh/sshd_config which is currently disabled by the OS
+    # security hardening.
     if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
         # With containerd 1.2.13, the qat test container image fails to unpack.
-        kud_tests="topology-manager-sriov kubevirt multus ovn4nfv nfd sriov-network cmk"
+        kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network cmk"
     else
-        kud_tests="topology-manager-sriov kubevirt multus ovn4nfv nfd sriov-network qat cmk"
+        kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network qat cmk"
     fi
     for test in ${kud_tests}; do
         KUBECONFIG=${cluster_kubeconfig} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
