@@ -40,6 +40,9 @@ KUSTOMIZE_VERSION="v4.3.0"
 #Cluster API version to use
 CAPI_VERSION="v0.4.3"
 
+#Cluster API version to use
+CAPM3_VERSION="v0.5.1"
+
 #The flux version to use
 FLUX_VERSION="0.20.0"
 
