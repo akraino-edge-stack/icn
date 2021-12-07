@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5e8a500c_ea8a404b",
+        "filename": "Vagrantfile",
+        "patchSetId": 1
+      },
+      "lineNbr": 57,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-12-07T17:33:06Z",
+      "side": 1,
+      "message": "30 is wrong, should be 32 for the box specified at line 45.",
+      "range": {
+        "startLine": 57,
+        "startChar": 37,
+        "endLine": 57,
+        "endChar": 39
+      },
+      "revId": "dfb71e2d4de848664860340fa8699e8d9543cffc",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
