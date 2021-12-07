@@ -1,0 +1,8 @@
+# A simple chart to create a RoleBinding of a Namespace to a
+# PodSecurityPolicy.  This can be used with the Flux "dependsOn"
+# feature to install the binding before deploying additional
+# HelmReleases into the Namespace.
+apiVersion: v2
+name: podsecurity
+type: application
+version: 0.1.0

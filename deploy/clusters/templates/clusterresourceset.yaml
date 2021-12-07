@@ -17,4 +17,6 @@ spec:
   - name: {{ $clusterName }}-flux-addon
     kind: ConfigMap
 {{- end }}
+  - name: {{ $clusterName }}-podsecurity-addon
+    kind: ConfigMap
 {{- end }}

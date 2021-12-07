@@ -6,6 +6,10 @@ metadata:
   name: {{ $clusterName }}
 spec:
   kubeadmConfigSpec:
+    clusterConfiguration:
+      apiServer:
+        extraArgs:
+          enable-admission-plugins: NodeRestriction,PodSecurityPolicy
     initConfiguration:
       nodeRegistration:
         kubeletExtraArgs:
