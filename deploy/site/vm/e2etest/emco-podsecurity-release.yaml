@@ -2,8 +2,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: emco-podsecurity
-  namespace: flux-system
+  name: podsecurity
+  namespace: emco
 spec:
   interval: 5m
   chart:
@@ -14,9 +14,5 @@ spec:
         name: icn
         namespace: flux-system
       interval: 1m
-  releaseName: emco-podsecurity
-  targetNamespace: emco
-  install:
-    createNamespace: true
   values:
     roleRef: psp:privileged

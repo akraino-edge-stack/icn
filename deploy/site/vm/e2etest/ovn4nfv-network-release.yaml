@@ -3,7 +3,7 @@ apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
   name: ovn4nfv-network
-  namespace: flux-system
+  namespace: kud
 spec:
   interval: 5m
   chart:
@@ -12,11 +12,6 @@ spec:
       sourceRef:
         kind: GitRepository
         name: kud
-        namespace: flux-system
       interval: 1m
-  releaseName: ovn4nfv-network
-  targetNamespace: kud
-  install:
-    createNamespace: true
   dependsOn:
   - name: multus-cni

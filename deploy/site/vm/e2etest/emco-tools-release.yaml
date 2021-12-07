@@ -2,8 +2,8 @@
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: emco-tools
-  namespace: flux-system
+  name: tools
+  namespace: emco
 spec:
   interval: 5m
   chart:
@@ -12,14 +12,9 @@ spec:
       sourceRef:
         kind: GitRepository
         name: emco
-        namespace: flux-system
       interval: 1m
-  releaseName: tools
-  targetNamespace: emco
-  install:
-    createNamespace: true
   dependsOn:
-  - name: emco-podsecurity
+  - name: podsecurity
   values:
     global:
       repository: integratedcloudnative/
