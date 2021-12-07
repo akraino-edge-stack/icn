@@ -41,7 +41,11 @@ function is_cluster_ready {
 }
 
 function is_control_plane_ready {
-    [[ $(kubectl --kubeconfig=${BUILDDIR}/e2etest-admin.conf get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -c -v True) == 0 ]]
+    # Checking the Cluster resource status is not sufficient, it
+    # reports the control plane as ready before the nodes forming the
+    # control plane are ready
+    local -r replicas=$(kubectl -n metal3 get kubeadmcontrolplane e2etest -o jsonpath='{.spec.replicas}')
+    [[ $(kubectl --kubeconfig=${BUILDDIR}/e2etest-admin.conf get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -c True) == ${replicas} ]]
 }
 
 function wait_for_all_ready {
