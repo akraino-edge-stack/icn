@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "4d5b97db_c2864eef",
+        "filename": "Vagrantfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2021-12-07T21:34:23Z",
+      "side": 1,
+      "message": "This needs to do the load_stream as above",
+      "revId": "c539ff9fe391d0708fdf7283a96559a42cf84595",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
