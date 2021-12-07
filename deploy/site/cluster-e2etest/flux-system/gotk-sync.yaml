@@ -19,7 +19,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./deploy/site/vm/e2etest
+  path: ./deploy/site/cluster-e2etest
   prune: true
   sourceRef:
     kind: GitRepository
