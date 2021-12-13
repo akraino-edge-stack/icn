@@ -20,6 +20,7 @@ function install_essential_packages {
     curl \
     dnsmasq \
     figlet \
+    ipcalc \
     nmap \
     patch \
     psmisc \
@@ -64,6 +65,7 @@ install() {
     install_kustomize
     install_clusterctl
     install_flux_cli
+    install_sops
     install_emcoctl
 }
 
