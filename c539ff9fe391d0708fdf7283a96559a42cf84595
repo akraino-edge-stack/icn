@@ -16,6 +16,24 @@
       "revId": "c539ff9fe391d0708fdf7283a96559a42cf84595",
       "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "b036362b_406d2f83",
+        "filename": "Vagrantfile",
+        "patchSetId": 2
+      },
+      "lineNbr": 123,
+      "author": {
+        "id": 239
+      },
+      "writtenOn": "2021-12-13T22:16:44Z",
+      "side": 1,
+      "message": "Ack",
+      "parentUuid": "4d5b97db_c2864eef",
+      "revId": "c539ff9fe391d0708fdf7283a96559a42cf84595",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": false
     }
   ]
 }
