@@ -1,12 +1,10 @@
 # clusterName is the name of the cluster.
 clusterName: cluster-1
 
-# clusterLabels is a dictionary of labels.  The provider and site
-# labels are shown as examples only; additional labels may be
-# provided.
+# clusterLabels is a dictionary of labels.  The provider label is
+# shown as an example only; additional labels may be provided.
 clusterLabels:
   provider: icn
-  site: test-site
 
 # numControlPlaneMachines is the number of control plane nodes.
 numControlPlaneMachines: 1
