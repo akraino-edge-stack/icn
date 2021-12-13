@@ -47,6 +47,7 @@ spec:
         permissions: '0777'
         content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 10 }}
+{{- if .Values.userData }}
       users:
       - name: {{ .Values.userData.name }}
         shell: /bin/bash
@@ -59,3 +60,4 @@ spec:
       - name: root
         sshAuthorizedKeys:
         - {{ .Values.userData.sshAuthorizedKey }}
+{{- end }}
