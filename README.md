@@ -192,6 +192,10 @@ provided with the values for each server. Refer to the machine chart
 in icn/deploy/machine for more details. In the example below, no DHCP
 server is present in the baremetal network.
 
+> *NOTE:* To assist in the migration of R5 and earlier release's use
+> from `nodes.json` and the Provisioning resource to a site YAML, a
+> helper script is provided at `tools/migration/to_r6.sh`.
+
 `site.yaml`
 ``` yaml
 apiVersion: v1

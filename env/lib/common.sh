@@ -122,6 +122,42 @@ function list_nodes {
     fi
 }
 
+function node_userdata {
+    name="$1"
+    username="$2"
+    password="$3"
+    COMPUTE_NODE_FQDN="$name.akraino.icn.org"
+
+    # validate that the user isn't expecting the deprecated
+    # COMPUTE_NODE_PASSWORD to be used
+    if [ "$password" != "${COMPUTE_NODE_PASSWORD:-$password}" ]; then
+        cat <<EOF
+COMPUTE_NODE_PASSWORD "$COMPUTE_NODE_PASSWORD" not equal to nodes.json $name password "$password".
+Unset COMPUTE_NODE_PASSWORD and retry.
+EOF
+        exit 1
+    fi
+
+    printf "userData:\n"
+    if [ -n "$username" ]; then
+	printf "  name: ${username}\n"
+    fi
+    if [ -n "$password" ]; then
+        passwd=$(mkpasswd --method=SHA-512 --rounds 4096 "$password")
+        printf "  hashedPassword: ${passwd}\n"
+    fi
+
+    if [ -n "$COMPUTE_NODE_FQDN" ]; then
+        printf "  fqdn: ${COMPUTE_NODE_FQDN}\n"
+    fi
+
+    if [ ! -f $HOME/.ssh/id_rsa.pub ]; then
+        yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
+    fi
+
+    printf "  sshAuthorizedKey: $(cat $HOME/.ssh/id_rsa.pub)\n"
+}
+
 # Returns "null" when the field is not present
 function networkdata_networks_field {
     name=$1
@@ -183,6 +219,24 @@ function wait_for {
             return 1
         fi
     done
+}
+
+# This is intended to be used together with list_nodes in the
+# following way:
+#   list_nodes | while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do ...
+function node_machine_values {
+    printf "machineName: ${name}\n"
+    printf "machineLabels:\n"
+    printf "  machine: ${name}\n"
+    printf "bmcUsername: ${ipmi_username}\n"
+    printf "bmcPassword: ${ipmi_password}\n"
+    printf "bmcAddress: ipmi://${ipmi_address}\n"
+    if [[ ! -z ${boot_mac} ]]; then
+        printf "bootMACAddress: ${boot_mac}\n"
+    fi
+    printf "imageName: ${BM_IMAGE}\n"
+    node_userdata ${name} ${os_username} ${os_password}
+    node_networkdata ${name}
 }
 
 function clone_repository {

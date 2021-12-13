@@ -21,60 +21,9 @@ function deprovision_compute_node {
     fi
 }
 
-function create_userdata {
-    name="$1"
-    username="$2"
-    password="$3"
-    COMPUTE_NODE_FQDN="$name.akraino.icn.org"
-
-    # validate that the user isn't expecting the deprecated
-    # COMPUTE_NODE_PASSWORD to be used
-    if [ "$password" != "${COMPUTE_NODE_PASSWORD:-$password}" ]; then
-        cat <<EOF
-COMPUTE_NODE_PASSWORD "$COMPUTE_NODE_PASSWORD" not equal to nodes.json $name password "$password".
-Unset COMPUTE_NODE_PASSWORD and retry.
-EOF
-        exit 1
-    fi
-
-    printf "userData:\n" >>${SCRIPTDIR}/${name}-values.yaml
-    if [ -n "$username" ]; then
-	printf "  name: ${username}\n" >>${SCRIPTDIR}/${name}-values.yaml
-    fi
-    if [ -n "$password" ]; then
-        passwd=$(mkpasswd --method=SHA-512 --rounds 4096 "$password")
-        printf "  hashedPassword: ${passwd}\n" >>${SCRIPTDIR}/${name}-values.yaml
-    fi
-
-    if [ -n "$COMPUTE_NODE_FQDN" ]; then
-        printf "  fqdn: ${COMPUTE_NODE_FQDN}\n" >>${SCRIPTDIR}/${name}-values.yaml
-    fi
-
-    if [ ! -f $HOME/.ssh/id_rsa.pub ]; then
-        yes y | ssh-keygen -t rsa -N "" -f $HOME/.ssh/id_rsa
-    fi
-
-    printf "  sshAuthorizedKey: $(cat $HOME/.ssh/id_rsa.pub)\n" >>${SCRIPTDIR}/${name}-values.yaml
-}
-
-create_networkdata() {
-    name="$1"
-    node_networkdata $name >>${SCRIPTDIR}/${name}-values.yaml
-}
-
 function make_bm_hosts {
     while IFS=',' read -r name ipmi_username ipmi_password ipmi_address boot_mac os_username os_password os_image_name; do
-        printf "machineName: ${name}\n" >${SCRIPTDIR}/${name}-values.yaml
-        printf "bmcUsername: ${ipmi_username}\n" >>${SCRIPTDIR}/${name}-values.yaml
-        printf "bmcPassword: ${ipmi_password}\n" >>${SCRIPTDIR}/${name}-values.yaml
-        printf "bmcAddress: ipmi://${ipmi_address}\n" >>${SCRIPTDIR}/${name}-values.yaml
-	if [[ ! -z ${boot_mac} ]]; then
-            printf "bootMACAddress: ${boot_mac}\n" >>${SCRIPTDIR}/${name}-values.yaml
-	fi
-        printf "imageName: ${BM_IMAGE}\n" >>${SCRIPTDIR}/${name}-values.yaml
-        create_userdata $name $os_username $os_password
-        create_networkdata $name
-
+	node_machine_values >${SCRIPTDIR}/${name}-values.yaml
 	helm -n metal3 install ${name} ${SCRIPTDIR}/../../machine --create-namespace -f ${SCRIPTDIR}/${name}-values.yaml
 
     done
