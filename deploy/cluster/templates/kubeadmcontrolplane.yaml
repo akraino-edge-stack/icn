@@ -82,6 +82,7 @@ spec:
       permissions: '0777'
       content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 8 }}
+{{- if .Values.userData }}
     users:
     - name: {{ .Values.userData.name }}
       shell: /bin/bash
@@ -94,6 +95,7 @@ spec:
     - name: root
       sshAuthorizedKeys:
       - {{ .Values.userData.sshAuthorizedKey }}
+{{- end }}
   machineTemplate:
     infrastructureRef:
       apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
