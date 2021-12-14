@@ -138,9 +138,6 @@ The user will find the network configuration file named as
 
 #Ironic Metal3 settings for provisioning network (Net B)
 export IRONIC_INTERFACE="eno2"
-
-#Ironic Metal3 setting for IPMI LAN Network (Net C)
-export IRONIC_IPMI_INTERFACE="eno1"
 ```
 
 #### Running

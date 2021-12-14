@@ -6,7 +6,6 @@ NODES_FILE=${NODES_FILE:-"${IRONIC_DATA_DIR}/nodes.json"}
 #IRONIC_PROVISIONING_INTERFACE is required to be provisioning, don't change it
 IRONIC_INTERFACE=${IRONIC_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE=${IRONIC_PROVISIONING_INTERFACE:-"provisioning"}
-IRONIC_IPMI_INTERFACE=${IRONIC_IPMI_INTERFACE:-}
 IRONIC_PROVISIONING_INTERFACE_IP=${IRONIC_PROVISIONING_INTERFACE_IP:-"172.22.0.1"}
 BM_IMAGE_URL=${BM_IMAGE_URL:-"https://cloud-images.ubuntu.com/focal/current/focal-server-cloudimg-amd64.img"}
 BM_IMAGE=${BM_IMAGE:-"focal-server-cloudimg-amd64.img"}

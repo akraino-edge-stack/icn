@@ -48,11 +48,6 @@ function configure_ironic_interfaces {
         fi
     done
 
-    # Allow ipmi to the bmc processes
-    if ! sudo iptables -C INPUT -i $IRONIC_IPMI_INTERFACE -p udp -m udp --dport 6230:6235 -j ACCEPT 2>/dev/null ; then
-        sudo iptables -I INPUT -i $IRONIC_IPMI_INTERFACE -p udp -m udp --dport 6230:6235 -j ACCEPT
-    fi
-
     #Allow access to dhcp and tftp server for pxeboot
     for port in 67 69 ; do
         if ! sudo iptables -C INPUT -i $IRONIC_PROVISIONING_INTERFACE -p udp --dport $port -j ACCEPT 2>/dev/null ; then
