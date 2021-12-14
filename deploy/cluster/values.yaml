@@ -73,7 +73,7 @@ flux:
   branch: master
   # path is the repository to the resources to be applied to the
   # cluster.
-  path: ./deploy/site/e2etest
+  path: ./deploy/site/cluster-icn
 
 # containerRuntime may be containerd or docker.
 containerRuntime: containerd
