@@ -11,7 +11,7 @@ BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
 function register_emco_controllers {
-    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r host=$(kubectl -n metal3 get cluster/${cluster_name} -o jsonpath='{.spec.controlPlaneEndpoint.host}')
     cat <<EOF >${BUILDDIR}/${cluster_name}-config.yaml
 orchestrator:
@@ -66,13 +66,13 @@ EOF
 }
 
 function unregister_emco_controllers {
-    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_name=${CLUSTER_NAME:-icn}
     emcoctl --config ${BUILDDIR}/${cluster_name}-config.yaml delete -f ${BUILDDIR}/${cluster_name}-controllers.yaml
 }
 
 function test_addons {
     # Create a temporary kubeconfig file for the tests
-    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
 
@@ -113,7 +113,7 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 The "test" command looks for the CLUSTER_NAME variable in the
-environment (default: "e2etest").  This should be the name of the
+environment (default: "icn").  This should be the name of the
 Cluster resource to execute the tests in.
 
 Commands:
