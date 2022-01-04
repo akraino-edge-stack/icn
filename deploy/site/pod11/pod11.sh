@@ -36,28 +36,6 @@ function is_control_plane_ready {
     [[ $(kubectl --kubeconfig=${BUILDDIR}/e2etest-admin.conf get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -c True) == ${replicas} ]]
 }
 
-function insert_control_plane_network_identity_into_ssh_config {
-    # This enables logging into the control plane machines from this
-    # machine without specifying the identify file on the command line
-
-    # Create ssh config if it doesn't exist
-    mkdir -p ${HOME}/.ssh && chmod 700 ${HOME}/.ssh
-    touch ${HOME}/.ssh/config
-    chmod 600 ${HOME}/.ssh/config
-    # Add the entry for the control plane network, host value in ssh
-    # config is a wildcard
-    endpoint=$(helm -n metal3 get values -a cluster-e2etest | awk '/controlPlaneEndpoint:/ {print $2}')
-    prefix=$(helm -n metal3 get values -a cluster-e2etest | awk '/controlPlanePrefix:/ {print $2}')
-    host=$(ipcalc ${endpoint}/${prefix} | awk '/Network:/ {sub(/\.0.*/,".*"); print $2}')
-    if [[ $(grep -c "Host ${host}" ${HOME}/.ssh/config) != 0 ]]; then
-	sed -i -e '/Host '"${host}"'/,+1 d' ${HOME}/.ssh/config
-    fi
-    cat <<EOF >>${HOME}/.ssh/config
-Host ${host}
-  IdentityFile ${SCRIPTDIR}/id_rsa
-EOF
-}
-
 function wait_for_all_ready {
     WAIT_FOR_INTERVAL=60s
     WAIT_FOR_TRIES=30
@@ -65,7 +43,6 @@ function wait_for_all_ready {
     clusterctl -n metal3 get kubeconfig e2etest >${BUILDDIR}/e2etest-admin.conf
     chmod 600 ${BUILDDIR}/e2etest-admin.conf
     wait_for is_control_plane_ready
-    insert_control_plane_network_identity_into_ssh_config
 }
 
 case $1 in
