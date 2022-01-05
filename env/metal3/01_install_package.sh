@@ -18,7 +18,6 @@ function install_essential_packages {
     ca-certificates \
     crudini \
     curl \
-    dnsmasq \
     figlet \
     ipcalc \
     nmap \
