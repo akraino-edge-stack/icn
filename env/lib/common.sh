@@ -22,7 +22,7 @@ KUDREPO="${KUDREPO:-https://github.com/onap/multicloud-k8s.git}"
 #Path to clone the KuD repo
 KUDPATH="/opt/src/github.com/onap/multicloud-k8s"
 #KuD version to use
-KUD_VERSION="ed96bca7fe415f1636d82c26af15d7474bdfe876"
+KUD_VERSION="8157bf63753839ce4e9006978816fad3f63ca2de"
 
 #EMCO repository URL
 EMCOREPO="${EMCOREPO:-https://github.com/open-ness/EMCO.git}"
@@ -32,7 +32,7 @@ EMCOPATH="/opt/src/github.com/open-ness/EMCO"
 EMCO_VERSION="openness-21.03.06"
 
 #Discard existing repo directory
-FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-true}"
+FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"
 
 # The kustomize version to use
 KUSTOMIZE_VERSION="v4.3.0"
