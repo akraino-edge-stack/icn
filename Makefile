@@ -139,19 +139,26 @@ bashate:
 prerequisite:
 	pushd $(ENV) && ./cd_package_installer.sh && popd
 
-bm_verifer: package_prerequisite \
-	kud_bm_deploy_mini \
-	bmh_install \
-	bmh_provision \
-	bpa_op_bmh_verifier \
-	bpa_rest_api_verifier \
-	clean_all
+bm_verifer: jump_server \
+	pod11_cluster \
+	pod11_clean_cluster \
+	clean_jump_server
+
+pod11_cluster:
+	./deploy/site/pod11/pod11.sh deploy
+	./deploy/site/pod11/pod11.sh wait
+	./deploy/kata/kata.sh test
+	./deploy/addons/addons.sh test
+
+pod11_clean_cluster:
+	./deploy/site/pod11/pod11.sh clean
 
 verifier: bm_verifer
 
 vm_verifier: jump_server \
 	vm_cluster \
-	vm_clean_all
+	vm_clean_cluster \
+	clean_jump_server
 
 vm_cluster:
 	./deploy/site/vm/vm.sh deploy
@@ -161,10 +168,6 @@ vm_cluster:
 
 vm_clean_cluster:
 	./deploy/site/vm/vm.sh clean
-
-vm_clean_all: vm_clean_cluster \
-	bmo_clean \
-	clean_jump_server
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
