@@ -56,14 +56,27 @@ function sops_decrypt_site {
     sops --decrypt --in-place --config=${site_dir}/.sops.yaml ${site_yaml}
 }
 
+function flux_site_source_name {
+    local -r url=$1
+    local -r branch=$2
+    echo $(basename ${url})-${branch}
+}
+
+function flux_site_kustomization_name {
+    local -r url=$1
+    local -r branch=$2
+    local -r path=$3
+    echo $(flux_site_source_name ${url} ${branch})-site-$(basename ${path})
+}
+
 function flux_create_site {
     local -r url=$1
     local -r branch=$2
     local -r path=$3
     local -r key_name=$4
 
-    local -r source_name="$(basename ${url})-${branch}"
-    local -r kustomization_name="${source_name}-site-$(basename ${path})"
+    local -r source_name=$(flux_site_source_name ${url} ${branch})
+    local -r kustomization_name=$(flux_site_kustomization_name ${url} ${branch} ${path})
     local -r key_fp=$(gpg --with-colons --list-secret-keys ${key_name} | awk -F: '/fpr/ {print $10;exit}')
     local -r secret_name="${key_name}-sops-gpg"
 

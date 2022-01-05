@@ -10,6 +10,10 @@ source $SCRIPTDIR/../common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
+SITE_REPO=${SITE_REPO:-"https://gerrit.akraino.org/r/icn"}
+SITE_BRANCH=${SITE_BRANCH:-"master"}
+SITE_PATH=${SITE_PATH:-"deploy/site/pod11"}
+
 FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"} # TODO Replace ICN test key with real key
 
 function build_source {
@@ -17,11 +21,11 @@ function build_source {
 }
 
 function deploy {
-    flux_create_site https://gerrit.akraino.org/r/icn master deploy/site/pod11 ${FLUX_SOPS_KEY_NAME}
+    flux_create_site ${SITE_REPO} ${SITE_BRANCH} ${SITE_PATH} ${FLUX_SOPS_KEY_NAME}
 }
 
 function clean {
-    kubectl -n flux-system delete kustomization icn-master-site-pod11
+    kubectl -n flux-system delete kustomization $(flux_site_kustomization_name ${SITE_REPO} ${SITE_BRANCH} ${SITE_PATH})
 }
 
 function is_cluster_ready {
