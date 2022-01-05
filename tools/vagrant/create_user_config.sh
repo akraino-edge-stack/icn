@@ -6,7 +6,4 @@ cat <<EOF >user_config.sh
 
 #Ironic Metal3 settings for provisioning network
 export IRONIC_INTERFACE="eth1"
-
-#Ironic Metal3 setting for IPMI LAN Network
-export IRONIC_IPMI_INTERFACE="eth0"
 EOF
