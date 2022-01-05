@@ -65,14 +65,14 @@ function clean_webhook {
 }
 
 function is_kata_deployed {
-    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     kubectl --kubeconfig=${cluster_kubeconfig} get runtimeclass/kata-qemu
 }
 
 function test_kata {
     # Create a temporary kubeconfig file for the tests
-    local -r cluster_name=${CLUSTER_NAME:-e2etest}
+    local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
 
@@ -102,7 +102,7 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 The "test" command looks for the CLUSTER_NAME variable in the
-environment (default: "e2etest").  This should be the name of the
+environment (default: "icn").  This should be the name of the
 Cluster resource to execute the tests in.
 
 Commands:

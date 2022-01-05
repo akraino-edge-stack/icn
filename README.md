@@ -314,7 +314,7 @@ spec:
         flux:
             url: https://gerrit.akraino.org/r/icn
             branch: master
-            path: ./deploy/site/cluster-e2etest
+            path: ./deploy/site/cluster-icn
 ```
 
 A brief overview of the values is below. Refer to the machine and

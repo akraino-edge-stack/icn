@@ -185,7 +185,7 @@ sops:
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-    name: cluster-e2etest
+    name: cluster-icn
     namespace: metal3
 spec:
     interval: 5m
@@ -197,7 +197,7 @@ spec:
                 name: icn
             interval: 1m
     values:
-        clusterName: e2etest
+        clusterName: icn
         clusterLabels:
             site: vm
         keepalived:
@@ -214,7 +214,7 @@ spec:
         flux:
             url: https://gerrit.akraino.org/r/icn
             branch: master
-            path: ./deploy/site/cluster-e2etest
+            path: ./deploy/site/cluster-icn
 sops:
     kms: []
     gcp_kms: []
