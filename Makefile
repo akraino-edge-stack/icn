@@ -28,6 +28,10 @@ jump_server: package_prerequisite \
 	bpa_op_install \
 	bpa_rest_api_install
 
+clean_jump_server: bmh_clean_host \
+	kud_bm_reset \
+	clean_packages
+
 package_prerequisite:
 	 pushd $(BMDIR) && ./01_install_package.sh && popd
 
@@ -66,9 +70,7 @@ bmh_provision:
 	./02_verify.sh && popd
 
 clean_all: bmh_clean \
-	bmh_clean_host \
-	kud_bm_reset \
-	clean_packages
+	clean_jump_server
 
 cluster_provision:
 	pushd $(BPA_OPERATOR) && make provision && popd
@@ -162,9 +164,7 @@ vm_clean_cluster:
 
 vm_clean_all: vm_clean_cluster \
 	bmo_clean \
-	bmh_clean_host \
-	kud_bm_reset \
-	clean_packages
+	clean_jump_server
 
 bm_verify_nestedk8s: prerequisite \
         kud_bm_deploy_e2e \
