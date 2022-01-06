@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eux -o pipefail
+set -eEux -o pipefail
 
 SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
@@ -8,6 +8,11 @@ source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
 NAMEPREFIX="capm3"
+
+trap err_exit ERR
+function err_exit {
+    kubectl get all -n ${NAMEPREFIX}-system
+}
 
 # This may be used to update the in-place Ironic YAML files from the
 # upstream project.  We cannot use the upstream sources directly as
