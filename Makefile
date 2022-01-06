@@ -145,7 +145,7 @@ bm_verifer: package_prerequisite \
 	bpa_rest_api_verifier \
 	clean_all
 
-verifier: bm_verifer
+verifier: vm_verifer
 
 vm_verifier: jump_server \
 	vm_cluster \
