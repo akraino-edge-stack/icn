@@ -15,6 +15,8 @@ BMOREPO="${BMOREPO:-https://github.com/metal3-io/baremetal-operator.git}"
 #Path to clone the baremetal operator repo
 BMOPATH="/opt/src/github.com/metal3-io/baremetal-operator"
 #Bare Metal Operator version to use
+#  If changing this, the value in deploy/ironic/icn/kustomization.yaml
+#  must also be changed
 BMO_VERSION="capm3-v0.5.1"
 
 #KuD repository URL
