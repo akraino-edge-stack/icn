@@ -10,7 +10,14 @@ source $LIBDIR/common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
+function is_emco_ready {
+    local -r cluster_name=${CLUSTER_NAME:-icn}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    kubectl --kubeconfig=${cluster_kubeconfig} -n emco wait pod --all --for=condition=Ready --timeout=0s >/dev/null 2>&1
+}
+
 function register_emco_controllers {
+    wait_for is_emco_ready
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r host=$(kubectl -n metal3 get cluster/${cluster_name} -o jsonpath='{.spec.controlPlaneEndpoint.host}')
     cat <<EOF >${BUILDDIR}/${cluster_name}-config.yaml
