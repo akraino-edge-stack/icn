@@ -153,7 +153,7 @@ pod11_cluster:
 pod11_clean_cluster:
 	./deploy/site/pod11/pod11.sh clean
 
-verifier: vm_verifer
+verifier: vm_verifier
 
 vm_verifier: jump_server \
 	vm_cluster \
