@@ -26,6 +26,7 @@ function build_source {
         mkdir -p $(dirname ${dst})
         envsubst <${src} >${dst}
     done
+    sed -i -e '/name: quay.io\/metal3-io\/ironic/{n;s/newTag:.*/newTag: '"${BMO_VERSION}"'/;}' ${SCRIPTDIR}/icn/kustomization.yaml
 }
 
 function deploy {

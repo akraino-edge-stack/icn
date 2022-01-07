@@ -21,3 +21,9 @@ secretGenerator:
 
 patchesStrategicMerge:
 - data-volume-patch.yaml
+
+images:
+- name: quay.io/metal3-io/ironic
+  newTag: capm3-v0.5.1
+- name: quay.io/metal3-io/ironic-ipa-downloader
+  digest: sha256:d2d871675b629bf66514ccda2e2616c50670f7fff9d95b983a216f3a7fdaa1aa
