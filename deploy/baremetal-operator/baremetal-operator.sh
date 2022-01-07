@@ -1,11 +1,16 @@
 #!/usr/bin/env bash
-set -eux -o pipefail
+set -eEux -o pipefail
 
 SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 
 source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
+
+trap err_exit ERR
+function err_exit {
+    kubectl get all -n baremetal-operator-system
+}
 
 # This may be used to update the in-place Bare Metal Operator YAML
 # files from the upstream project

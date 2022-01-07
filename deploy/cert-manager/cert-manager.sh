@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-set -eux -o pipefail
+set -eEux -o pipefail
 
 SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
 LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
@@ -9,6 +9,11 @@ source $LIBDIR/common.sh
 
 # Cert-Manager version to use
 CERT_MANAGER_VERSION="v1.5.3"
+
+trap err_exit ERR
+function err_exit {
+    kubectl get all -n cert-manager
+}
 
 # This may be used to update the in-place cert-manager YAML
 # files from the upstream project
