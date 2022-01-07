@@ -83,7 +83,7 @@ function test_kata {
     clone_kud_repository
     pushd ${KUDPATH}/kud/tests
     failed_kud_tests=""
-    KUBECONFIG=${cluster_kubeconfig} bash kata.sh || failed_kud_tests="${failed_kud_tests} ${test}"
+    KUBECONFIG=${cluster_kubeconfig} bash kata.sh || failed_kud_tests="${failed_kud_tests} kata"
     popd
     clean_webhook ${cluster_name}
     if [[ ! -z "$failed_kud_tests" ]]; then
