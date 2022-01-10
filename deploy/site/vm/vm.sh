@@ -84,7 +84,12 @@ function insert_control_plane_network_identity_into_ssh_config {
     cat <<EOF >>${HOME}/.ssh/config
 Host ${host}
   IdentityFile ${SCRIPTDIR}/id_rsa
+  StrictHostKeyChecking no
+  UserKnownHostsFile /dev/null
 EOF
+    # Add the identity to authorized keys on this host to enable ssh
+    # logins via its control plane address
+    cat ${SCRIPTDIR}/id_rsa.pub >> ~/.ssh/authorized_keys
 }
 
 function wait_for_all_ready {
