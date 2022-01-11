@@ -13,6 +13,7 @@ spec:
         kind: GitRepository
         name: emco
       interval: 1m
+  timeout: 10m
   dependsOn:
   - name: podsecurity
   values:
