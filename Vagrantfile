@@ -16,12 +16,17 @@ site = ENV['ICN_SITE'] || 'vm'
 # IPMI address) specified in the machine pool values.  IPMI in the
 # virtual environment is emulated by virtualbmc listening on the host.
 baremetal_cidr = nil
+registry_mirrors = nil
 Dir.glob("deploy/site/#{site}/*.yaml") do |file|
   YAML.load_stream(File.read(file)) do |document|
     values = document.fetch('spec', {}).fetch('values', {})
-    next if values['machineName'].nil? || values['bootMACAddress'].nil?
-    bmc_host = URI.parse(values['bmcAddress']).host
-    baremetal_cidr = "#{IPAddr.new(bmc_host).mask(24)}/24"
+    unless values['bmcAddress'].nil?
+      bmc_host = URI.parse(values['bmcAddress']).host
+      baremetal_cidr = "#{IPAddr.new(bmc_host).mask(24)}/24"
+    end
+    unless values['dockerRegistryMirrors'].nil?
+      registry_mirrors = values['dockerRegistryMirrors'].join(' ')
+    end
   end
 end
 if baremetal_cidr.nil?
@@ -102,7 +107,7 @@ Vagrant.configure("2") do |config|
 
     m.trigger.after [:up] do |trigger|
       trigger.name = 'Creating ICN user_config.sh'
-      trigger.run = {inline: "./tools/vagrant/create_user_config.sh"}
+      trigger.run = {inline: "bash -c 'DOCKER_REGISTRY_MIRRORS=\"#{registry_mirrors}\" ./tools/vagrant/create_user_config.sh'"}
     end
     m.vm.provision 'Configuring ICN prerequisites', type: 'shell', privileged: true, inline: <<-SHELL
       ssh-keygen -f "${HOME}/.ssh/id_rsa" -P "" <<<y

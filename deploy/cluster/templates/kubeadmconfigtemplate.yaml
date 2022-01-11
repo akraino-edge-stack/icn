@@ -15,6 +15,9 @@ spec:
             kube-reserved: cpu=100m,memory=256Mi
           name: '{{ "{{" }} ds.meta_data.name {{ "}}" }}'
       preKubeadmCommands:
+{{- if .Values.preKubeadmCommands }}
+{{ toYaml .Values.preKubeadmCommands | indent 6 }}
+{{- end }}
 {{- if .Values.networks }}
       # Without touching up /etc/hosts, kubeadm may pick the wrong
       # (i.e. provisioning network) address for the node IP

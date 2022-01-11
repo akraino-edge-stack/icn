@@ -21,6 +21,9 @@
     mkdir -p /etc/containerd
     containerd config default | tee /etc/containerd/config.toml
     sed -i 's/\(.*\)\[plugins\."io\.containerd\.grpc\.v1\.cri"\.containerd\.runtimes\.runc\.options\]/&\n\1  SystemdCgroup = true/' /etc/containerd/config.toml
+{{- if .dockerRegistryMirrors }}
+    sed -i 's/endpoint = \["https:\/\/registry-1\.docker\.io"\]/endpoint = {{ append .dockerRegistryMirrors "https://registry-1.docker.io" | toJson | replace "/" "\\/" | replace "[" "\\[" | replace "]" "\\]" }}/' /etc/containerd/config.toml
+{{- end }}
     systemctl restart containerd
 {{- else if eq .containerRuntime "docker" -}}
 - path: /usr/local/bin/install-container-runtime.sh
@@ -39,6 +42,9 @@
       "log-opts": {
         "max-size": "100m"
       },
+{{- if .dockerRegistryMirrors }}
+      "registry-mirrors": {{ .dockerRegistryMirrors | toJson }}
+{{- end }}
       "storage-driver": "overlay2"
     }
 {{- end }}

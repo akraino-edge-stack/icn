@@ -30,10 +30,18 @@ function set_ssh_key {
 function set_bm_kud {
     pushd ${KUDPATH}/kud/hosting_providers/vagrant/inventory
     HOST_IP=${HOST_IP:-$(hostname -I | cut -d ' ' -f 1)}
+    DOCKER_OPTIONS=""
+    if [[ ! -z "${DOCKER_REGISTRY_MIRRORS+x}" ]]; then
+	OPTIONS=""
+	for mirror in ${DOCKER_REGISTRY_MIRRORS}; do
+	    OPTIONS="${OPTIONS} --registry-mirror=${mirror}"
+	done
+	DOCKER_OPTIONS="docker_options=\"${OPTIONS# }\""
+    fi
     if [ "$1" == "minimal" ] ; then
         cat <<EOL > hosts.ini
 [all]
-$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
+$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22 ${DOCKER_OPTIONS}
 
 [kube-master]
 $HOSTNAME
@@ -51,7 +59,7 @@ EOL
     else
         cat <<EOL > hosts.ini
 [all]
-$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22
+$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22 ${DOCKER_OPTIONS}
 
 [kube-master]
 $HOSTNAME

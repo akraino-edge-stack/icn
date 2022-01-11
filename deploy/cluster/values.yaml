@@ -104,3 +104,10 @@ kubeVersion: 1.21.6-00
 containerdVersion: 1.4.11-1
 # dockerVersion is the version of docker installed.
 dockerVersion: 5:20.10.10~3-0~ubuntu-focal
+# dockerRegistryMirrors are optional mirrors for docker.io, in priority order
+#dockerRegistryMirrors: ["https://myregistry.com:5000"]
+# preKubeadmCommands execute on the provisioned machine before the
+# container runtime or K8s is configured
+#preKubeadmCommands:
+#- apt-get update -y
+#- apt-get install -y unzip

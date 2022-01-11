@@ -79,6 +79,7 @@ cluster: bmh_provision \
 	cluster_provision
 
 kud_bm_deploy_mini:
+	source user_config.sh && \
 	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal v1 && popd
 
 kud_bm_deploy:
