@@ -9,8 +9,8 @@ source $SCRIPTDIR/common.sh
 
 case $1 in
     "create-gpg-key") create_gpg_key $2 ;;
-    "sops-encrypt-site") sops_encrypt_site $2 $3 ;;
-    "sops-decrypt-site") sops_decrypt_site $2 ;;
+    "sops-encrypt-site") sops_encrypt $2 $3 ;;
+    "sops-decrypt-site") sops_decrypt $2 ;;
     "flux-create-site") flux_create_site $2 $3 $4 $5;;
     *) cat <<EOF
 Usage: $(basename $0) COMMAND

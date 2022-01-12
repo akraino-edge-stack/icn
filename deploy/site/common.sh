@@ -24,36 +24,36 @@ function export_gpg_private_key {
     gpg --export-secret-keys --armor "$(_gpg_key_fp $1)"
 }
 
-function sops_encrypt_site {
-    local -r site_yaml=$1
+function sops_encrypt {
+    local -r yaml=$1
     local -r key_name=$2
 
-    local -r site_dir=$(dirname ${site_yaml})
+    local -r yaml_dir=$(dirname ${yaml})
     local -r key_fp=$(_gpg_key_fp ${key_name})
 
     # Commit the public key to the repository so that team members who
     # clone the repo can encrypt new files
-    echo "Creating ${site_dir}/sops.pub.asc with public key used to encrypt secrets"
-    gpg --export --armor "${key_fp}" >${site_dir}/sops.pub.asc
+    echo "Creating ${yaml_dir}/sops.pub.asc with public key used to encrypt secrets"
+    gpg --export --armor "${key_fp}" >${yaml_dir}/sops.pub.asc
 
     # Add .sops.yaml so users won't have to worry about specifying the
     # proper key for the target cluster or namespace
-    echo "Creating ${site_dir}/.sops.yaml SOPS configuration file"
-    cat <<EOF > ${site_dir}/.sops.yaml
+    echo "Creating ${yaml_dir}/.sops.yaml SOPS configuration file"
+    cat <<EOF > ${yaml_dir}/.sops.yaml
 creation_rules:
   - path_regex: .*.yaml
-    encrypted_regex: ^(bmcPassword|hashedPassword)$
+    encrypted_regex: ^(bmcPassword|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
     pgp: ${key_fp}
 EOF
 
-    sops --encrypt --in-place --config=${site_dir}/.sops.yaml ${site_yaml}
+    sops --encrypt --in-place --config=${yaml_dir}/.sops.yaml ${yaml}
 }
 
-function sops_decrypt_site {
-    local -r site_yaml=$1
+function sops_decrypt {
+    local -r yaml=$1
 
-    local -r site_dir=$(dirname ${site_yaml})
-    sops --decrypt --in-place --config=${site_dir}/.sops.yaml ${site_yaml}
+    local -r yaml_dir=$(dirname ${yaml})
+    sops --decrypt --in-place --config=${yaml_dir}/.sops.yaml ${yaml}
 }
 
 function flux_site_source_name {

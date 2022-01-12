@@ -1,24 +1,59 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta1
 kind: HelmRelease
 metadata:
-  name: db
-  namespace: emco
+    name: db
+    namespace: emco
 spec:
-  interval: 5m
-  chart:
-    spec:
-      chart: deployments/helm/emcoOpenNESS/emco-db
-      sourceRef:
-        kind: GitRepository
-        name: emco
-      interval: 1m
-  timeout: 10m
-  dependsOn:
-  - name: podsecurity
-  values:
-    global:
-      repository: integratedcloudnative/
-      pullPolicy: IfNotPresent
-    etcd:
-      clusterDomain: cluster.local
+    interval: 5m
+    chart:
+        spec:
+            chart: deployments/helm/emcoOpenNESS/emco-db
+            sourceRef:
+                kind: GitRepository
+                name: emco
+            interval: 1m
+    timeout: 10m
+    dependsOn:
+        - name: podsecurity
+    values:
+        global:
+            repository: integratedcloudnative/
+            pullPolicy: IfNotPresent
+            db:
+                rootPassword: ENC[AES256_GCM,data:Mt3jQPpW+MhrpNDRs8bXmw==,iv:GkpEWP5nLlNVZmGFziLREA+ef56qbdc2qYLeEH2k2Mo=,tag:9Hg8JGOkOAwoWHjyrueNdQ==,type:str]
+                emcoPassword: ENC[AES256_GCM,data:GzpPkmoVhjXXM15SJvZKQw==,iv:1QP0GzRdt64nbc0wQZ2pU24LdEkDO4agjT5XiD5xkEE=,tag:skQ/iO541RTD4AqL2IiBKQ==,type:str]
+            contextdb:
+                rootPassword: ENC[AES256_GCM,data:M6Rk4DbOHEMdJQ5QXySj4g==,iv:61LJ+PkSM7fvsURo4fhUFBEow1vPgoLh80shQ9teO3o=,tag:0iUp/J6wf0fKUdsKYmM0ow==,type:str]
+        etcd:
+            clusterDomain: cluster.local
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-01-13T22:30:27Z"
+    mac: ENC[AES256_GCM,data:mxeadS1wC8E5IJ4Sa++EBuiDiQHVoovscaSD2278ltcIoZmlw7OtUsk6MWHKmay8aC4XEsSu3R+kBo4w4tOyyuhuGVhRNZdHHyXcqNvKzMq8skoMfDvfyerm/n87CLqjBXjFlJ4ZSRNx0wNSpi3cj8gjS6MPWLHvA4tW2+rX5II=,iv:OkVmCe7kMsonQGUJjNY6rQWPrG0SFH9hNex0/V+IhGM=,tag:Xm098lioMSs5RCAfgiZXQA==,type:str]
+    pgp:
+        - created_at: "2022-01-13T22:30:26Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAn12AeXnARjmydU8dm7RE/4VuP5z5lNb4MrUtJ38OiTgo
+            fcrSJDFoxxy8aHPNsy9gzkSlC5Qe+cVtRrNOQNqUtJX8XWiH7Ik+9L5LBHHK6KgS
+            kJwl5/GAwtPoKctofMPBVNpDqyuktgv/ukoDKWMzygZbWIKBR5VK/mB51oEaZd+L
+            9UapbppWeyA7zMNdXEGD03eFN+tm1EBlHmV7Q/+Bkzul/U+Fkl7RG0acLyUncg1C
+            ueXMnA9D5M5gVa2Xhcx/4+LmqDc4m2zgiJLI5hyzowj6yOtF2PgLbNblbI6J5k6g
+            pbX3+Sj2PCDN9oNAdrtzd4pORoVso4uyAnyy3Ro5Wmr0c4MtGZ96whXgwXKk2cBf
+            80BaYXjwWyIrfBr25sto/Uv5dVXRcw36zQVo+O01u+9jLcMZ5m3rH+C8XBKGT0Fx
+            au9wKHQDGv+oM40JH/w3W1XshqgvggCGCCmcK3gUlRgARVhOQVx9Fh3gbwPwdkz2
+            FOvvN3Swcf/ilOBe87FmprVeycCxP4r87rvB6R8Z8KBjALvs/ImIaAW7oNjz2Z0d
+            SCVxt+g47qfZdiIYDHAZnzqsnXEAvTjsIDsj7oAuXSyrXEuj1Sf4h8uvgIq827UA
+            9bzPRDrHoENCw8xYJdhbD6uShRF+u6AYG9iLg5XtRv0TuJjvoQGNeUkbRZXIGTnS
+            XgGgDpqs7LhRvhQO1bxDQO73ZFGz31HwmDnCtticLC9ZPvxNixnbm+t+N9JlNK7U
+            3Eqs5suydbbsZEScnV7Lc2xurTfH4okPsvwC3J6sNbTvf+ODk76LZOeV+9imv6I=
+            =NfMW
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1

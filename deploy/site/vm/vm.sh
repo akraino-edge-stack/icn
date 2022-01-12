@@ -24,7 +24,7 @@ function build_source {
     # attempting to encrypt it twice below
     if [[ -f ${FLUX_SOPS_PRIVATE_KEY} ]]; then
 	gpg --import ${FLUX_SOPS_PRIVATE_KEY}
-	sops_decrypt_site ${SCRIPTDIR}/site.yaml
+	sops_decrypt ${SCRIPTDIR}/site.yaml
     fi
 
     # Generate user password and authorized key in site YAML
@@ -39,7 +39,7 @@ function build_source {
 
     # Encrypt the site YAML
     create_gpg_key ${FLUX_SOPS_KEY_NAME}
-    sops_encrypt_site ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
+    sops_encrypt ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
 
     # ONLY FOR TEST ENVIRONMENT: save the private key used
     export_gpg_private_key ${FLUX_SOPS_KEY_NAME} >${FLUX_SOPS_PRIVATE_KEY}

@@ -17,7 +17,7 @@ SITE_PATH=${SITE_PATH:-"deploy/site/pod11"}
 FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"} # TODO Replace ICN test key with real key
 
 function build_source {
-    sops_encrypt_site ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
+    sops_encrypt ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
 }
 
 function deploy {

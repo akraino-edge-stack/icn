@@ -1,0 +1,4 @@
+creation_rules:
+  - path_regex: .*.yaml
+    encrypted_regex: ^(bmcPassword|hashedPassword|emcoPassword|rootPassword)$
+    pgp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
