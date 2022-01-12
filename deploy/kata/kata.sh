@@ -77,6 +77,7 @@ function test_kata {
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
 
     # Ensure that Kata has been deployed first
+    WAIT_FOR_TRIES=30
     wait_for is_kata_deployed
 
     deploy_webhook ${cluster_name}
