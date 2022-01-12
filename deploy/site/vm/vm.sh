@@ -15,14 +15,15 @@ SITE_BRANCH=${SITE_BRANCH:-"master"}
 SITE_PATH=${SITE_PATH:-"deploy/site/vm"}
 
 FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"}
+FLUX_SOPS_PRIVATE_KEY="${SCRIPTDIR}/../secrets/sops.asc"
 
 # !!!NOTE!!! THE KEYS USED BELOW ARE FOR TEST PURPOSES ONLY.  DO NOT
 # USE THESE OUTSIDE OF THIS ICN VIRTUAL TEST ENVIRONMENT.
 function build_source {
     # First decrypt the existing site YAML, otherwise we'll be
     # attempting to encrypt it twice below
-    if [[ -f ${SCRIPTDIR}/sops.asc ]]; then
-	gpg --import ${SCRIPTDIR}/sops.asc
+    if [[ -f ${FLUX_SOPS_PRIVATE_KEY} ]]; then
+	gpg --import ${FLUX_SOPS_PRIVATE_KEY}
 	sops_decrypt_site ${SCRIPTDIR}/site.yaml
     fi
 
@@ -41,11 +42,11 @@ function build_source {
     sops_encrypt_site ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
 
     # ONLY FOR TEST ENVIRONMENT: save the private key used
-    export_gpg_private_key ${FLUX_SOPS_KEY_NAME} >${SCRIPTDIR}/sops.asc
+    export_gpg_private_key ${FLUX_SOPS_KEY_NAME} >${FLUX_SOPS_PRIVATE_KEY}
 }
 
 function deploy {
-    gpg --import ${SCRIPTDIR}/sops.asc
+    gpg --import ${FLUX_SOPS_PRIVATE_KEY}
     flux_create_site ${SITE_REPO} ${SITE_BRANCH} ${SITE_PATH} ${FLUX_SOPS_KEY_NAME}
 }
 
