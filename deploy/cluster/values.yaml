@@ -74,6 +74,11 @@ flux:
   # path is the repository to the resources to be applied to the
   # cluster.
   path: ./deploy/site/cluster-icn
+  # decryptionSecret is the SOPS secret key used by Flux to decrypt
+  # any SOPS-encrypted data stored in the resources at path.
+  #decryptionSecret: |
+  #  -----BEGIN PGP PRIVATE KEY BLOCK-----
+  #  ...
 
 # containerRuntime may be containerd or docker.
 containerRuntime: containerd

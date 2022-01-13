@@ -4117,6 +4117,17 @@ data:
       - Ingress
     ---
   sync.yaml: |
+    {{- if .Values.flux.decryptionSecret }}
+    ---
+    apiVersion: v1
+    type: Opaque
+    kind: Secret
+    metadata:
+      name: {{ .Values.flux.repositoryName }}-{{ .Values.flux.branch }}-sops-gpg
+      namespace: flux-system
+    data:
+      sops.asc: {{ .Values.flux.decryptionSecret | b64enc }}
+    {{- end }}
     ---
     apiVersion: source.toolkit.fluxcd.io/v1beta1
     kind: GitRepository
@@ -4143,6 +4154,12 @@ data:
       sourceRef:
         kind: GitRepository
         name: {{ .Values.flux.repositoryName }}
+    {{- if .Values.flux.decryptionSecret }}
+      decryption:
+        provider: sops
+        secretRef:
+          name: {{ .Values.flux.repositoryName }}-{{ .Values.flux.branch }}-sops-gpg
+    {{- end }}
 kind: ConfigMap
 metadata:
   creationTimestamp: null

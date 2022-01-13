@@ -30,6 +30,17 @@ EOF
     # The name "sync" must be sorted after "flux-system" to ensure
     # Flux CRDs are instantiated first
     cat <<'EOF' >${SCRIPTDIR}/addons/sync.yaml
+{{- if .Values.flux.decryptionSecret }}
+---
+apiVersion: v1
+type: Opaque
+kind: Secret
+metadata:
+  name: {{ .Values.flux.repositoryName }}-{{ .Values.flux.branch }}-sops-gpg
+  namespace: flux-system
+data:
+  sops.asc: {{ .Values.flux.decryptionSecret | b64enc }}
+{{- end }}
 ---
 apiVersion: source.toolkit.fluxcd.io/v1beta1
 kind: GitRepository
@@ -56,6 +67,12 @@ spec:
   sourceRef:
     kind: GitRepository
     name: {{ .Values.flux.repositoryName }}
+{{- if .Values.flux.decryptionSecret }}
+  decryption:
+    provider: sops
+    secretRef:
+      name: {{ .Values.flux.repositoryName }}-{{ .Values.flux.branch }}-sops-gpg
+{{- end }}
 EOF
     cat <<EOF >${SCRIPTDIR}/templates/flux-addon.yaml
 {{- if .Values.flux }}
