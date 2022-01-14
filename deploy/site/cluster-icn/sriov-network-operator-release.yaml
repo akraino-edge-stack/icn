@@ -20,4 +20,4 @@ spec:
     remediation:
       retries: -1
   dependsOn:
-  - name: podsecurity
+  - name: multus-cni
