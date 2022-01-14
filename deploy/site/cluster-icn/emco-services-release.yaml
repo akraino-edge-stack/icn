@@ -13,6 +13,12 @@ spec:
         kind: GitRepository
         name: emco
       interval: 1m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: -1
   dependsOn:
   - name: db
   values:

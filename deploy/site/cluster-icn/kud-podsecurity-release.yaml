@@ -14,5 +14,11 @@ spec:
         name: icn
         namespace: flux-system
       interval: 1m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: -1
   values:
     roleRef: psp:privileged

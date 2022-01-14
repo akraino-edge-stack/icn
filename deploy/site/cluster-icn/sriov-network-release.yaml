@@ -13,5 +13,11 @@ spec:
         kind: GitRepository
         name: kud
       interval: 1m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: -1
   dependsOn:
   - name: sriov-network-operator
