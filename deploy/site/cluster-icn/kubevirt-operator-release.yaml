@@ -21,3 +21,5 @@ spec:
       retries: -1
   dependsOn:
   - name: podsecurity
+  values:
+    replicaCount: 1
