@@ -77,6 +77,13 @@ function unregister_emco_controllers {
     emcoctl --config ${BUILDDIR}/${cluster_name}-config.yaml delete -f ${BUILDDIR}/${cluster_name}-controllers.yaml
 }
 
+function is_addon_ready {
+    local -r addon=$1
+    local -r cluster_name=${CLUSTER_NAME:-icn}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get HelmRelease/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+}
+
 function test_addons {
     # Create a temporary kubeconfig file for the tests
     local -r cluster_name=${CLUSTER_NAME:-icn}
@@ -93,11 +100,16 @@ function test_addons {
     # security hardening.
     if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
         # With containerd 1.2.13, the qat test container image fails to unpack.
-        kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network cmk"
+        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:ovn4nfv-network nfd:node-feature-discovery sriov-network:sriov-network cmk:cpu-manager"
     else
-        kud_tests="topology-manager-sriov multus ovn4nfv nfd sriov-network qat cmk"
+        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:ovn4nfv-network nfd:node-feature-discovery sriov-network:sriov-network qat:qat-device-plugin cmk:cpu-manager"
     fi
-    for test in ${kud_tests}; do
+    for kud_test in ${kud_tests}; do
+        addon="${kud_test#*:}"
+        test="${kud_test%:*}"
+        if [[ ! -z ${addon} ]]; then
+            wait_for is_addon_ready ${addon}
+        fi
         KUBECONFIG=${cluster_kubeconfig} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
     done
     # The plugin_fw_v2 test needs the EMCO controllers in place
