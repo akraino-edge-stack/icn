@@ -46,7 +46,7 @@ CAPI_VERSION="v0.4.3"
 CAPM3_VERSION="v0.5.1"
 
 #The flux version to use
-FLUX_VERSION="0.20.0"
+FLUX_VERSION="0.25.3"
 
 #The sops version to use
 SOPS_VERSION="v3.7.1"
