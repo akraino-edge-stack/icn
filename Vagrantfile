@@ -175,17 +175,6 @@ Vagrant.configure("2") do |config|
           trigger.name = 'Removing machine from IPMI network'
           trigger.run = {inline: "./tools/vagrant/remove_machine_from_vbmc.sh #{site} #{machine_name} #{bmc_port}"}
         end
-
-        # Create configuration for ICN provisioning
-        legacy_machine_args = "#{legacy_machine_args} #{machine_name} #{bmc_port}"
-        m.trigger.after [:up] do |trigger|
-          trigger.info = 'Creating nodes.json.sample describing the machines'
-          trigger.run = {inline: "./tools/vagrant/create_nodes_json_sample.sh #{site} #{legacy_machine_args}"}
-        end
-        m.trigger.after [:up] do |trigger|
-          trigger.info = 'Creating Provisioning resource describing the cluster'
-          trigger.run = {inline: "./tools/vagrant/create_provisioning_cr.sh #{site} #{legacy_machine_args}"}
-        end
       end
     end
   end
