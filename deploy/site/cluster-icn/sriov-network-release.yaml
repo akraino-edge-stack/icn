@@ -19,5 +19,25 @@ spec:
   upgrade:
     remediation:
       retries: -1
+  # Deployment of sriov-network causes the SR-IOV operator to drain
+  # the node, including the Flux controllers.  If the Helm controller
+  # is restarted while a chart install is pending, it is possible that
+  # the chart state becomes stuck in "pending-install" and manual
+  # intervention (deleting the Helm secret for the chart) is required
+  # to fix it.  Depending on the other charts in this cluster should
+  # prevent this issue from occurring.
   dependsOn:
+  - name: cdi
+  - name: cpu-manager
+  - name: kubevirt
+  - name: ovn4nfv-network
+  - name: ovn4nfv
+  - name: node-feature-discovery
+  - name: qat-device-plugin
   - name: sriov-network-operator
+  - namespace: emco
+    name: services
+  - namespace: emco
+    name: tools
+  - namespace: emco
+    name: monitor
