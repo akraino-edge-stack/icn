@@ -72,8 +72,7 @@ capi_install:
 flux_install:
 	./deploy/flux/flux.sh deploy
 
-unit: prerequisite \
-	bashate
+unit: bashate
 
 bashate:
 	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name "*.sh"`
