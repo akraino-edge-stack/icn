@@ -18,11 +18,11 @@ install: jump_server
 
 jump_server: package_prerequisite \
 	kud_bm_deploy_mini \
-	bmh_install \
+	bmo_install \
 	capi_install \
 	flux_install
 
-clean_jump_server: bmh_clean_host \
+clean_jump_server: bmo_clean_host \
 	kud_bm_reset \
 	clean_packages
 
@@ -32,7 +32,7 @@ package_prerequisite:
 bmo_clean:
 	./deploy/baremetal-operator/baremetal-operator.sh clean
 
-bmh_clean_host:
+bmo_clean_host:
 	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
 
 clean_packages:
@@ -43,7 +43,7 @@ clean_bm_packages:
 	pushd $(BOOTLOADER_ENV) && \
         ./02_clean_bootloader_package_req.sh --bm-cleanall && popd
 
-bmh_install:
+bmo_install:
 	source user_config.sh && env && \
 	pushd $(BMDIR) && ./02_configure.sh && popd && \
 	./deploy/ironic/ironic.sh deploy && \
