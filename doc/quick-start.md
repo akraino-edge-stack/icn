@@ -9,6 +9,8 @@ libvirt provider](https://github.com/vagrant-libvirt/vagrant-libvirt#installatio
 
 TL;DR
 
+    $ git clone https://gerrit.akraino.org/r/icn
+    $ cd icn
     $ vagrant up --no-parallel
     $ vagrant ssh jump
     vagrant@jump:~$ sudo su
