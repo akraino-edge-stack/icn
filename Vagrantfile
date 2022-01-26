@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
     # Note the apparent typo in the name below, it is correct as-is
     m.vm.box = 'intergratedcloudnative/ubuntu2004'
     m.vm.hostname = 'jump'
-    m.vm.synced_folder '.', '/icn'
+    m.vm.synced_folder '.', '/icn', type: 'nfs'
     m.vm.provider :libvirt do |libvirt|
       libvirt.graphics_ip = '0.0.0.0'
       libvirt.default_prefix = "#{site}-"
