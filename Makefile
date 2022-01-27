@@ -1,5 +1,4 @@
 SHELL:=/bin/bash
-ENV:=$(CURDIR)/env
 BMDIR:=$(CURDIR)/env/metal3
 KUD_PATH:=$(CURDIR)/deploy/kud
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
@@ -39,10 +38,6 @@ clean_packages:
 	pushd $(BOOTLOADER_ENV) && \
 	./02_clean_bootloader_package_req.sh --only-packages && popd
 
-clean_bm_packages:
-	pushd $(BOOTLOADER_ENV) && \
-        ./02_clean_bootloader_package_req.sh --bm-cleanall && popd
-
 bmo_install:
 	source user_config.sh && env && \
 	pushd $(BMDIR) && ./02_configure.sh && popd && \
@@ -52,16 +47,10 @@ bmo_install:
 
 kud_bm_deploy_mini:
 	source user_config.sh && \
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal v1 && popd
-
-kud_bm_deploy:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh all v2 && popd
-
-kud_bm_deploy_e2e:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh bm v2 && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
 
 kud_bm_reset:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset v1 && popd
+	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
 
 sdwan_verifier:
 	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
@@ -76,9 +65,6 @@ unit: bashate
 
 bashate:
 	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name "*.sh"`
-
-prerequisite:
-	pushd $(ENV) && ./cd_package_installer.sh && popd
 
 bm_verifer: jump_server \
 	pod11_cluster \
@@ -109,15 +95,5 @@ vm_cluster:
 
 vm_clean_cluster:
 	./deploy/site/vm/vm.sh clean
-
-bm_verify_nestedk8s: prerequisite \
-        kud_bm_deploy_e2e \
-        kud_bm_reset \
-	clean_bm_packages
-
-kud_bm_verifier: prerequisite \
-	kud_bm_deploy_e2e \
-	kud_bm_reset \
-	clean_bm_packages
 
 .PHONY: all bashate
