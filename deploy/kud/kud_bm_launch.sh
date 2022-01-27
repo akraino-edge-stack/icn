@@ -9,9 +9,7 @@ export KUBESPRAY_VERSION=2.16.0
 
 function get_kud_repo {
     clone_kud_repository
-    if [ "$1" == "v1" ] ; then
-        export KUD_ADDONS=multus
-    fi
+    export KUD_ADDONS=multus
 }
 
 function set_ssh_key {
@@ -38,8 +36,7 @@ function set_bm_kud {
 	done
 	DOCKER_OPTIONS="docker_options=\"${OPTIONS# }\""
     fi
-    if [ "$1" == "minimal" ] ; then
-        cat <<EOL > hosts.ini
+    cat <<EOL > hosts.ini
 [all]
 $HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22 ${DOCKER_OPTIONS}
 
@@ -56,51 +53,12 @@ $HOSTNAME
 kube-node
 kube-master
 EOL
-    else
-        cat <<EOL > hosts.ini
-[all]
-$HOSTNAME ansible_ssh_host=${HOST_IP} ansible_ssh_port=22 ${DOCKER_OPTIONS}
-
-[kube-master]
-$HOSTNAME
-
-[kube-node]
-$HOSTNAME
-
-[etcd]
-$HOSTNAME
-
-[ovn-central]
-$HOSTNAME
-
-[ovn-controller]
-$HOSTNAME
-
-[virtlet]
-$HOSTNAME
-
-[k8s-cluster:children]
-kube-node
-kube-master
-EOL
-    fi
     popd
 }
 
 function kud_install {
     pushd ${KUDPATH}/kud/hosting_providers/vagrant/
-    if [ "$1" == "all" ]; then
-        sed -i -e 's/testing_enabled=${KUD_ENABLE_TESTS:-false}/testing_enabled=${KUD_ENABLE_TESTS:-true}/g' installer.sh
-    fi
     ./installer.sh | tee kud_deploy.log
-
-    if [ "$1" == "bm" ]; then
-        for addon in ${KUD_ADDONS:-multus ovn4nfv nfd sriov qat cmk optane}; do
-            pushd ${KUDPATH}/kud/tests/
-                bash ${addon}.sh
-            popd
-        done
-    fi
     popd
 }
 
@@ -126,10 +84,10 @@ if [ "$1" == "reset" ] ; then
     exit 0
 fi
 
-get_kud_repo $2
+get_kud_repo
 set_ssh_key
-set_bm_kud $1
-kud_install $1
+set_bm_kud
+kud_install
 verifier
 
 exit 0
