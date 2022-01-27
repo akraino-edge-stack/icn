@@ -4,19 +4,17 @@
 # Disable 'globbing'
 set -eux -o pipefail
 
-SCRIPT_DIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
-
 echo "[ICN] Downloading ICN"
-git clone "https://gerrit.akraino.org/r/icn"
+git clone "https://gerrit.akraino.org/r/icn" ${WORKSPACE}/icn
 
 echo "[ICN] Bringing up test cluster"
 function clean_vm {
-    pushd ${SCRIPT_DIR}/icn
+    pushd ${WORKSPACE}/icn
     vagrant destroy -f
     popd
 }
 trap clean_vm EXIT
-pushd icn
+pushd ${WORKSPACE}/icn
 # TODO Improve VM performance by only using cores on the same node
 #sed -i -e '/^\s\+libvirt.cpus/!b' -e "h;s/\S.*/libvirt.cpuset = '0-21,44-65'/;H;g" Vagrantfile
 vagrant destroy -f
@@ -29,7 +27,7 @@ sudo su -c 'make jump_server vm_cluster'
 popd
 
 echo "[ICN] Installing jenkins identity into test cluster"
-cp ${SCRIPT_DIR}/icn/deploy/site/vm/id_rsa site-vm-rsa
+cp ${WORKSPACE}/icn/deploy/site/vm/id_rsa site-vm-rsa
 chmod 0600 site-vm-rsa
 ssh-keygen -f ${CLUSTER_SSH_KEY} -y > ${CLUSTER_SSH_KEY}.pub
 ssh-copy-id -i ${CLUSTER_SSH_KEY} -f ${CLUSTER_SSH_USER}@${CLUSTER_MASTER_IP} -o IdentityFile=site-vm-rsa -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null
