@@ -53,8 +53,26 @@ EOF
 echo "[ICN] Downloading run_bluval.sh from upstream ci-management"
 wget --read-timeout=10 --timeout=10 --waitretry=10 -t 10 https://raw.githubusercontent.com/akraino-edge-stack/ci-management/master/jjb/shell/run_bluval.sh
 
-echo "[ICN] Patching run_bluval.sh so it doesn't delete .netrc"
-sed -i "s/rm -f ~\/.netrc/#rm -f ~\/.netrc/" run_bluval.sh
+echo "[ICN] Patching run_bluval.sh"
+cat <<'EOF' | patch -p3
+diff --git a/jjb/shell/run_bluval.sh b/jjb/shell/run_bluval.sh
+index 75d20eb..dbfad03 100755
+--- a/jjb/shell/run_bluval.sh
++++ b/jjb/shell/run_bluval.sh
+@@ -177,6 +177,7 @@ if [ "$pull" == "true" ] || [ "$PULL" == "yes" ]
+ then
+     options+=" -P"
+ fi
++options+=" -t amd64-latest"
+
+ set +e
+ if python3 --version > /dev/null; then
+@@ -209,4 +210,3 @@ else
+     rm results.zip
+ fi
+
+-rm -f ~/.netrc
+EOF
 
 echo "[ICN] Executing run_bluval.sh"
 /bin/bash run_bluval.sh
