@@ -1,6 +1,6 @@
 apiVersion: v2
 name: machine
-version: 0.1.0
+version: 0.1.1
 description: A Metal3 BareMetalHost
 type: application
 sources:

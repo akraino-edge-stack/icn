@@ -44,6 +44,7 @@ spec:
   bmc:
     address: {{ .Values.bmcAddress }}
     credentialsName: {{ .Values.machineName }}-bmc-secret
+    disableCertificateVerification: {{ .Values.bmcDisableCertificateVerification }}
 {{- if .Values.networks }}
   networkData:
     name: {{ .Values.machineName }}-network-data
