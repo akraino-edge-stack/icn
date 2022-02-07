@@ -8,6 +8,7 @@ source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
 NAMEPREFIX="capm3"
+ENABLE_DHCP="${IRONIC_ENABLE_DHCP:-yes}"
 
 trap err_exit ERR
 function err_exit {
@@ -31,7 +32,11 @@ function build_source {
 
 function deploy {
     fetch_image
-    kustomize build ${SCRIPTDIR}/icn | kubectl apply -f -
+    local layer="${SCRIPTDIR}/icn"
+    if [[ ${ENABLE_DHCP} != "yes" ]]; then
+	layer="${SCRIPTDIR}/icn-no-dhcp"
+    fi
+    kustomize build ${layer} | kubectl apply -f -
     kubectl wait --for=condition=Available --timeout=600s deployment/${NAMEPREFIX}-ironic -n ${NAMEPREFIX}-system
 }
 
