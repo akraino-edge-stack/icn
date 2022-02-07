@@ -34,6 +34,7 @@ if baremetal_cidr.nil?
   puts "Missing bmcAddress value in site definition, can't determine baremetal network address"
   exit 1
 end
+baremetal_gw = IPAddr.new(baremetal_cidr).succ
 
 $post_up_message = <<MSG
 ------------------------------------------------------
@@ -102,14 +103,14 @@ Vagrant.configure("2") do |config|
                  :libvirt__network_name => "#{site}-provisioning",
                  :type => 'dhcp'
 
-    # IPMI control of machines is provided by vbmc on the host
+    # BMC control of machines is provided by sushy-emulator on the host
     m.trigger.after [:up] do |trigger|
-      trigger.name = 'Starting virtualbmc for IPMI network'
-      trigger.run = {inline: "./tools/vagrant/start_vbmc.sh"}
+      trigger.name = 'Starting sushy for BMC network'
+      trigger.run = {inline: "./tools/vagrant/start_sushy.sh #{baremetal_gw}"}
     end
     m.trigger.after [:destroy] do |trigger|
-      trigger.name = 'Stopping virtualbmc for IPMI network'
-      trigger.run = {inline: "./tools/vagrant/stop_vbmc.sh"}
+      trigger.name = 'Stopping sushy for BMC network'
+      trigger.run = {inline: "./tools/vagrant/stop_sushy.sh #{baremetal_gw}"}
     end
 
     m.trigger.after [:up] do |trigger|
@@ -139,9 +140,11 @@ Vagrant.configure("2") do |config|
       machine_name = values['machineName']
       boot_mac_address = values['bootMACAddress']
       bmc_port = URI.parse(values['bmcAddress']).port
+      uuid = URI.parse(values['bmcAddress']).path.split('/').last
       config.vm.define machine_name do |m|
         m.vm.hostname = machine_name
         m.vm.provider :libvirt do |libvirt|
+          libvirt.uuid = "#{uuid}"
           libvirt.graphics_ip = '0.0.0.0'
           libvirt.default_prefix = "#{site}-"
           libvirt.cpu_mode = 'host-passthrough'
@@ -165,16 +168,6 @@ Vagrant.configure("2") do |config|
         m.vm.network :private_network,
                      :libvirt__network_name => "#{site}-baremetal",
                      :type => 'dhcp'
-
-        # IPMI control
-        m.trigger.after [:up] do |trigger|
-          trigger.name = 'Adding machine to IPMI network'
-          trigger.run = {inline: "./tools/vagrant/add_machine_to_vbmc.sh #{site} #{machine_name} #{bmc_port}"}
-        end
-        m.trigger.after [:destroy] do |trigger|
-          trigger.name = 'Removing machine from IPMI network'
-          trigger.run = {inline: "./tools/vagrant/remove_machine_from_vbmc.sh #{site} #{machine_name} #{bmc_port}"}
-        end
       end
     end
   end
