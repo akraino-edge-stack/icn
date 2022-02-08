@@ -29,14 +29,14 @@ function clean {
 }
 
 function is_cluster_ready {
-    [[ $(kubectl -n metal3 get cluster icn -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+    [[ $(kubectl -n ${SITE_NAMESPACE} get cluster icn -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
 }
 
 function is_control_plane_ready {
     # Checking the Cluster resource status is not sufficient, it
     # reports the control plane as ready before the nodes forming the
     # control plane are ready
-    local -r replicas=$(kubectl -n metal3 get kubeadmcontrolplane icn -o jsonpath='{.spec.replicas}')
+    local -r replicas=$(kubectl -n ${SITE_NAMESPACE} get kubeadmcontrolplane icn -o jsonpath='{.spec.replicas}')
     [[ $(kubectl --kubeconfig=${BUILDDIR}/icn-admin.conf get nodes -l node-role.kubernetes.io/control-plane -o jsonpath='{range .items[*]}{.status.conditions[?(@.type=="Ready")].status}{"\n"}{end}' | grep -c True) == ${replicas} ]]
 }
 
@@ -44,7 +44,7 @@ function wait_for_all_ready {
     WAIT_FOR_INTERVAL=60s
     WAIT_FOR_TRIES=30
     wait_for is_cluster_ready
-    clusterctl -n metal3 get kubeconfig icn >${BUILDDIR}/icn-admin.conf
+    clusterctl -n ${SITE_NAMESPACE} get kubeconfig icn >${BUILDDIR}/icn-admin.conf
     chmod 600 ${BUILDDIR}/icn-admin.conf
     wait_for is_control_plane_ready
 }
