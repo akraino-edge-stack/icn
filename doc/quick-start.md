@@ -18,6 +18,14 @@ TL;DR
     root@jump:/icn# make jump_server
     root@jump:/icn# make vm_cluster
 
+> NOTE: vagrant destroy may fail due to
+> https://github.com/vagrant-libvirt/vagrant-libvirt/issues/1371. The
+> workaround is to destroy the machines manually
+>
+>     $ virsh -c qemu:///system destroy vm-machine-1
+>     $ virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-1
+>     $ virsh -c qemu:///system destroy vm-machine-2
+>     $ virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-2
 
 ## Create the virtual environment
 
