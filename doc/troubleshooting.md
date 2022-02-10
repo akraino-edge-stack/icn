@@ -27,6 +27,10 @@ Examining the BareMetalHost resource of the failing machine and the
 logs of Bare Metal Operator and Ironic Pods may also provide a
 description of why the provisioning is failing.
 
+A description of the BareMetalHost states can be found in the [Bare
+Metal Operator
+documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/baremetalhost-states.md).
+
 ### openstack baremetal
 
 In rare cases, the Ironic and Bare Metal Operator information may get
@@ -115,3 +119,7 @@ this, Flux will complete reconcilation succesfully.
 Provisioning can take a fair amount of time, refer to [Monitoring
 progress](installation-guide.md#monitoring-progress) to see where the
 process is.
+
+A description of the BareMetalHost states can be found in the [Bare
+Metal Operator
+documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/baremetalhost-states.md).
