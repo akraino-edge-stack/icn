@@ -82,6 +82,22 @@ The general procedure (shown on the jump server) is:
       | uuid                  | 93366f0a-aa12-4815-b524-b95839bfa05d |
       +-----------------------+--------------------------------------+
 
+## Pod deployment fails due to Docker rate limits
+
+If a Pod fails to start and the Pod status (`kubectl describe pod
+...`) shows that the Docker pull rate limit has been reached, it is
+possible to point ICN to a [Docker registry
+mirror](https://docs.docker.com/registry/recipes/mirror/).
+
+To enable the mirror on the jump server set `DOCKER_REGISTRY_MIRROR`
+in `user_config.sh` before installing the jump server or following the
+Docker's
+[instructions](https://docs.docker.com/registry/recipes/mirror/#configure-the-docker-daemon)
+to configure the daemon.
+
+To enable the mirror in the provisioned cluster, set the
+`dockerRegistryMirrors` value of the cluster chart.
+
 ## Helm release stuck in 'pending-install'
 
 If the HelmRelease status for a chart in the workload cluster shows
