@@ -47,7 +47,7 @@ function check_status_exit {
 			echo "$2 NF failed to run in the $1 namespace"
 			exit 2
 		fi
-	done		
+	done
 }
 
 for f5gnf in ${NF_0[@]}; do
