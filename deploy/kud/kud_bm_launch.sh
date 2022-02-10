@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
-LIBDIR="$(dirname "$(dirname "$PWD")")"
+SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
+LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 
-source $LIBDIR/env/lib/common.sh
+source $LIBDIR/common.sh
 
 export KUBESPRAY_VERSION=2.16.0
 

@@ -70,6 +70,10 @@ function insert_control_plane_network_identity_into_ssh_config {
     # This enables logging into the control plane machines from this
     # machine without specifying the identify file on the command line
 
+    if [[ ! $(which ipcalc) ]]; then
+        apt-get install -y ipcalc
+    fi
+
     # Create ssh config if it doesn't exist
     mkdir -p ${HOME}/.ssh && chmod 700 ${HOME}/.ssh
     touch ${HOME}/.ssh/config

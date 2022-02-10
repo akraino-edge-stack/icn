@@ -1,75 +1,95 @@
 SHELL:=/bin/bash
-BMDIR:=$(CURDIR)/env/metal3
-KUD_PATH:=$(CURDIR)/deploy/kud
-SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
-BOOTLOADER_ENV:=$(CURDIR)/env/ubuntu/bootloader-env
 
 help:
 	@echo "  Targets:"
-	@echo "  test             -- run unit tests"
 	@echo "  jump_server      -- install jump server into this machine"
-	@echo "  cluster          -- provision cluster(s)"
-	@echo "  verifier         -- run verifier tests for CI & CD logs"
 	@echo "  unit             -- run the unit tests"
+	@echo "  verifier         -- run verifier tests for CI & CD logs"
+	@echo "  vm_cluster       -- deploy VM compute cluster"
+	@echo "  pod11_cluster    -- deploy pod11 compute cluster"
 	@echo "  help             -- this help output"
 
 install: jump_server
 
-jump_server: package_prerequisite \
-	kud_bm_deploy_mini \
-	bmo_install \
-	capi_install \
-	flux_install
+# The jump server
 
-clean_jump_server: bmo_clean_host \
-	kud_bm_reset \
-	clean_packages
+jump_server: management_cluster \
+	tools \
+	ironic_bridge \
+	controllers
 
-package_prerequisite:
-	 pushd $(BMDIR) && ./01_install_package.sh && popd
+jump_server_clean: ironic_bridge_clean \
+	management_cluster_clean
 
-bmo_clean:
-	./deploy/baremetal-operator/baremetal-operator.sh clean
+# The jump server requires a K8s cluster to install into
 
-bmo_clean_host:
-	pushd $(BMDIR) && ./06_host_cleanup.sh && popd
+management_cluster:
+	source user_config.sh && \
+	./deploy/kud/kud_bm_launch.sh minimal
 
-clean_packages:
-	pushd $(BOOTLOADER_ENV) && \
-	./02_clean_bootloader_package_req.sh --only-packages && popd
+management_cluster_clean:
+	./deploy/kud/kud_bm_launch.sh reset
 
-bmo_install:
+# Tools used during the installation of jump server components
+
+tools: kustomize \
+	clusterctl \
+	flux_cli \
+	sops \
+	emcoctl
+
+kustomize:
+	./deploy/kustomize/kustomize.sh deploy
+
+clusterctl:
+	./deploy/clusterctl/clusterctl.sh deploy
+
+flux_cli:
+	./deploy/flux-cli/flux-cli.sh deploy
+
+sops:
+	./deploy/sops/sops.sh deploy
+
+emcoctl: golang
+	./deploy/emcoctl/emcoctl.sh deploy
+
+golang:
+	./deploy/golang/golang.sh deploy
+
+# Provisioning network configuration in the jump server
+
+ironic_bridge:
 	source user_config.sh && env && \
-	pushd $(BMDIR) && ./02_configure.sh && popd && \
-	./deploy/ironic/ironic.sh deploy && \
-	./deploy/cert-manager/cert-manager.sh deploy && \
+	./deploy/ironic/ironic.sh deploy-bridge
+
+ironic_bridge_clean:
+	./deploy/ironic/ironic.sh clean-bridge
+
+# Jump server components
+
+controllers: baremetal_operator \
+	cluster_api \
+	flux
+
+baremetal_operator: ironic cert_manager
 	./deploy/baremetal-operator/baremetal-operator.sh deploy
 
-kud_bm_deploy_mini:
-	source user_config.sh && \
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh minimal && popd
+baremetal_operator_clean:
+	./deploy/baremetal-operator/baremetal-operator.sh clean
 
-kud_bm_reset:
-	pushd $(KUD_PATH) && ./kud_bm_launch.sh reset && popd
+ironic:
+	./deploy/ironic/ironic.sh deploy
 
-sdwan_verifier:
-	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
+cert_manager:
+	./deploy/cert-manager/cert-manager.sh deploy
 
-capi_install:
+cluster_api:
 	./deploy/cluster-api/cluster-api.sh deploy
 
-flux_install:
+flux:
 	./deploy/flux/flux.sh deploy
 
-unit: bashate
-
-bashate:
-	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './cmd/bpa-operator/vendor/*' -not -path './ci/jjb/shell/*' -name "*.sh"`
-
-bm_verifer: jump_server \
-	pod11_cluster \
-	pod11_clean_cluster \
-	clean_jump_server
+# Example compute clusters
 
 pod11_cluster:
 	./deploy/site/pod11/pod11.sh deploy
@@ -77,15 +97,8 @@ pod11_cluster:
 	./deploy/kata/kata.sh test
 	./deploy/addons/addons.sh test
 
-pod11_clean_cluster:
+pod11_cluster_clean:
 	./deploy/site/pod11/pod11.sh clean
-
-verifier: vm_verifier
-
-vm_verifier: jump_server \
-	vm_cluster \
-	vm_clean_cluster \
-	clean_jump_server
 
 vm_cluster:
 	./deploy/site/vm/vm.sh deploy
@@ -93,7 +106,28 @@ vm_cluster:
 	./deploy/kata/kata.sh test
 	./deploy/addons/addons.sh test
 
-vm_clean_cluster:
+vm_cluster_clean:
 	./deploy/site/vm/vm.sh clean
 
-.PHONY: all bashate
+# Test targets
+
+unit: bashate
+
+bashate:
+	bashate -i E006,E003,E002,E010,E011,E042,E043 `find . -type f -not -path './ci/jjb/shell/*' -not -path './build/*' -name "*.sh"`
+
+verifier: vm_verifier
+
+vm_verifier: jump_server \
+	vm_cluster \
+	vm_cluster_clean \
+	jump_server_clean
+
+bm_verifer: jump_server \
+	pod11_cluster \
+	pod11_cluster_clean \
+	jump_server_clean
+
+SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
+sdwan_verifier:
+	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
