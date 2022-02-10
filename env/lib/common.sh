@@ -274,40 +274,6 @@ function clone_emco_repository {
     clone_repository ${EMCOPATH} ${EMCOREPO} ${EMCO_VERSION}
 }
 
-function install_kustomize {
-    curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2F${KUSTOMIZE_VERSION}/kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz" -o kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz
-    tar xzf kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz --no-same-owner
-    sudo install -o root -g root -m 0755 kustomize /usr/local/bin/kustomize
-    rm kustomize_${KUSTOMIZE_VERSION}_linux_amd64.tar.gz kustomize
-    kustomize version
-}
-
-function install_clusterctl {
-    curl -L https://github.com/kubernetes-sigs/cluster-api/releases/download/${CAPI_VERSION}/clusterctl-linux-amd64 -o clusterctl
-    sudo install -o root -g root -m 0755 clusterctl /usr/local/bin/clusterctl
-    rm clusterctl
-    clusterctl version
-}
-
-function install_flux_cli {
-    export FLUX_VERSION
-    curl -s https://fluxcd.io/install.sh | sudo -E bash
-    flux --version
-}
-
-function install_emcoctl {
-    clone_emco_repository
-    make -C ${EMCOPATH}/src/tools/emcoctl
-    sudo install -o root -g root -m 0755 ${EMCOPATH}/bin/emcoctl/emcoctl /usr/local/bin/emcoctl
-}
-
-function install_sops {
-    curl -L https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux -o sops
-    sudo install -o root -g root -m 0755 sops /usr/local/bin/sops
-    rm sops
-    sops --version
-}
-
 function fetch_image {
     if [[ "${BM_IMAGE_URL}" && "${BM_IMAGE}" ]]; then
        mkdir -p "${IRONIC_DATA_DIR}/html/images"

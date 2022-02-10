@@ -10,6 +10,10 @@ source $LIBDIR/common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
+function install_deps {
+    apt-get install -y jq
+}
+
 function is_emco_ready {
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
@@ -85,6 +89,8 @@ function is_addon_ready {
 }
 
 function test_addons {
+    install_deps
+
     # Create a temporary kubeconfig file for the tests
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
