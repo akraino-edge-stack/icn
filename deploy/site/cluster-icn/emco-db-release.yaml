@@ -7,7 +7,7 @@ spec:
     interval: 5m
     chart:
         spec:
-            chart: deployments/helm/emcoOpenNESS/emco-db
+            chart: deployments/helm/emcoBase/emco-db
             sourceRef:
                 kind: GitRepository
                 name: emco

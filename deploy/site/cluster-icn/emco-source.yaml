@@ -6,9 +6,9 @@ metadata:
   namespace: emco
 spec:
   interval: 1m
-  url: https://github.com/open-ness/EMCO
+  url: https://gitlab.com/project-emco/core/emco-base.git
   ref:
-    tag: openness-21.03.06
+    tag: v21.12
   ignore: |
     # exclude all
     /*
