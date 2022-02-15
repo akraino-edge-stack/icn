@@ -14,6 +14,9 @@ bmcUsername: admin
 # bmcPassword is the password used to access the machine's bare metal
 # controller.
 bmcPassword: password
+# bmcDisableCertificateVerification skips certificate verification
+# when connecting to the machine's bare metal controller.
+bmcDisableCertificateVerification: false
 
 # bootMACAddress is the MAC address of the NIC that will PXE boot.
 # This is only required when using virtual machines.
