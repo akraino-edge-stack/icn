@@ -33,12 +33,10 @@ TL;DR
 
 Now let's take a closer look at what was created.
 
-    $ virsh -c qemu:///system list
-     Id    Name                           State
-    ----------------------------------------------------
-     1207  vm-jump                        running
-     1208  vm-machine-1                   running
-     1209  vm-machine-2                   running
+    $ virsh -c qemu:///system list --uuid --name
+    0582a3ab-2516-47fe-8a77-2a88c411b550 vm-jump
+    ab389bad-2f4a-4eba-b49e-0d649ff3d237 vm-machine-1
+    8d747997-dcd1-42ca-9e25-b3eedbe326aa vm-machine-2
 
     $ virsh -c qemu:///system net-list
      Name                 State      Autostart     Persistent
@@ -46,21 +44,40 @@ Now let's take a closer look at what was created.
      vm-baremetal         active     yes           yes
      vm-provisioning      active     no            yes
 
-    $ vbmc list
-    +--------------+---------+---------+------+
-    | Domain name  | Status  | Address | Port |
-    +--------------+---------+---------+------+
-    | vm-machine-1 | running | ::      | 6230 |
-    | vm-machine-2 | running | ::      | 6231 |
-    +--------------+---------+---------+------+
+    $ curl --insecure -u admin:password https://192.168.151.1:8000/redfish/v1/Managers
+    {
+        "@odata.type": "#ManagerCollection.ManagerCollection",
+        "Name": "Manager Collection",
+        "Members@odata.count": 3,
+        "Members": [
+    
+              {
+                  "@odata.id": "/redfish/v1/Managers/0582a3ab-2516-47fe-8a77-2a88c411b550"
+              },
+    
+              {
+                  "@odata.id": "/redfish/v1/Managers/8d747997-dcd1-42ca-9e25-b3eedbe326aa"
+              },
+    
+              {
+                  "@odata.id": "/redfish/v1/Managers/ab389bad-2f4a-4eba-b49e-0d649ff3d237"
+              }
+    
+        ],
+        "Oem": {},
+        "@odata.context": "/redfish/v1/$metadata#ManagerCollection.ManagerCollection",
+        "@odata.id": "/redfish/v1/Managers",
+        "@Redfish.Copyright": "Copyright 2014-2017 Distributed Management Task Force, Inc. (DMTF). For the full DMTF copyright policy, see http://www.dmtf.org/about/policies/copyright."
+    }
 
 We've created a jump server and the two machines that will form the
 cluster. The jump server will be responsible for creating the
 cluster.
 
 We also created two networks, baremetal and provisioning, and a third
-network overlaid upon the baremetal network using [VirtualBMC](https://opendev.org/openstack/virtualbmc) for
-issuing IPMI commands to the virtual machines.
+network overlaid upon the baremetal network using [Virtual Redfish
+BMC](https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html)
+for issuing Redfish requests to the virtual machines.
 
 It's worth looking at these networks in more detail as they will be
 important during configuration of the jump server and cluster.
@@ -101,11 +118,11 @@ machines may communicate over it. Importantly, no DHCP server is
 present on this network. The `ironic` component of the jump server will
 be managing DHCP requests.
 
-The virtual baseband management controller controllers provided by
-VirtualBMC are listening at the address and port listed above on the
-host. To issue an IPMI command to `vm-machine-1` for example, the
-command will be issued to `192.168.151.1:6230`, and VirtualBMC will
-translate the the IPMI command into libvirt calls.
+The virtual baseband management controller provided by the Virtual
+Redfish BMC is listening at the address and port listed in the curl
+command above. To issue a Redfish request to `vm-machine-1` for
+example, the request will be issued to `192.168.151.1:8000`, and the
+Virtual Redfish BMC will translate the the request into libvirt calls.
 
 Now let's look at the networks from inside the virtual machines.
 
@@ -172,10 +189,8 @@ in the BIOS settings.
     root@jump:/home/vagrant# cd /icn
 
 Before telling ICN to start installing the components, it must first
-know which is the IPMI network NIC and which is the provisioning
-network NIC. Recall that in the jump server the IPMI network is
-overlaid onto the baremetal network and that the baremetal network NIC
-is `eth0`, and also that the provisioning network NIC is `eth1`.
+know which is the provisioning network NIC. Recall that in the jump
+server the provisioning network NIC is `eth1`.
 
 Edit `user_config.sh` to the below.
 
