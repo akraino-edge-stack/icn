@@ -17,7 +17,7 @@ BMOPATH="/opt/src/github.com/metal3-io/baremetal-operator"
 #Bare Metal Operator version to use
 #  If changing this, the value in deploy/ironic/icn/kustomization.yaml
 #  must also be changed
-BMO_VERSION="capm3-v0.5.1"
+BMO_VERSION="capm3-v0.5.4"
 
 #KuD repository URL
 KUDREPO="${KUDREPO:-https://github.com/onap/multicloud-k8s.git}"
@@ -40,10 +40,10 @@ FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"
 KUSTOMIZE_VERSION="v4.3.0"
 
 #Cluster API version to use
-CAPI_VERSION="v0.4.3"
+CAPI_VERSION="v0.4.7"
 
 #Cluster API version to use
-CAPM3_VERSION="v0.5.1"
+CAPM3_VERSION="v0.5.4"
 
 #The flux version to use
 FLUX_VERSION="0.25.3"
