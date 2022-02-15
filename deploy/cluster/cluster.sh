@@ -7,14 +7,10 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
+CALICO_VERSION="v3.22.0"
 FLANNEL_VERSION="v0.15.0"
 
-# This may be used to update the in-place addon YAML files from the
-# upstream projects
-function build_source {
-    mkdir -p ${SCRIPTDIR}/addons
-
-    # Flannel
+function build_source_flannel {
     curl -sL https://raw.githubusercontent.com/coreos/flannel/${FLANNEL_VERSION}/Documentation/kube-flannel.yml -o ${SCRIPTDIR}/addons/flannel.yaml
     cat <<EOF >${SCRIPTDIR}/templates/flannel-addon.yaml
 {{- if eq .Values.cni "flannel" }}
@@ -24,11 +20,28 @@ $(kubectl create configmap flannel-addon --from-file=${SCRIPTDIR}/addons/flannel
 EOF
     sed -i -e 's/  name: flannel-addon/  name: {{ .Values.clusterName }}-flannel-addon/' ${SCRIPTDIR}/templates/flannel-addon.yaml
     sed -i -e 's/10.244.0.0\/16/{{ .Values.podCidr }}/' ${SCRIPTDIR}/templates/flannel-addon.yaml
+}
 
-    # Flux
+function build_source_flux {
     flux install --export >${SCRIPTDIR}/addons/flux-system.yaml
+    cat <<EOF >>${SCRIPTDIR}/addons/flux-system.yaml
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: psp:privileged:flux-system
+  namespace: flux-system
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: psp:privileged
+subjects:
+- kind: Group
+  name: system:serviceaccounts:flux-system
+  apiGroup: rbac.authorization.k8s.io
+EOF
     # The name "sync" must be sorted after "flux-system" to ensure
-    # Flux CRDs are instantiated first
+    # CRDs are instantiated first
     cat <<'EOF' >${SCRIPTDIR}/addons/sync.yaml
 {{- if .Values.flux.decryptionSecret }}
 ---
@@ -81,7 +94,9 @@ $(kubectl create configmap flux-addon --from-file=${SCRIPTDIR}/addons/flux-syste
 {{- end }}
 EOF
     sed -i -e 's/  name: flux-addon/  name: {{ .Values.clusterName }}-flux-addon/' ${SCRIPTDIR}/templates/flux-addon.yaml
+}
 
+function build_source_podsecurity {
     # PodSecurityPolicy is being replaced in future versions of K8s.
     # The recommended practice is described by K8s at
     # - https://kubernetes.io/docs/concepts/policy/pod-security-policy/#recommended-practice
@@ -226,7 +241,53 @@ EOF
 $(kubectl create configmap podsecurity-addon --from-file=${SCRIPTDIR}/addons/podsecurity.yaml -o yaml --dry-run=client)
 EOF
     sed -i -e 's/  name: podsecurity-addon/  name: {{ .Values.clusterName }}-podsecurity-addon/' ${SCRIPTDIR}/templates/podsecurity-addon.yaml
+}
 
+function build_source_calico {
+    mkdir -p ${SCRIPTDIR}/addons/calico
+    curl -sL https://docs.projectcalico.org/archive/${CALICO_VERSION%.*}/manifests/calico.yaml -o ${SCRIPTDIR}/addons/calico/calico.yaml
+    # Remove trailing whitespace so that kubectl create configmap
+    # doesn't insert explicit newlines
+    sed -i -r 's/\s+$//g' ${SCRIPTDIR}/addons/calico/calico.yaml
+    cat <<EOF >${SCRIPTDIR}/addons/calico/ip-autodetection-method-patch.yaml
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: calico-node
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: calico-node
+          env:
+            - name: IP_AUTODETECTION_METHOD
+              value: can-reach=www.google.com
+EOF
+    cat <<EOF >${SCRIPTDIR}/addons/calico/kustomization.yaml
+resources:
+- calico.yaml
+patches:
+- path: ip-autodetection-method-patch.yaml
+EOF
+    kustomize build ${SCRIPTDIR}/addons/calico >${SCRIPTDIR}/addons/calico.yaml
+    cat <<EOF >${SCRIPTDIR}/templates/calico-addon.yaml
+{{- if eq .Values.cni "calico" }}
+---
+$(kubectl create configmap calico-addon --from-file=${SCRIPTDIR}/addons/calico.yaml -o yaml --dry-run=client)
+{{- end }}
+EOF
+    sed -i -e 's/  name: calico-addon/  name: {{ .Values.clusterName }}-calico-addon/' ${SCRIPTDIR}/templates/calico-addon.yaml
+}
+
+# This may be used to update the in-place addon YAML files from the
+# upstream projects
+function build_source {
+    mkdir -p ${SCRIPTDIR}/addons
+    build_source_calico
+    build_source_flannel
+    build_source_flux
+    build_source_podsecurity
 }
 
 case $1 in
