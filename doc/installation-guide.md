@@ -238,7 +238,7 @@ Metal Operator resources it uses into a Helm chart.
 
 ### Configuration
 
-> NOTE:/ To assist in the migration of R5 and earlier release's use from
+> NOTE: To assist in the migration of R5 and earlier release's use from
 > nodes.json and the Provisioning resource to the site YAML described
 > below, a helper script is provided at tools/migration/to<sub>r6.sh</sub>.
 

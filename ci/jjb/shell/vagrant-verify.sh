@@ -6,7 +6,14 @@ echo "---> vagrant-verify.sh"
 set -exuf -o pipefail
 
 function clean_vm {{
-    vagrant destroy -f
+    # TODO Vagrant has a known issue
+    # (https://github.com/vagrant-libvirt/vagrant-libvirt/issues/1371)
+    # destroying the VMs, so destroy them manually here
+    vagrant destroy -f jump
+    virsh -c qemu:///system destroy vm-machine-1
+    virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-1
+    virsh -c qemu:///system destroy vm-machine-2
+    virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-2
 }}
 trap clean_vm EXIT
 
