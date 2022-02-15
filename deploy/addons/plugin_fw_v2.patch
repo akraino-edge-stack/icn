@@ -1,0 +1,165 @@
+diff --git a/kud/tests/plugin_fw_v2.yaml b/kud/tests/plugin_fw_v2.yaml
+index b4dbf77..940ed6d 100644
+--- a/kud/tests/plugin_fw_v2.yaml
++++ b/kud/tests/plugin_fw_v2.yaml
+@@ -22,7 +22,7 @@ file:
+ version: emco/v2
+ resourceContext:
+   anchor: cluster-providers/{{$.ClusterProvider}}/clusters/{{$cluster.Name}}/labels
+-label-name: {{$.ClusterLabel}}
++clusterLabel: {{$.ClusterLabel}}
+ 
+ ---
+ version: emco/v2
+@@ -104,9 +104,9 @@ resourceContext:
+ metadata:
+   name: {{$cluster.Name}}
+ spec:
+-  cluster-provider: {{$.ClusterProvider}}
+-  cluster-name: {{$cluster.Name}}
+-  loadbalancer-ip: "0.0.0.0"
++  clusterProvider: {{$.ClusterProvider}}
++  cluster: {{$cluster.Name}}
++  loadbalancerIp: "0.0.0.0"
+ {{- end }}
+ 
+ ---
+@@ -116,7 +116,7 @@ resourceContext:
+ metadata:
+   name: {{.CompositeApp}}
+ spec:
+-  version: {{.Version}}
++  compositeAppVersion: {{.Version}}
+ 
+ ---
+ version: emco/v2
+@@ -159,7 +159,7 @@ resourceContext:
+ metadata :
+   name: packetgen-profile
+ spec:
+-  app-name: packetgen
++  app: packetgen
+ file:
+   {{.PackagesPath}}/profile.tar.gz
+ 
+@@ -170,7 +170,7 @@ resourceContext:
+ metadata :
+   name: firewall-profile
+ spec:
+-  app-name: firewall
++  app: firewall
+ file:
+   {{.PackagesPath}}/profile.tar.gz
+ 
+@@ -181,7 +181,7 @@ resourceContext:
+ metadata :
+   name: sink-profile
+ spec:
+-  app-name: sink
++  app: sink
+ file:
+   {{.PackagesPath}}/profile.tar.gz
+ 
+@@ -192,18 +192,18 @@ resourceContext:
+ metadata:
+   name: {{.DeploymentIntentGroup}}
+ spec:
+-  profile: {{.CompositeProfile}}
++  compositeProfile: {{.CompositeProfile}}
+   version: {{.Release}}
+-  logical-cloud: {{.LogicalCloud}}
+-  override-values:
+-    - app-name: packetgen
++  logicalCloud: {{.LogicalCloud}}
++  overrideValues:
++    - app: packetgen
+       values:
+         ".Values.service.ports.nodePort": '30888'
+-    - app-name: firewall
++    - app: firewall
+       values:
+         ".Values.global.dcaeCollectorIp": 1.2.3.4
+         ".Values.global.dcaeCollectorPort": '8888'
+-    - app-name: sink
++    - app: sink
+       values:
+         ".Values.service.ports.nodePort": '30677'
+ 
+@@ -232,8 +232,8 @@ resourceContext:
+ metadata:
+   name: packetgen_workload_intent
+ spec:
+-  application-name: packetgen
+-  workload-resource: {{.Release}}-packetgen
++  app: packetgen
++  workloadResource: {{.Release}}-packetgen
+   type: VirtualMachine
+ 
+ ---
+@@ -243,8 +243,8 @@ resourceContext:
+ metadata:
+   name: firewall_workload_intent
+ spec:
+-  application-name: firewall
+-  workload-resource: {{.Release}}-firewall
++  app: firewall
++  workloadResource: {{.Release}}-firewall
+   type: VirtualMachine
+ 
+ ---
+@@ -254,8 +254,8 @@ resourceContext:
+ metadata:
+   name: sink_workload_intent
+ spec:
+-  application-name: sink
+-  workload-resource: {{.Release}}-sink
++  app: sink
++  workloadResource: {{.Release}}-sink
+   type: Deployment
+ 
+ ---
+@@ -361,11 +361,11 @@ resourceContext:
+ metadata:
+   name: packetgen-placement-intent
+ spec:
+-  app-name: packetgen
++  app: packetgen
+   intent:
+     allOf:
+-      - provider-name: {{.ClusterProvider}}
+-        cluster-label-name: {{.ClusterLabel}}
++      - clusterProvider: {{.ClusterProvider}}
++        clusterLabel: {{.ClusterLabel}}
+ 
+ ---
+ version: emco/v2
+@@ -374,11 +374,11 @@ resourceContext:
+ metadata:
+   name: firewall-placement-intent
+ spec:
+-  app-name: firewall
++  app: firewall
+   intent:
+     allOf:
+-      - provider-name: {{.ClusterProvider}}
+-        cluster-label-name: {{.ClusterLabel}}
++      - clusterProvider: {{.ClusterProvider}}
++        clusterLabel: {{.ClusterLabel}}
+ 
+ ---
+ version: emco/v2
+@@ -387,11 +387,11 @@ resourceContext:
+ metadata:
+   name: sink-placement-intent
+ spec:
+-  app-name: sink
++  app: sink
+   intent:
+     allOf:
+-      - provider-name: {{.ClusterProvider}}
+-        cluster-label-name: {{.ClusterLabel}}
++      - clusterProvider: {{.ClusterProvider}}
++        clusterLabel: {{.ClusterLabel}}
+ 
+ {{- range $index, $cluster := .Clusters }}
+ ---

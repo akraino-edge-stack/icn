@@ -27,11 +27,11 @@ KUDPATH="/opt/src/github.com/onap/multicloud-k8s"
 KUD_VERSION="8157bf63753839ce4e9006978816fad3f63ca2de"
 
 #EMCO repository URL
-EMCOREPO="${EMCOREPO:-https://github.com/open-ness/EMCO.git}"
+EMCOREPO="${EMCOREPO:-https://gitlab.com/project-emco/core/emco-base.git}"
 #Path to clone the EMCO repo
-EMCOPATH="/opt/src/github.com/open-ness/EMCO"
+EMCOPATH="/opt/src/emco-base"
 #EMCO version to use
-EMCO_VERSION="openness-21.03.06"
+EMCO_VERSION="v21.12"
 
 #Discard existing repo directory
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"

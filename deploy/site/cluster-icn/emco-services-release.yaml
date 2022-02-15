@@ -8,7 +8,7 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: deployments/helm/emcoOpenNESS/emco-services
+      chart: deployments/helm/emcoBase/emco-services
       sourceRef:
         kind: GitRepository
         name: emco
@@ -23,30 +23,38 @@ spec:
   - name: db
   values:
     global:
-      repository: integratedcloudnative/
+      repository: registry.gitlab.com/project-emco/core/emco-base/
       pullPolicy: IfNotPresent
       loglevel: warn
     orchestrator:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     ncm:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     rsync:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     clm:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     ovnaction:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     dcm:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     dtc:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     nps:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     sds:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
+    its:
+      imageTag: v21.12
     gac:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     sfc:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
     sfcclient:
-      imageTag: openness-21.03.06
+      imageTag: v21.12
+    hpa-ac:
+      common:
+        repository: registry.gitlab.com/project-emco/core/emco-base/
+        imageTag: v21.12
+    hpa-plc:
+      imageTag: v21.12

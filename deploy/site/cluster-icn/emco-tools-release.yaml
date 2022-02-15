@@ -8,7 +8,7 @@ spec:
   interval: 5m
   chart:
     spec:
-      chart: deployments/helm/emcoOpenNESS/emco-tools
+      chart: deployments/helm/emcoBase/emco-tools
       sourceRef:
         kind: GitRepository
         name: emco
@@ -24,7 +24,7 @@ spec:
   - name: podsecurity
   values:
     global:
-      repository: integratedcloudnative/
+      repository: registry.gitlab.com/project-emco/core/emco-base/
       pullPolicy: IfNotPresent
     fluentd:
       clusterDomain: cluster.local

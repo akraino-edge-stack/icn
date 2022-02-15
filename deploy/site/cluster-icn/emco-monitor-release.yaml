@@ -20,5 +20,5 @@ spec:
     remediation:
       retries: -1
   values:
-    registryPrefix: integratedcloudnative/
-    tag: openness-21.03.06
+    registryPrefix: registry.gitlab.com/project-emco/core/emco-base/
+    tag: v21.12

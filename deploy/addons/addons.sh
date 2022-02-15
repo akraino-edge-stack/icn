@@ -97,6 +97,12 @@ function test_addons {
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_kubeconfig}
 
     clone_kud_repository
+    # The vFW test in EMCO v21.12 does not use KubeVirt, so patch the
+    # KuD test and continue to use it
+    pushd ${KUDPATH}
+    patch -p1 --forward <${SCRIPTDIR}/plugin_fw_v2.patch || true
+    popd
+
     pushd ${KUDPATH}/kud/tests
     failed_kud_tests=""
     container_runtime=$(KUBECONFIG=${cluster_kubeconfig} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
