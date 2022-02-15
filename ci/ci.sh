@@ -99,8 +99,6 @@ function update_jobs {
     # if [[ ${WITH_VAGRANT} == "yes" ]]; then
     #     jenkins-jobs update ${JJB_PATH} icn-master-vagrant-verify-verify_nestedk8s
     # fi
-    # jenkins-jobs update ${JJB_PATH} icn-master-bm-verify-bm_verify_nestedk8s
-    # jenkins-jobs update ${JJB_PATH} icn-master-bm-verify-kud_bm_verifier
 }
 
 function install_jenkins_id {
