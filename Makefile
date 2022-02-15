@@ -123,7 +123,7 @@ vm_verifier: jump_server \
 	vm_cluster_clean \
 	jump_server_clean
 
-bm_verifer: jump_server \
+bm_verifier: jump_server \
 	pod11_cluster \
 	pod11_cluster_clean \
 	jump_server_clean

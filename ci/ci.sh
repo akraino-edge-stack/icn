@@ -87,11 +87,11 @@ function update_jobs {
     # This will create all 344 jobs:
     # jenkins-jobs update ${JJB_PATH}:${ICN_DIR}/ci/jjb/project.yaml
 
-    # These are the ICN jobs we are interested in (note intentional misspelling of bm_verifer):
+    # These are the ICN jobs we are interested in
     if [[ ${WITH_VAGRANT} == "yes" ]]; then
         jenkins-jobs update ${JJB_PATH} icn-master-vagrant-verify-verifier
     fi
-    jenkins-jobs update ${JJB_PATH} icn-master-bm-verify-bm_verifer
+    jenkins-jobs update ${JJB_PATH} icn-master-bm-verify-bm_verifier
     jenkins-jobs update ${JJB_PATH} icn-bluval-daily-master
     #jenkins-jobs update ${JJB_PATH} icn-master-verify
 

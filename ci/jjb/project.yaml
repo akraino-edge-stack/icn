@@ -18,7 +18,7 @@
     project-name: icn
     nexus_log_subdir: intel/ICN_CD_logs
     target:
-      - bm_verifer
+      - bm_verifier
       - bm_verify_nestedk8s
       - kud_bm_verifier
     stream:
