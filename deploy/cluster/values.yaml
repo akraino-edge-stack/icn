@@ -86,9 +86,8 @@ containerRuntime: containerd
 # podCidr is the POD CIDR.
 podCidr: 10.244.64.0/18
 
-# cni is the cluster CNI.  The only currently supported CNI is
-# flannel.
-cni: flannel
+# cni is the cluster CNI.  Supported CNIs include calico and flannel.
+cni: calico
 
 # All the version info is captured in one block here.  Care must
 # be taken to ensure that the OS, Kubernetes, and CRI (containerd

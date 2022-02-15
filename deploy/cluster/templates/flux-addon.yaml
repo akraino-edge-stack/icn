@@ -4280,6 +4280,20 @@ data:
           app: notification-controller
       policyTypes:
       - Ingress
+    ---
+    apiVersion: rbac.authorization.k8s.io/v1
+    kind: RoleBinding
+    metadata:
+      name: psp:privileged:flux-system
+      namespace: flux-system
+    roleRef:
+      apiGroup: rbac.authorization.k8s.io
+      kind: ClusterRole
+      name: psp:privileged
+    subjects:
+    - kind: Group
+      name: system:serviceaccounts:flux-system
+      apiGroup: rbac.authorization.k8s.io
   sync.yaml: |
     {{- if .Values.flux.decryptionSecret }}
     ---

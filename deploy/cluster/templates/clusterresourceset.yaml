@@ -8,7 +8,12 @@ spec:
     matchLabels:
       cluster.x-k8s.io/cluster-name: {{ .Values.clusterName }}
   resources:
-{{- if eq .Values.cni "flannel" }}
+  - name: {{ .Values.clusterName }}-podsecurity-addon
+    kind: ConfigMap
+{{- if eq .Values.cni "calico" }}
+  - name: {{ .Values.clusterName }}-calico-addon
+    kind: ConfigMap
+{{- else if eq .Values.cni "flannel" }}
   - name: {{ .Values.clusterName }}-flannel-addon
     kind: ConfigMap
 {{- end }}
@@ -16,5 +21,3 @@ spec:
   - name: {{ .Values.clusterName }}-flux-addon
     kind: ConfigMap
 {{- end }}
-  - name: {{ .Values.clusterName }}-podsecurity-addon
-    kind: ConfigMap
