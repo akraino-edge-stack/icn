@@ -85,6 +85,11 @@ spec:
       permissions: '0777'
       content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 8 }}
+{{- if eq .Values.cni "calico" }}
+    - path: /etc/NetworkManager/conf.d/calico.conf
+      content: |
+{{ $.Files.Get "resources/calico.conf" | indent 8 }}
+{{- end }}
 {{- if .Values.userData }}
     users:
     - name: {{ .Values.userData.name }}
