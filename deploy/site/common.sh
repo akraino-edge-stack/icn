@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
+SITE_NAMESPACE="${SITE_NAMESPACE:-metal3}"
+
 function _gpg_key_fp {
     gpg --with-colons --list-secret-keys $1 | awk -F: '/fpr/ {print $10;exit}'
 }
@@ -84,6 +86,7 @@ function flux_create_site {
     gpg --export-secret-keys --armor "$(_gpg_key_fp ${key_name})" |
 	kubectl -n flux-system create secret generic ${secret_name} --from-file=sops.asc=/dev/stdin --dry-run=client -o yaml |
 	kubectl apply -f -
-    flux create kustomization ${kustomization_name} --path=${path} --source=GitRepository/${source_name} --prune=true \
+    kubectl create namespace ${SITE_NAMESPACE} --dry-run=client -o yaml | kubectl apply -f -
+    flux create kustomization ${kustomization_name} --target-namespace=${SITE_NAMESPACE} --path=${path} --source=GitRepository/${source_name} --prune=true \
 	 --decryption-provider=sops --decryption-secret=${secret_name}
 }
