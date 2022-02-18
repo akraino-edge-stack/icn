@@ -171,7 +171,8 @@ data:
           serviceAccountName: flannel
           initContainers:
           - name: install-cni-plugin
-            image: rancher/mirrored-flannelcni-flannel-cni-plugin:v1.2
+           #image: flannelcni/flannel-cni-plugin:v1.0.1 for ppc64le (dockerhub limitations may apply)
+            image: rancher/mirrored-flannelcni-flannel-cni-plugin:v1.0.1
             command:
             - cp
             args:
@@ -182,7 +183,8 @@ data:
             - name: cni-plugin
               mountPath: /opt/cni/bin
           - name: install-cni
-            image: quay.io/coreos/flannel:v0.15.0
+           #image: flannelcni/flannel:v0.16.1 for ppc64le (dockerhub limitations may apply)
+            image: rancher/mirrored-flannelcni-flannel:v0.16.1
             command:
             - cp
             args:
@@ -196,7 +198,8 @@ data:
               mountPath: /etc/kube-flannel/
           containers:
           - name: kube-flannel
-            image: quay.io/coreos/flannel:v0.15.0
+           #image: flannelcni/flannel:v0.16.1 for ppc64le (dockerhub limitations may apply)
+            image: rancher/mirrored-flannelcni-flannel:v0.16.1
             command:
             - /opt/bin/flanneld
             args:
@@ -227,6 +230,8 @@ data:
               mountPath: /run/flannel
             - name: flannel-cfg
               mountPath: /etc/kube-flannel/
+            - name: xtables-lock
+              mountPath: /run/xtables.lock
           volumes:
           - name: run
             hostPath:
@@ -240,6 +245,10 @@ data:
           - name: flannel-cfg
             configMap:
               name: kube-flannel-cfg
+          - name: xtables-lock
+            hostPath:
+              path: /run/xtables.lock
+              type: FileOrCreate
 kind: ConfigMap
 metadata:
   creationTimestamp: null
