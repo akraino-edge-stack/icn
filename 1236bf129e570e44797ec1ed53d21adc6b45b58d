@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "993051a2_68db5b64",
+        "filename": "deploy/cluster/cluster.sh",
+        "patchSetId": 1
+      },
+      "lineNbr": 295,
+      "author": {
+        "id": 356
+      },
+      "writtenOn": "2022-02-18T00:02:14Z",
+      "side": 1,
+      "message": "Need to remove this",
+      "revId": "1236bf129e570e44797ec1ed53d21adc6b45b58d",
+      "serverId": "4cada01b-0314-4fe0-84a1-f9ddc89863f9",
+      "unresolved": true
+    }
+  ]
+}
