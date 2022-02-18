@@ -1,0 +1,82 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: cmk-reconcile-ds-all
+  namespace: cmk-namespace
+spec:
+  template:
+    spec:
+      containers:
+        - args:
+            - "/cmk/cmk.py isolate --pool=infra /cmk/cmk.py -- node-report --interval=$CMK_NODE_REPORT_SLEEP_TIME --publish"
+          command:
+            - "/bin/bash"
+            - "-c"
+          env:
+            - name: CMK_NODE_REPORT_SLEEP_TIME
+              # Change this to modify the sleep interval between consecutive
+              # cmk node report runs. The value is specified in seconds.
+              value: '60'
+            - name: CMK_PROC_FS
+              value: "/host/proc"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          image: cmk:v1.4.1
+          name: cmk-nodereport
+          volumeMounts:
+            - mountPath: "/host/proc"
+              name: host-proc
+              readOnly: true
+            - mountPath: "/etc/cmk"
+              name: cmk-conf-dir
+      initContainers:
+        - args:
+            - "/cmk/cmk.py init --conf-dir=/etc/cmk --num-exclusive-cores=$NUM_EXCLUSIVE_CORES --num-shared-cores=$NUM_SHARED_CORES"
+          command:
+            - "/bin/bash"
+            - "-c"
+          env:
+            - name: CMK_PROC_FS
+              value: '/proc'
+            - name: NUM_EXCLUSIVE_CORES
+              # Change this to modify the value passed to `--num-exclusive-cores` flag.
+              value: '2'
+            - name: NUM_SHARED_CORES
+              # Change this to modify the value passed to `--num-shared-cores` flag.
+              value: '1'
+          image: cmk:v1.4.1
+          name: cmk-init-pod
+          volumeMounts:
+            - mountPath: "/etc/cmk"
+              name: cmk-conf-dir
+        - args:
+            - "/cmk/cmk.py discover --conf-dir=/etc/cmk --no-taint"
+          command:
+            - "/bin/bash"
+            - "-c"
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          image: cmk:v1.4.1
+          name: cmk-discover-pod
+          volumeMounts:
+            - mountPath: "/etc/cmk"
+              name: cmk-conf-dir
+        - args:
+            - "/cmk/cmk.py install --install-dir=/opt/bin"
+          command:
+            - "/bin/bash"
+            - "-c"
+          image: cmk:v1.4.1
+          name: cmk-install-pod
+          volumeMounts:
+            - mountPath: "/opt/bin"
+              name: cmk-install-dir
+      volumes:
+        - hostPath:
+            path: /opt/bin
+          name: cmk-install-dir

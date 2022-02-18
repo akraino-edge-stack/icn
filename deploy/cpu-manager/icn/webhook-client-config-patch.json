@@ -1,0 +1,4 @@
+[
+    { "op": "remove", "path": "/webhooks/0/clientConfig/caBundle" },
+    { "op": "replace", "path": "/webhooks/0/clientConfig/service/namespace", "value": "kud" }
+]

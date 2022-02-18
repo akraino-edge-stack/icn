@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: sriov-network
+  namespace: kud
+spec:
+  interval: 5m
+  path: deploy/sriov-network
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: icn
+    namespace: flux-system
+  dependsOn:
+  - name: sriov-network-operator
+  wait: true
+  timeout: 10m

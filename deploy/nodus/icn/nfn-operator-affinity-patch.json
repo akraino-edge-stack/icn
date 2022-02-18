@@ -1,0 +1,22 @@
+[
+    { 
+	"op": "replace",
+	"path": "/spec/template/spec/affinity",
+	"value": { 
+            "podAffinity": { 
+		"requiredDuringSchedulingIgnoredDuringExecution": [{ 
+		    "labelSelector": { 
+			"matchExpressions": [{
+			    "key": "app",
+			    "operator": "In",
+			    "values": ["ovn-control-plane"]
+			}]
+		    },
+		    "topologyKey": "kubernetes.io/hostname"
+		}]
+	    }
+	}
+    }
+]
+
+

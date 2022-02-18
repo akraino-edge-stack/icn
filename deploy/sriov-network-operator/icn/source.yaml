@@ -1,0 +1,16 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: k8snetworkplumbingwg
+  namespace: kud
+spec:
+  interval: 1m
+  url: https://github.com/k8snetworkplumbingwg/sriov-network-operator.git
+  ref:
+    tag: v1.1.0
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/deployment

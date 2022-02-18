@@ -1,0 +1,6 @@
+$patch: delete
+apiVersion: v1
+kind: Pod
+metadata:
+  name: cmk-init-pod
+  namespace: cmk-namespace  

@@ -59,6 +59,9 @@ golang:
 kubectl:
 	./deploy/kubectl/kubectl.sh deploy
 
+yq:
+	./deploy/yq.sh deploy
+
 # Provisioning network configuration in the jump server
 
 ironic_bridge:
@@ -136,9 +139,17 @@ sdwan_verifier:
 	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
 
 # Development targets
-source: flux_cli kubectl kustomize
+source: flux_cli kubectl kustomize yq
 	./deploy/baremetal-operator/baremetal-operator.sh build-source
+	./deploy/cdi-operator/cdi-operator.sh build-source
+	./deploy/cdi/cdi.sh build-source
 	./deploy/cert-manager/cert-manager.sh build-source
 	./deploy/cluster/cluster.sh build-source
+	./deploy/cpu-manager/cpu-manager.sh build-source
 	./deploy/ironic/ironic.sh build-source
 	./deploy/kata/kata.sh build-source
+	./deploy/kubevirt-operator/kubevirt-operator.sh build-source
+	./deploy/kubevirt/kubevirt.sh build-source
+	./deploy/multus-cni/multus-cni.sh build-source
+	./deploy/nodus/nodus.sh build-source
+	./deploy/qat-plugin/qat-plugin.sh build-source

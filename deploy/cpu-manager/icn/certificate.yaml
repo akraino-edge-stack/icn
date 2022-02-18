@@ -1,0 +1,12 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: cmk-webhook-service
+  namespace: cmk-namespace
+spec:
+  secretName: cmk-webhook-certs
+  dnsNames:
+  - cmk-webhook-service.kud.svc
+  issuerRef:
+    name: cmk-selfsigned-issuer
