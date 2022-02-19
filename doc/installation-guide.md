@@ -10,6 +10,11 @@ Due to the almost limitless number of possible hardware
 configurations, this installation guide has chosen a concrete
 configuration to use in the examples that follow.
 
+> NOTE: The example configuration's BMC does not support Redfish
+> virtual media, and therefore IPMI is used instead.  When supported
+> by the BMC, it is recommended to use the more secure Redfish virtual
+> media option as shown [Quick start guide](quick-start.md).
+
 The configuration contains the following three machines.
 
 <table id="orgf44d94a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">

@@ -1,3 +1,6 @@
+> NOTE: The ICN project is presently in the incubation/pre-production
+> phase and is suitable for testing purposes only.
+
 # Introduction
 
 ICN addresses the infrastructure orchestration needed to bring up a
