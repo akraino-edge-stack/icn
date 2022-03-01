@@ -15,6 +15,7 @@ cluster is entirely configured.
 1. [Quick start](doc/quick-start.md)
 2. [Installation guide](doc/installation-guide.md)
 3. [Troubleshooting](doc/troubleshooting.md)
+4. [Software BOM](doc/software-bom.md)
 
 # Reporting a bug
 
