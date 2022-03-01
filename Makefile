@@ -18,7 +18,8 @@ jump_server: management_cluster \
 	ironic_bridge \
 	controllers
 
-jump_server_clean: ironic_bridge_clean \
+jump_server_clean: controllers_clean \
+	ironic_bridge_clean \
 	management_cluster_clean
 
 # The jump server requires a K8s cluster to install into
@@ -73,11 +74,19 @@ ironic_bridge_clean:
 
 # Jump server components
 
-controllers: baremetal_operator \
+controllers: ironic \
+	cert_manager \
+	baremetal_operator \
 	cluster_api \
 	flux
 
-baremetal_operator: ironic cert_manager
+controllers_clean: flux_clean \
+	cluster_api_clean \
+	baremetal_operator_clean \
+	cert_manager_clean \
+	ironic_clean
+
+baremetal_operator:
 	./deploy/baremetal-operator/baremetal-operator.sh deploy
 
 baremetal_operator_clean:
@@ -86,14 +95,26 @@ baremetal_operator_clean:
 ironic:
 	./deploy/ironic/ironic.sh deploy
 
+ironic_clean:
+	./deploy/ironic/ironic.sh clean
+
 cert_manager:
 	./deploy/cert-manager/cert-manager.sh deploy
+
+cert_manager_clean:
+	./deploy/cert-manager/cert-manager.sh clean
 
 cluster_api:
 	./deploy/cluster-api/cluster-api.sh deploy
 
+cluster_api_clean:
+	./deploy/cluster-api/cluster-api.sh clean
+
 flux:
 	./deploy/flux/flux.sh deploy
+
+flux_clean:
+	./deploy/flux/flux.sh clean
 
 # Example compute clusters
 
@@ -105,6 +126,7 @@ pod11_cluster:
 
 pod11_cluster_clean:
 	./deploy/site/pod11/pod11.sh clean
+	./deploy/site/pod11/pod11.sh wait-clean
 
 vm_cluster:
 	./deploy/site/vm/vm.sh deploy
@@ -114,6 +136,7 @@ vm_cluster:
 
 vm_cluster_clean:
 	./deploy/site/vm/vm.sh clean
+	./deploy/site/vm/vm.sh wait-clean
 
 # Test targets
 

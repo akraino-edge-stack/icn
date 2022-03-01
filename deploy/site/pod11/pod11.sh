@@ -49,11 +49,22 @@ function wait_for_all_ready {
     wait_for is_control_plane_ready
 }
 
+function is_cluster_deleted {
+    ! kubectl -n ${SITE_NAMESPACE} get cluster icn
+}
+
+function wait_for_all_deleted {
+    WAIT_FOR_INTERVAL=60s
+    WAIT_FOR_TRIES=30
+    wait_for is_cluster_deleted
+}
+
 case $1 in
     "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;
+    "wait-clean") wait_for_all_deleted ;;
     *) cat <<EOF
 Usage: $(basename $0) COMMAND
 

@@ -100,7 +100,7 @@ function deploy {
 }
 
 function clean {
-    kustomize build ${SCRIPTDIR}/icn | kubectl delete -f -
+    kustomize build ${SCRIPTDIR}/icn | kubectl delete --ignore-not-found=true -f -
     rm -rf ${IRONIC_DATA_DIR}
 }
 
