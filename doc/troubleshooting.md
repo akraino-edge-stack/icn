@@ -123,3 +123,14 @@ process is.
 A description of the BareMetalHost states can be found in the [Bare
 Metal Operator
 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/baremetalhost-states.md).
+
+## Vagrant destroy fails with `cannot undefine domain with nvram`
+
+The fix is to destroy each machine individually.  For the default ICN
+virtual machine deployment:
+
+    vagrant destroy -f jump
+    virsh -c qemu:///system destroy vm-machine-1
+    virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-1
+    virsh -c qemu:///system destroy vm-machine-2
+    virsh -c qemu:///system undefine --nvram --remove-all-storage vm-machine-2
