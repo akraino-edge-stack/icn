@@ -37,6 +37,7 @@ function deploy_webhook {
     # create-certs.sh takes care of converting the .yaml.tpl into the
     # .yaml file
     mkdir -p ${BUILDDIR}/webhook/base/deploy
+    curl -sL ${KATA_WEBHOOK_URL}/common.bash -o ${BUILDDIR}/webhook/base/common.bash
     curl -sL ${KATA_WEBHOOK_URL}/create-certs.sh -o ${BUILDDIR}/webhook/base/create-certs.sh
     curl -sL ${KATA_WEBHOOK_URL}/deploy/webhook-registration.yaml.tpl -o ${BUILDDIR}/webhook/base/deploy/webhook-registration.yaml.tpl
     curl -sL ${KATA_WEBHOOK_URL}/deploy/webhook.yaml -o ${BUILDDIR}/webhook/base/deploy/webhook.yaml
