@@ -70,6 +70,7 @@ ironic_bridge:
 	./deploy/ironic/ironic.sh deploy-bridge
 
 ironic_bridge_clean:
+	source user_config.sh && \
 	./deploy/ironic/ironic.sh clean-bridge
 
 # Jump server components
@@ -93,9 +94,11 @@ baremetal_operator_clean:
 	./deploy/baremetal-operator/baremetal-operator.sh clean
 
 ironic:
+	source user_config.sh && \
 	./deploy/ironic/ironic.sh deploy
 
 ironic_clean:
+	source user_config.sh && \
 	./deploy/ironic/ironic.sh clean
 
 cert_manager:
