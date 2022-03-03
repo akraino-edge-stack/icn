@@ -7,7 +7,7 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/common.sh
 
 function deploy {
-    curl -LO "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o yq
+    curl -sL "https://github.com/mikefarah/yq/releases/download/${YQ_VERSION}/yq_linux_amd64" -o yq
     sudo install -o root -g root -m 0755 yq /usr/local/bin/yq
     rm yq
 }
