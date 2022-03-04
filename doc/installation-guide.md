@@ -115,7 +115,8 @@ There is an additional network connected to a high-speed switch:
 #### Baseboard Management Controller (BMC) configuration
 
 The BMC IP address should be statically assigned using the machine's
-BMC tool or application.
+BMC tool or application.  Configuration of the pod11-node3 machine is
+shown in [Appendix A](#bmc-configuration).
     
 To verify IPMI is configured correctly for each cluster machine, use
 ipmitool:
@@ -143,7 +144,8 @@ ipmitool](https://www.thomas-krenn.com/en/wiki/Configuring_IPMI_under_Linux_usin
 #### PXE Boot configuration
 
 Each cluster machine must be configured to PXE boot from the interface
-attached to the `provisioning` network.
+attached to the `provisioning` network.  Configuration of the
+pod11-node3 machine is shown in [Appendix A](#pxe-boot-configuration-1).
 
 One method of verifying PXE boot is configured correctly is to access
 the remote console of the machine and observe the boot process. If
@@ -163,6 +165,12 @@ If tcpdump does not show any traffic, verify that the any switches are
 configured properly to forward PXE boot requests (i.e. VLAN
 configuration).
 
+### Additional BIOS configuration
+
+Each cluster machine should also be configured to enable any desired
+features such as virtualization support.  Configuration of the
+pod11-node3 machine is shown in [Appendix
+A](#additional-bios-configuration-1).
 
 ## Jump server
 
@@ -780,4 +788,39 @@ examining the `BareMetalHost` resources, etc.
 
     root@pod11-node5:# kubectl -n flux-system delete Kustomization icn-master-site-pod11
 
+## Appendix A: BMC and BIOS configuration of pod11-node3
 
+The BMC and BIOS configuration will vary depending on the vendor.  The
+below is intended only to provide some guidance on what to look for in
+the hardware used in the chosen configuration.
+
+### BMC configuration
+
+BMC IP address configured in the BIOS.
+
+![img](./pod11-node3-bios-bmc-configuration.png "BMC LAN Configuration")
+
+BMC IP address configured in the web console.
+
+![img](./pod11-node3-ip-configuration.png "BMC LAN Configuration")
+
+IPMI configuration.  Not shown is the cipher suite configuration.
+
+![img](./pod11-node3-ipmi-over-lan.png "IPMI over LAN")
+
+### PXE boot configuration
+
+The screens below show enabling PXE boot for the specified NIC and
+ensuring it is first in the boot order.
+
+![img](./pod11-node3-bios-enable-pxe.png "Enable PXE boot")
+
+![img](./pod11-node3-bios-nic-boot-order.png "NIC boot order")
+
+### Additional BIOS configuration
+
+The screens below show enabling virtualization options in the BIOS.
+
+![img](./pod11-node3-bios-vt-x.png "Enable Intel VT-x")
+
+![img](./pod11-node3-bios-vt-d.png "Enable Intel VT-d")
