@@ -12,7 +12,7 @@ function deploy {
 }
 
 function clean {
-    flux uninstall
+    flux uninstall -s
 }
 
 case $1 in
