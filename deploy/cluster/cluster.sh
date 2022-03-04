@@ -7,9 +7,6 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
-CALICO_VERSION="v3.22.0"
-FLANNEL_VERSION="v0.15.0"
-
 function build_source_flannel {
     curl -sL https://raw.githubusercontent.com/coreos/flannel/${FLANNEL_VERSION}/Documentation/kube-flannel.yml -o ${SCRIPTDIR}/addons/flannel.yaml
     cat <<EOF >${SCRIPTDIR}/templates/flannel-addon.yaml

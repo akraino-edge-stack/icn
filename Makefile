@@ -56,6 +56,9 @@ emcoctl: golang
 golang:
 	./deploy/golang/golang.sh deploy
 
+kubectl:
+	./deploy/kubectl/kubectl.sh deploy
+
 # Provisioning network configuration in the jump server
 
 ironic_bridge:
@@ -131,3 +134,11 @@ bm_verifier: jump_server \
 SDWAN_VERIFIER_PATH:=$(CURDIR)/sdwan/test
 sdwan_verifier:
 	pushd $(SDWAN_VERIFIER_PATH) && bash sdwan_verifier.sh && popd
+
+# Development targets
+source: flux_cli kubectl kustomize
+	./deploy/baremetal-operator/baremetal-operator.sh build-source
+	./deploy/cert-manager/cert-manager.sh build-source
+	./deploy/cluster/cluster.sh build-source
+	./deploy/ironic/ironic.sh build-source
+	./deploy/kata/kata.sh build-source

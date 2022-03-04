@@ -7,12 +7,11 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/logging.sh
 source $LIBDIR/common.sh
 
-# Cert-Manager version to use
-CERT_MANAGER_VERSION="v1.5.3"
-
 trap err_exit ERR
 function err_exit {
-    kubectl get all -n cert-manager
+    if command -v kubectl; then
+	kubectl get all -n cert-manager
+    fi
 }
 
 # This may be used to update the in-place cert-manager YAML
@@ -20,6 +19,7 @@ function err_exit {
 function build_source {
     mkdir -p ${SCRIPTDIR}/base
     curl -sL https://github.com/jetstack/cert-manager/releases/download/${CERT_MANAGER_VERSION}/cert-manager.yaml -o ${SCRIPTDIR}/base/cert-manager.yaml
+    rm -f ${SCRIPTDIR}/base/kustomization.yaml
     pushd ${SCRIPTDIR}/base && kustomize create --autodetect && popd
 }
 

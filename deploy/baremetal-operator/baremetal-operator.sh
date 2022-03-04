@@ -9,7 +9,9 @@ source $LIBDIR/common.sh
 
 trap err_exit ERR
 function err_exit {
-    kubectl get all -n baremetal-operator-system
+    if command -v kubectl; then
+	kubectl get all -n baremetal-operator-system
+    fi
 }
 
 # This may be used to update the in-place Bare Metal Operator YAML

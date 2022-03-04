@@ -37,7 +37,7 @@ EMCO_VERSION="v21.12"
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"
 
 # The kustomize version to use
-KUSTOMIZE_VERSION="v4.3.0"
+KUSTOMIZE_VERSION="v4.5.2"
 
 #Cluster API version to use
 CAPI_VERSION="v0.4.7"
@@ -46,10 +46,25 @@ CAPI_VERSION="v0.4.7"
 CAPM3_VERSION="v0.5.4"
 
 #The flux version to use
-FLUX_VERSION="0.25.3"
+FLUX_VERSION="0.27.0"
 
 #The sops version to use
 SOPS_VERSION="v3.7.1"
+
+#Cert-Manager version to use
+CERT_MANAGER_VERSION="v1.7.1"
+
+#CNI versions to use in cluster chart
+CALICO_VERSION="v3.22.0"
+FLANNEL_VERSION="v0.16.3"
+
+#Kata version to use
+KATA_VERSION="2.3.2"
+KATA_WEBHOOK_VERSION="2.3.2"
+
+#The kubectl version to install when KuD is not used to deploy the
+#jump server K8s cluster
+KUBECTL_VERSION="v1.20.7"
 
 #refered from onap
 function call_api {

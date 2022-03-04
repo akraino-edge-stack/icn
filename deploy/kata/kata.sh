@@ -10,9 +10,6 @@ source $LIBDIR/common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
-KATA_VERSION="2.1.0-rc0"
-KATA_WEBHOOK_VERSION="2.1.0-rc0"
-
 KATA_DEPLOY_URL="https://raw.githubusercontent.com/kata-containers/kata-containers/${KATA_VERSION}/tools/packaging/kata-deploy"
 KATA_WEBHOOK_URL="https://raw.githubusercontent.com/kata-containers/tests/${KATA_WEBHOOK_VERSION}/kata-webhook"
 KATA_WEBHOOK_DIR="/opt/src/kata_webhook"
@@ -25,6 +22,7 @@ function build_source {
     curl -sL ${KATA_DEPLOY_URL}/kata-rbac/base/kata-rbac.yaml -o ${SCRIPTDIR}/base/kata-rbac.yaml
     curl -sL ${KATA_DEPLOY_URL}/kata-deploy/base/kata-deploy.yaml -o ${SCRIPTDIR}/base/kata-deploy.yaml
     curl -sL ${KATA_DEPLOY_URL}/runtimeclasses/kata-runtimeClasses.yaml -o ${SCRIPTDIR}/base/kata-runtimeClasses.yaml
+    rm -f ${SCRIPTDIR}/base/kustomization.yaml
     pushd ${SCRIPTDIR}/base && kustomize create --autodetect && popd
 }
 
