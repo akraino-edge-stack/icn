@@ -1,0 +1,45 @@
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: policy-xl710
+spec:
+  deviceType: "vfio-pci"
+  nicSelector:
+    deviceID: "1583"
+    vendor: "8086"
+  nodeSelector:
+    feature.node.kubernetes.io/network-sriov.capable: "true"
+    feature.node.kubernetes.io/pci-0200_8086_1583.present: "true"
+  numVfs: 8
+  resourceName: "intel_sriov_nic"
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: policy-82599es
+spec:
+  deviceType: "vfio-pci"
+  nicSelector:
+    deviceID: "10fb"
+    vendor: "8086"
+  nodeSelector:
+    feature.node.kubernetes.io/network-sriov.capable: "true"
+    feature.node.kubernetes.io/pci-0200_8086_10fb.present: "true"
+  numVfs: 8
+  resourceName: "intel_sriov_nic"
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetworkNodePolicy
+metadata:
+  name: "policy-i350"
+spec:
+  deviceType: "vfio-pci"
+  nicSelector:
+    deviceID: "1521"
+    vendor: "8086"
+  nodeSelector:
+    feature.node.kubernetes.io/network-sriov.capable: "true"
+    feature.node.kubernetes.io/pci-0200_8086_1521.present: "true"
+  numVfs: 2
+  resourceName: "intel_sriov_nic"

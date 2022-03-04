@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cmk-webhook-configmap
+data:
+  server.yaml: |
+    server:
+      binding-address: "0.0.0.0"
+      port: 443
+      cert: "/etc/ssl/tls.crt"
+      key: "/etc/ssl/tls.key"
+      mutations: "/etc/webhook/mutations.yaml"

@@ -66,6 +66,17 @@ KATA_WEBHOOK_VERSION="2.3.2"
 #jump server K8s cluster
 KUBECTL_VERSION="v1.20.7"
 
+#The yq version to use
+YQ_VERSION="v4.20.1"
+
+#Addon versions
+CDI_VERSION="v1.44.1"
+CPU_MANAGER_VERSION="v1.4.1"
+KUBEVIRT_VERSION="v0.50.0"
+MULTUS_VERSION="v3.8"
+NODUS_VERSION="dd9985e5be010b764b324b57c1afe985a59abf68"
+QAT_VERSION="v0.23.0"
+
 #refered from onap
 function call_api {
     #Runs curl with passed flags and provides

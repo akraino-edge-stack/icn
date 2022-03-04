@@ -1,0 +1,31 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfd-worker-conf
+  namespace: node-feature-discovery
+data:
+  nfd-worker.conf: |
+    sources:
+      custom:
+        - name: "iavf"
+          matchOn:
+            - pciId:
+                class: ["0200"]
+                vendor: ["8086"]
+                device: ["1574", "1580", "1583", "1584", "1587", "1588", "37ce", "37cf", "37d0", "37d1", "37d2", "37d3"]
+        - name: "qat"
+          matchOn:
+            - pciId:
+                class: ["0b40"]
+                vendor: ["8086"]
+                device: ["0435", "37c8", "6f54", "19e2"]
+      pci:
+        deviceClassWhitelist:
+          - "03"
+          - "12"
+          - "0200"
+          - "0b40"
+        deviceLabelFields:
+          - "class"
+          - "vendor"
+          - "device"

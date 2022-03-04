@@ -1,0 +1,8 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: cmk-selfsigned-issuer
+  namespace: cmk-namespace
+spec:
+  selfSigned: {}

@@ -1,0 +1,6 @@
+apiVersion: admissionregistration.k8s.io/v1beta1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: cmk-webhook-config
+  annotations:
+    cert-manager.io/inject-ca-from: kud/cmk-webhook-service

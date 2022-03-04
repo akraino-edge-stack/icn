@@ -1,0 +1,17 @@
+---
+apiVersion: sriovnetwork.openshift.io/v1
+kind: SriovNetwork
+metadata:
+  name: sriov-intel
+spec:
+  ipam: |
+    {
+      "type": "host-local",
+      "subnet": "10.56.206.0/24",
+      "routes": [{
+        "dst": "0.0.0.0/0"
+      }],
+      "gateway": "10.56.206.1"
+    }
+  networkNamespace: default
+  resourceName: "intel_sriov_nic"

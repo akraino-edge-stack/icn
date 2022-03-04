@@ -1,0 +1,18 @@
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: nodus-network
+  namespace: kud
+spec:
+  interval: 5m
+  path: deploy/nodus-network/icn
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: icn
+    namespace: flux-system
+  dependsOn:
+  - name: multus-cni
+  wait: true
+  timeout: 10m

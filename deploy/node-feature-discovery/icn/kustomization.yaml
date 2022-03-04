@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kud
+
+resources:
+- 'https://github.com/kubernetes-sigs/node-feature-discovery/deployment/overlays/default?ref=v0.10.1'
+
+patchesStrategicMerge:
+- nfd-worker-conf-patch.yaml

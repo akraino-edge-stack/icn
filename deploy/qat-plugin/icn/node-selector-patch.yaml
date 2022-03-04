@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: intel-qat-kernel-plugin
+spec:
+  template:
+    spec:
+      nodeSelector:
+        feature.node.kubernetes.io/iommu-enabled: "true"
+        feature.node.kubernetes.io/custom-qat: "true"

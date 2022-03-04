@@ -85,7 +85,7 @@ function is_addon_ready {
     local -r addon=$1
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
-    [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get HelmRelease/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+    [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get Kustomization/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
 }
 
 function test_addons {
@@ -112,9 +112,9 @@ function test_addons {
     # security hardening.
     if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
         # With containerd 1.2.13, the qat test container image fails to unpack.
-        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:ovn4nfv-network nfd:node-feature-discovery sriov-network:sriov-network cmk:cpu-manager"
+        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:nodus-network nfd:node-feature-discovery sriov-network:sriov-network cmk:cpu-manager"
     else
-        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:ovn4nfv-network nfd:node-feature-discovery sriov-network:sriov-network qat:qat-device-plugin cmk:cpu-manager"
+        kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:nodus-network nfd:node-feature-discovery sriov-network:sriov-network qat:qat-plugin cmk:cpu-manager"
     fi
     for kud_test in ${kud_tests}; do
         addon="${kud_test#*:}"

@@ -1,0 +1,21 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: kud
+
+resources:
+- ../base
+
+patchesStrategicMerge:
+- mount-var-run-shared-patch.yaml
+
+patchesJson6902:
+- path: nfn-operator-affinity-patch.json
+  target:
+    kind: Deployment
+    name: nfn-operator
+    namespace: kube-system
+- path: ovn-control-plane-node-selector-patch.json
+  target:
+    kind: Deployment
+    name: ovn-control-plane
+    namespace: kube-system
