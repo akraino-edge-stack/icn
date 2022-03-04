@@ -1,17 +1,13 @@
 #!/bin/bash
 set -eu -o pipefail
 
-cat <<EOF >user_config.sh
-#!/usr/bin/env bash
+SCRIPTDIR="$(readlink -f $(dirname ${BASH_SOURCE[0]}))"
+ICNDIR="$(dirname $(dirname ${SCRIPTDIR}))"
 
-#Ironic Metal3 settings for provisioning network
-export IRONIC_INTERFACE="eth1"
-EOF
+sed -i -e 's/IRONIC_INTERFACE=.*/IRONIC_INTERFACE="eth1"/' ${ICNDIR}/user_config.sh
 
 if [[ ! -z "${DOCKER_REGISTRY_MIRRORS+x}" ]]; then
-    cat <<EOF >>user_config.sh
-
-#Use a registry mirror for downloading container images
-export DOCKER_REGISTRY_MIRRORS="${DOCKER_REGISTRY_MIRRORS}"
-EOF
+    sed -i -e 's/DOCKER_REGISTRY_MIRRORS=.*/DOCKER_REGISTRY_MIRRORS="'"${DOCKER_REGISTRY_MIRRORS}"'"/' ${ICNDIR}/user_config.sh
+else
+    sed -i -e 's/DOCKER_REGISTRY_MIRRORS=.*/DOCKER_REGISTRY_MIRRORS=""/' ${ICNDIR}/user_config.sh
 fi
