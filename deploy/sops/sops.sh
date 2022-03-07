@@ -7,7 +7,7 @@ LIBDIR="$(dirname $(dirname ${SCRIPTDIR}))/env/lib"
 source $LIBDIR/common.sh
 
 function deploy {
-    curl -L https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux -o sops
+    curl -sL https://github.com/mozilla/sops/releases/download/${SOPS_VERSION}/sops-${SOPS_VERSION}.linux -o sops
     sudo install -o root -g root -m 0755 sops /usr/local/bin/sops
     rm sops
     sops --version
