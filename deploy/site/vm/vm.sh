@@ -84,7 +84,7 @@ function insert_control_plane_network_identity_into_ssh_config {
     prefix=$(helm -n ${SITE_NAMESPACE} get values -a cluster-icn | awk '/controlPlanePrefix:/ {print $2}')
     host=$(ipcalc ${endpoint}/${prefix} | awk '/Network:/ {sub(/\.0.*/,".*"); print $2}')
     if [[ $(grep -c "Host ${host}" ${HOME}/.ssh/config) != 0 ]]; then
-	sed -i -e '/Host '"${host}"'/,+1 d' ${HOME}/.ssh/config
+	sed -i -e '/Host '"${host}"'/,+3 d' ${HOME}/.ssh/config
     fi
     cat <<EOF >>${HOME}/.ssh/config
 Host ${host}
@@ -94,6 +94,8 @@ Host ${host}
 EOF
     # Add the identity to authorized keys on this host to enable ssh
     # logins via its control plane address
+    authorized_key=$(cat ${SCRIPTDIR}/id_rsa.pub)
+    sed -i -e '\!'"${authorized_key}"'!d' ${HOME}/.ssh/authorized_keys
     cat ${SCRIPTDIR}/id_rsa.pub >> ~/.ssh/authorized_keys
 }
 
