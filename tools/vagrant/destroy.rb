@@ -11,7 +11,7 @@ Dir.glob("deploy/site/#{site}/*.yaml") do |file|
     values = document.fetch('spec', {}).fetch('values', {})
     next if values['machineName'].nil? || values['bootMACAddress'].nil?
     machine_name = values['machineName']
-    system("virsh -c qemu:///system destroy vm-#{machine_name}")
-    system("virsh -c qemu:///system undefine --nvram --remove-all-storage vm-#{machine_name}")
+    system("virsh -c qemu:///system destroy #{site}-#{machine_name}")
+    system("virsh -c qemu:///system undefine --nvram --remove-all-storage #{site}-#{machine_name}")
   end
 end
