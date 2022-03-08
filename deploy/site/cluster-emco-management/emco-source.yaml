@@ -1,0 +1,16 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: emco
+  namespace: emco
+spec:
+  interval: 1m
+  url: https://gitlab.com/project-emco/core/emco-base.git
+  ref:
+    tag: v21.12
+  ignore: |
+    # exclude all
+    /*
+    # include charts directory
+    !/deployments/helm

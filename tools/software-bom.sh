@@ -104,7 +104,7 @@ function compute_cluster_addons {
 |Containerized Data Importer|${CDI_VERSION}|
 |cert-manager|${CERT_MANAGER_VERSION}|
 |CPU Manager for Kubernetes|${CPU_MANAGER_VERSION}|
-|EMCO|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-icn/emco-source.yaml)|
+|EMCO|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-emco-management/emco-source.yaml)|
 |Flux|${FLUX_VERSION}|
 |Intel Network Adapter Virtual Function Driver Installer|$(image_tag ${ICNDIR}/deploy/iavf-driver-installer/icn/daemonset.yaml iavf-driver-installer)|
 |Kata Containers|${KATA_VERSION}|

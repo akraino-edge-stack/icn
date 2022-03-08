@@ -15,12 +15,16 @@ spec:
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
 metadata:
-  name: icn-flux-sync
+  name: cluster-icn-flux-sync
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: ./deploy/site/cluster-icn
+  path: deploy/site/cluster-icn
   prune: true
   sourceRef:
     kind: GitRepository
     name: icn
+  decryption:
+    provider: sops
+    secretRef:
+      name: icn-master-sops-gpg
