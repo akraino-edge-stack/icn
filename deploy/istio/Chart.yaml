@@ -1,0 +1,5 @@
+# A simple chart to deploy Istio using the Istio operator.
+apiVersion: v2
+name: istio
+type: application
+version: 0.1.0

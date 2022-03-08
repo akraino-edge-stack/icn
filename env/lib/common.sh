@@ -69,6 +69,13 @@ KUBECTL_VERSION="v1.20.7"
 #The yq version to use
 YQ_VERSION="v4.20.1"
 
+#Istio repository URL
+ISTIOREPO="${ISTIOREPO:-https://github.com/istio/istio.git}"
+#Path to clone the Istio repo
+ISTIOPATH="/opt/src/istio"
+#Istio version to use
+ISTIO_VERSION="1.10.3"
+
 #Addon versions
 CDI_VERSION="v1.44.1"
 CPU_MANAGER_VERSION="v1.4.1"
@@ -298,6 +305,10 @@ function clone_kud_repository {
 
 function clone_emco_repository {
     clone_repository ${EMCOPATH} ${EMCOREPO} ${EMCO_VERSION}
+}
+
+function clone_istio_repository {
+    clone_repository ${ISTIOPATH} ${ISTIOREPO} ${ISTIO_VERSION}
 }
 
 function fetch_image {
