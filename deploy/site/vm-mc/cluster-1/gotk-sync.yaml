@@ -1,0 +1,30 @@
+---
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+  name: icn
+  namespace: flux-system
+spec:
+  gitImplementation: go-git
+  interval: 1m0s
+  ref:
+    branch: master
+  timeout: 20s
+  url: https://gerrit.akraino.org/r/icn
+---
+apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
+kind: Kustomization
+metadata:
+  name: cluster-icn-flux-sync
+  namespace: flux-system
+spec:
+  interval: 10m0s
+  path: deploy/site/vm-mc/cluster-1
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: icn
+  decryption:
+    provider: sops
+    secretRef:
+      name: icn-master-sops-gpg

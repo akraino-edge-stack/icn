@@ -28,34 +28,48 @@ function export_gpg_private_key {
 
 function sops_encrypt {
     local -r yaml=$1
-    local -r key_name=$2
-
     local -r yaml_dir=$(dirname ${yaml})
+
+    local -r key_name=$2
     local -r key_fp=$(_gpg_key_fp ${key_name})
+
+    local site_dir=${yaml_dir}
+    if [[ $# -eq 3 ]]; then
+	site_dir=$3
+    fi
 
     # Commit the public key to the repository so that team members who
     # clone the repo can encrypt new files
     echo "Creating ${yaml_dir}/sops.pub.asc with public key used to encrypt secrets"
-    gpg --export --armor "${key_fp}" >${yaml_dir}/sops.pub.asc
+    gpg --export --armor "${key_fp}" >${site_dir}/sops.pub.asc
 
     # Add .sops.yaml so users won't have to worry about specifying the
     # proper key for the target cluster or namespace
-    echo "Creating ${yaml_dir}/.sops.yaml SOPS configuration file"
-    cat <<EOF > ${yaml_dir}/.sops.yaml
+    echo "Creating ${site_dir}/.sops.yaml SOPS configuration file"
+    encrypted_regex="(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)"
+    cat <<EOF > ${site_dir}/.sops.yaml
 creation_rules:
   - path_regex: .*.yaml
-    encrypted_regex: ^(bmcPassword|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    encrypted_regex: ^${encrypted_regex}$
     pgp: ${key_fp}
 EOF
 
-    sops --encrypt --in-place --config=${yaml_dir}/.sops.yaml ${yaml}
+    if [[ $(grep -c $(echo ${encrypted_regex} | sed -e 's/(/\\(/g' -e 's/|/\\|/g' -e 's/)/\\)/') ${yaml}) -ne 0 ]]; then
+	sops --encrypt --in-place --config=${site_dir}/.sops.yaml ${yaml}
+    fi
 }
 
 function sops_decrypt {
     local -r yaml=$1
-
     local -r yaml_dir=$(dirname ${yaml})
-    sops --decrypt --in-place --config=${yaml_dir}/.sops.yaml ${yaml}
+    local site_dir=${yaml_dir}
+    if [[ $# -eq 2 ]]; then
+	site_dir=$2
+    fi
+
+    if [[ $(grep -c "^sops:" ${yaml}) -ne 0 ]]; then
+	sops --decrypt --in-place --config=${site_dir}/.sops.yaml ${yaml}
+    fi
 }
 
 function flux_site_source_name {

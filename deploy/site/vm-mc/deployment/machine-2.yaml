@@ -1,0 +1,51 @@
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-2
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        machineName: machine-2
+        bootMACAddress: 52:54:00:6f:d6:97
+        bmcAddress: redfish-virtualmedia://192.168.151.1:8000/redfish/v1/Systems/8d747997-dcd1-42ca-9e25-b3eedbe326aa
+        bmcUsername: admin
+        bmcPassword: ENC[AES256_GCM,data:HQLiGUjzEBw=,iv:kaGwIxd9dFjL5/6HTjIGkHGZKREIX8KILlKTS+ae2K4=,tag:qxhRuxwg+oP1L6SIz0YiIw==,type:str]
+        bmcDisableCertificateVerification: true
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-03-08T18:31:03Z"
+    mac: ENC[AES256_GCM,data:fjOvawOmb4lNsboVJy9+hjkkZXN0n1RdDzUzmsppAOgr6xECFlG48BY7Wj0wO1jr36PwjNjSw13zY8Eqpw2Y2BNVfxAaAAFCdwRuwHVchDAFZ8KLaSyb3hB/seBT94nE32BVbElJiTeI7SCQvdHqXEDnA438QFXfPIxMCMCzfAE=,iv:GlQaL55DTF6ndbevhRppdH9fXR+l0Dc4MnmLU2Tzh4Y=,tag:NPe0j+ksqXQ/IhPuowIPng==,type:str]
+    pgp:
+        - created_at: "2022-03-08T18:31:02Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPAQ//VorlkeFGlVl1j/2FFkJOnwmVTpQi9ez9JC45qccQQqlC
+            BnfF79wQQw3MQBUTVoVVVdi7TgzqJm7csfDagkyudN2HhXebb+t/KBRqYXB4tlGc
+            yc6xk1I4re7jZWexrO5wOD8wCDao5vqUr5YCb9j6cpCR2YHNINdLQyY/R0Q+oc1h
+            jucQmAMgWrS4eKMy32wEwiqcMkziSXwY8+NFuEG6jPzXU9JuEfW4XZLanBKLtDIg
+            tf8Eal93MS4w7FXfupJS6PZiyg56g9DxQVEsGEQBSYxy9di+ymtozi37xHRXPRwl
+            ahr09gayiOlPYbhlcgfu4bgV4pUjj+lyLKy++/wu9+qLZIwStlBwlSwlhuzVMaV8
+            uRemXHqBDsMFyulbCJlwIKDFe53Un41FcCvrLdlEDiXLTBaMiu7O/b9j5h6z7LkB
+            ov8rMuewDnCjPqMX8Hq37oaVRwfTqlIJww9D9k21Xdy3RqhavloUIPNltMN/Dqvw
+            HRkpaqHHPJNnmwi8xorMfEYrgoYSYoFZA4Q0iCCtgceXQhgHAp5BNvUQRcptzsK7
+            XZ2+K27IVXf+EkMpBKM0reXSUKO248Pk9IQNGb4glleEXJZbUbfHLh9MUCcrVwG0
+            W2t0h6eFLDXeZKqgijrq2+40YsVyvLbJqcq79wgmSNtqpqjM9bwDdiFYhUZuDvDS
+            XAF8o0PmxD065/qwxWVQADHBPVtgHw1ICPJZm2fMG4iBs1Y6fZEGOBslaMfg4KBa
+            iUsY1Qp1iVpb7IHbwkjh4F0cjQoVawbcSicOOUBY1ZIDtCgklVyex0/tj6CQ
+            =daMD
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1
