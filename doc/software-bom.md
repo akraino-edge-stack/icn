@@ -30,6 +30,7 @@
 |EMCO|v21.12|
 |Flux|0.27.0|
 |Intel Network Adapter Virtual Function Driver Installer|latest|
+|Istio|1.10.3|
 |Kata Containers|2.3.2|
 |KubeVirt|v0.50.0|
 |Multus|v3.8|

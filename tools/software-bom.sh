@@ -107,6 +107,7 @@ function compute_cluster_addons {
 |EMCO|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-emco-management/emco-source.yaml)|
 |Flux|${FLUX_VERSION}|
 |Intel Network Adapter Virtual Function Driver Installer|$(image_tag ${ICNDIR}/deploy/iavf-driver-installer/icn/daemonset.yaml iavf-driver-installer)|
+|Istio|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-addons/istio-source.yaml)|
 |Kata Containers|${KATA_VERSION}|
 |KubeVirt|${KUBEVIRT_VERSION}|
 |Multus|${MULTUS_VERSION}|
