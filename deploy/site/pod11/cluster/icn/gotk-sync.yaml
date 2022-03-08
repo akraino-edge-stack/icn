@@ -19,7 +19,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 10m0s
-  path: deploy/site/cluster-icn
+  path: deploy/site/pod11/cluster/icn
   prune: true
   sourceRef:
     kind: GitRepository

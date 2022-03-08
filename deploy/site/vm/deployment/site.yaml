@@ -1,0 +1,211 @@
+apiVersion: source.toolkit.fluxcd.io/v1beta1
+kind: GitRepository
+metadata:
+    name: icn
+spec:
+    gitImplementation: go-git
+    interval: 1m0s
+    ref:
+        branch: master
+    timeout: 20s
+    url: https://gerrit.akraino.org/r/icn
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-03-08T22:12:15Z"
+    mac: ENC[AES256_GCM,data:x529yjFTiV/UsF8yGpX9gVazfjEw8wIAX4kvlc6H4LkdDDjCQX8+adR9OcQNQ3irllnGwuNbfQgFao+ZnRN/Vq/mdkwAvfDzvVWbYeInCqBw4/5EQCumy9pABWN+AD9DTNOR1LEeENfor+KW7YwNLSxKImfS6KQ1kjgQD6iqzs4=,iv:Z8elmmWQLBSR5Y9NciEGh1FT6rhJYOjDDJmSOZKcgKY=,tag:Btyc/Al6NQG7qbnk1PN8sQ==,type:str]
+    pgp:
+        - created_at: "2022-03-08T22:12:15Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAiAjweyqc1yJf6UT9t2SI4HHxOR6dwlEm2aA3ZO957wA8
+            p05PKxBmiEKH1S0zJOjpFkCCVNsK9l5uRohWEjuYj6uDQD2FkoXB3xtJFr1Ekkg9
+            M9CFyZuir+Gq789xAOrknPVcAqBxAGdtII5Qn0WzlaNypcLKhyspNXv2YGJdKeOV
+            C2pZI0fmm66EP2wCf0YaeF4HV+lNczc06KJFVf244kd9BSsEZEbzZNQx+soUBwyW
+            c1ZCGoqjUi4Vokb+7wYiPnxiISksIUQQnd8jefRY84miA0/HHydBdMCbQ2PZQOiZ
+            pINaHLGXu7RJC+l5OIT4ElAXjjMC4rljhNg2KRCEz7WUXRKQT3Wl8NP7i7UKGtX9
+            XuudkxTzIVv2JYK+u89ZXRndfeDSr2mgZIo1eqb1ge1oc/tX1I3VmFqEjhT8MPNw
+            lnhKGAWtnDHB+Eh+qjFmKi/d0V0L3IVnHz9ADmrQgIIofQ6HHgzUbLD4wnuYr6uw
+            7Vb0c7+sDAZ3QcIzjKa/iaGSIK3oXUgU8Jf9cXb7Vt0CIXNai+1Bk1zXRYJT3u3+
+            /VCb6fK9m0awdbevs9o2a3VvdZ6QHVNcL1nTPeDoj8PUS7a6iPnk5UWvsrZ2QyNj
+            ilVG4ZHzwWHAE0EtsFKIXlarq47Cc0eLJPvg6xuUwQTirNzwC5GNCpBMPPrLjRDS
+            XgEw7oLkbuTq7NyqQlRqytkjH3h+upk1NT3gany3xANqCv/vlbZpLhveXqaMuXI6
+            F3xVTXijMNK4RZSy8r/rA2IucK50D9eTPRK1Iu9dLYCFddaYLHV/pdnVjPHvnhg=
+            =nXVg
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-1
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        machineName: machine-1
+        bootMACAddress: 52:54:00:c6:75:40
+        bmcAddress: redfish-virtualmedia://192.168.151.1:8000/redfish/v1/Systems/ab389bad-2f4a-4eba-b49e-0d649ff3d237
+        bmcUsername: admin
+        bmcPassword: ENC[AES256_GCM,data:OunmLDDhBw8=,iv:cXPefsPeX0i9ymFvliHD1KM44pzXZHNXkREGesmITNY=,tag:5PGMLhQUhexvJ78HOt7NQA==,type:str]
+        bmcDisableCertificateVerification: true
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-03-08T22:12:15Z"
+    mac: ENC[AES256_GCM,data:x529yjFTiV/UsF8yGpX9gVazfjEw8wIAX4kvlc6H4LkdDDjCQX8+adR9OcQNQ3irllnGwuNbfQgFao+ZnRN/Vq/mdkwAvfDzvVWbYeInCqBw4/5EQCumy9pABWN+AD9DTNOR1LEeENfor+KW7YwNLSxKImfS6KQ1kjgQD6iqzs4=,iv:Z8elmmWQLBSR5Y9NciEGh1FT6rhJYOjDDJmSOZKcgKY=,tag:Btyc/Al6NQG7qbnk1PN8sQ==,type:str]
+    pgp:
+        - created_at: "2022-03-08T22:12:15Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAiAjweyqc1yJf6UT9t2SI4HHxOR6dwlEm2aA3ZO957wA8
+            p05PKxBmiEKH1S0zJOjpFkCCVNsK9l5uRohWEjuYj6uDQD2FkoXB3xtJFr1Ekkg9
+            M9CFyZuir+Gq789xAOrknPVcAqBxAGdtII5Qn0WzlaNypcLKhyspNXv2YGJdKeOV
+            C2pZI0fmm66EP2wCf0YaeF4HV+lNczc06KJFVf244kd9BSsEZEbzZNQx+soUBwyW
+            c1ZCGoqjUi4Vokb+7wYiPnxiISksIUQQnd8jefRY84miA0/HHydBdMCbQ2PZQOiZ
+            pINaHLGXu7RJC+l5OIT4ElAXjjMC4rljhNg2KRCEz7WUXRKQT3Wl8NP7i7UKGtX9
+            XuudkxTzIVv2JYK+u89ZXRndfeDSr2mgZIo1eqb1ge1oc/tX1I3VmFqEjhT8MPNw
+            lnhKGAWtnDHB+Eh+qjFmKi/d0V0L3IVnHz9ADmrQgIIofQ6HHgzUbLD4wnuYr6uw
+            7Vb0c7+sDAZ3QcIzjKa/iaGSIK3oXUgU8Jf9cXb7Vt0CIXNai+1Bk1zXRYJT3u3+
+            /VCb6fK9m0awdbevs9o2a3VvdZ6QHVNcL1nTPeDoj8PUS7a6iPnk5UWvsrZ2QyNj
+            ilVG4ZHzwWHAE0EtsFKIXlarq47Cc0eLJPvg6xuUwQTirNzwC5GNCpBMPPrLjRDS
+            XgEw7oLkbuTq7NyqQlRqytkjH3h+upk1NT3gany3xANqCv/vlbZpLhveXqaMuXI6
+            F3xVTXijMNK4RZSy8r/rA2IucK50D9eTPRK1Iu9dLYCFddaYLHV/pdnVjPHvnhg=
+            =nXVg
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: machine-2
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/machine
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        machineName: machine-2
+        bootMACAddress: 52:54:00:6f:d6:97
+        bmcAddress: redfish-virtualmedia://192.168.151.1:8000/redfish/v1/Systems/8d747997-dcd1-42ca-9e25-b3eedbe326aa
+        bmcUsername: admin
+        bmcPassword: ENC[AES256_GCM,data:ZtkxhLA21H4=,iv:bjflcS9+W1iDATaHVpSynj731JUESc/lFmPTbXNJIyk=,tag:iS9jE8NddHkr4NjYzOt9xQ==,type:str]
+        bmcDisableCertificateVerification: true
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-03-08T22:12:15Z"
+    mac: ENC[AES256_GCM,data:x529yjFTiV/UsF8yGpX9gVazfjEw8wIAX4kvlc6H4LkdDDjCQX8+adR9OcQNQ3irllnGwuNbfQgFao+ZnRN/Vq/mdkwAvfDzvVWbYeInCqBw4/5EQCumy9pABWN+AD9DTNOR1LEeENfor+KW7YwNLSxKImfS6KQ1kjgQD6iqzs4=,iv:Z8elmmWQLBSR5Y9NciEGh1FT6rhJYOjDDJmSOZKcgKY=,tag:Btyc/Al6NQG7qbnk1PN8sQ==,type:str]
+    pgp:
+        - created_at: "2022-03-08T22:12:15Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAiAjweyqc1yJf6UT9t2SI4HHxOR6dwlEm2aA3ZO957wA8
+            p05PKxBmiEKH1S0zJOjpFkCCVNsK9l5uRohWEjuYj6uDQD2FkoXB3xtJFr1Ekkg9
+            M9CFyZuir+Gq789xAOrknPVcAqBxAGdtII5Qn0WzlaNypcLKhyspNXv2YGJdKeOV
+            C2pZI0fmm66EP2wCf0YaeF4HV+lNczc06KJFVf244kd9BSsEZEbzZNQx+soUBwyW
+            c1ZCGoqjUi4Vokb+7wYiPnxiISksIUQQnd8jefRY84miA0/HHydBdMCbQ2PZQOiZ
+            pINaHLGXu7RJC+l5OIT4ElAXjjMC4rljhNg2KRCEz7WUXRKQT3Wl8NP7i7UKGtX9
+            XuudkxTzIVv2JYK+u89ZXRndfeDSr2mgZIo1eqb1ge1oc/tX1I3VmFqEjhT8MPNw
+            lnhKGAWtnDHB+Eh+qjFmKi/d0V0L3IVnHz9ADmrQgIIofQ6HHgzUbLD4wnuYr6uw
+            7Vb0c7+sDAZ3QcIzjKa/iaGSIK3oXUgU8Jf9cXb7Vt0CIXNai+1Bk1zXRYJT3u3+
+            /VCb6fK9m0awdbevs9o2a3VvdZ6QHVNcL1nTPeDoj8PUS7a6iPnk5UWvsrZ2QyNj
+            ilVG4ZHzwWHAE0EtsFKIXlarq47Cc0eLJPvg6xuUwQTirNzwC5GNCpBMPPrLjRDS
+            XgEw7oLkbuTq7NyqQlRqytkjH3h+upk1NT3gany3xANqCv/vlbZpLhveXqaMuXI6
+            F3xVTXijMNK4RZSy8r/rA2IucK50D9eTPRK1Iu9dLYCFddaYLHV/pdnVjPHvnhg=
+            =nXVg
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+    name: cluster-icn
+spec:
+    interval: 5m
+    chart:
+        spec:
+            chart: deploy/cluster
+            sourceRef:
+                kind: GitRepository
+                name: icn
+            interval: 1m
+    values:
+        clusterName: icn
+        clusterLabels:
+            site: vm
+        keepalived:
+            interface: ens6
+            routerId: 3
+        networks:
+            baremetal:
+                interface: ens6
+            provisioning:
+                interface: ens5
+        userData:
+            hashedPassword: ENC[AES256_GCM,data:GMMXpwQdk1WnMiB6GXFIPeBt+klNgwPgfE7FHuO0Eme6JF2H5bAiKDteTB1ip3PhxRgqLCgF7TtQ4VucBANMzCVWGFUPL3CxuQPSXnYQOTYWgccnI5tqjg/YbSpOn14hU0zssGr4IeFSGhGP1drq6osm8SGxm/U=,iv:qoQUpJsVts6yJpRFG8KWzU6eUWT1s4huKqsC6vTJiQQ=,tag:L/Xl8bmY6R1tR28O8HrypA==,type:str]
+            sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD6w9mtvJ8WXDVJOgK2U5RQlhDkyqfBY0QCbZfdpAWayhmMad1DH2JQBkGB2L7RqB6Vwoyme7WmXImSYKvg1cLmfeJV8mJXbs7vBfiq3wG80Ww5UpYOhThwsTo2un1m9c22OO+OXv5V0RCXkZZoDHbBGHAzMP6tgcbz7IHKnCYAsg9NejBAwSkUM3VZsgvoSQ9SVkgBab/RooVsdoxhjMOTa0a//CQfGvO4DloWr1+YlZgPRL8ZbIN68mhEHS5lFuykio2JFpdQTUj/NCO9W5S5ceqjQGC5hX95lLYa8MtPsazuDnOoeJeILYtF2szvtEFX9XAYMK4tqcQMBzS0HZVdK0bdEB0eKWR1Dw0bP3Vt9zNXmf4otJU7c8d6TRrZ9x25/scbqwHD9H0VwgDXIeVzAmiNXvfpBSwkR7a1Y99+byEpAzLSs3Qfg4tPt303G2DsYnZrkROSTB4J0TfaixCdPcs7AExeLHShLEqDqEwE/7RIVEvT4zOSFTpUCGrBK6s= root@jump
+        flux:
+            url: https://gerrit.akraino.org/r/icn
+            branch: master
+            path: ./deploy/site/vm/cluster/icn
+            decryptionSecret: ENC[AES256_GCM,data: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,iv:bDl7p5UjSNtS99DrEmmPEW8updKavUqvVUBS8sJx5Ng=,tag:5gSZeohvkvaQn+0VEn2uUw==,type:str]
+sops:
+    kms: []
+    gcp_kms: []
+    azure_kv: []
+    hc_vault: []
+    age: []
+    lastmodified: "2022-03-08T22:12:15Z"
+    mac: ENC[AES256_GCM,data:x529yjFTiV/UsF8yGpX9gVazfjEw8wIAX4kvlc6H4LkdDDjCQX8+adR9OcQNQ3irllnGwuNbfQgFao+ZnRN/Vq/mdkwAvfDzvVWbYeInCqBw4/5EQCumy9pABWN+AD9DTNOR1LEeENfor+KW7YwNLSxKImfS6KQ1kjgQD6iqzs4=,iv:Z8elmmWQLBSR5Y9NciEGh1FT6rhJYOjDDJmSOZKcgKY=,tag:Btyc/Al6NQG7qbnk1PN8sQ==,type:str]
+    pgp:
+        - created_at: "2022-03-08T22:12:15Z"
+          enc: |
+            -----BEGIN PGP MESSAGE-----
+
+            hQIMA4SX7nk+q+zPARAAiAjweyqc1yJf6UT9t2SI4HHxOR6dwlEm2aA3ZO957wA8
+            p05PKxBmiEKH1S0zJOjpFkCCVNsK9l5uRohWEjuYj6uDQD2FkoXB3xtJFr1Ekkg9
+            M9CFyZuir+Gq789xAOrknPVcAqBxAGdtII5Qn0WzlaNypcLKhyspNXv2YGJdKeOV
+            C2pZI0fmm66EP2wCf0YaeF4HV+lNczc06KJFVf244kd9BSsEZEbzZNQx+soUBwyW
+            c1ZCGoqjUi4Vokb+7wYiPnxiISksIUQQnd8jefRY84miA0/HHydBdMCbQ2PZQOiZ
+            pINaHLGXu7RJC+l5OIT4ElAXjjMC4rljhNg2KRCEz7WUXRKQT3Wl8NP7i7UKGtX9
+            XuudkxTzIVv2JYK+u89ZXRndfeDSr2mgZIo1eqb1ge1oc/tX1I3VmFqEjhT8MPNw
+            lnhKGAWtnDHB+Eh+qjFmKi/d0V0L3IVnHz9ADmrQgIIofQ6HHgzUbLD4wnuYr6uw
+            7Vb0c7+sDAZ3QcIzjKa/iaGSIK3oXUgU8Jf9cXb7Vt0CIXNai+1Bk1zXRYJT3u3+
+            /VCb6fK9m0awdbevs9o2a3VvdZ6QHVNcL1nTPeDoj8PUS7a6iPnk5UWvsrZ2QyNj
+            ilVG4ZHzwWHAE0EtsFKIXlarq47Cc0eLJPvg6xuUwQTirNzwC5GNCpBMPPrLjRDS
+            XgEw7oLkbuTq7NyqQlRqytkjH3h+upk1NT3gany3xANqCv/vlbZpLhveXqaMuXI6
+            F3xVTXijMNK4RZSy8r/rA2IucK50D9eTPRK1Iu9dLYCFddaYLHV/pdnVjPHvnhg=
+            =nXVg
+            -----END PGP MESSAGE-----
+          fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    version: 3.7.1

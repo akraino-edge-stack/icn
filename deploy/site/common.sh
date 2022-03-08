@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eu -o pipefail
 
+FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"}
+FLUX_SOPS_PRIVATE_KEY="$(readlink -f $(dirname ${BASH_SOURCE[0]}))/secrets/sops.asc"
 SITE_NAMESPACE="${SITE_NAMESPACE:-metal3}"
 
 function _gpg_key_fp {

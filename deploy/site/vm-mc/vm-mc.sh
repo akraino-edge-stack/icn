@@ -14,63 +14,6 @@ SITE_REPO=${SITE_REPO:-" https://gerrit.akraino.org/r/icn"}
 SITE_BRANCH=${SITE_BRANCH:-"master"}
 SITE_PATH=${SITE_PATH:-"deploy/site/vm-mc/deployment"}
 
-FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"}
-FLUX_SOPS_PRIVATE_KEY="${SCRIPTDIR}/../secrets/sops.asc"
-
-# !!!NOTE!!! THE KEYS USED BELOW ARE FOR TEST PURPOSES ONLY.  DO NOT
-# USE THESE OUTSIDE OF THIS ICN VIRTUAL TEST ENVIRONMENT.
-function build_source {
-    # First decrypt the existing site YAML, otherwise we'll be
-    # attempting to encrypt it twice below
-    if [[ -f ${FLUX_SOPS_PRIVATE_KEY} ]]; then
-	gpg --import ${FLUX_SOPS_PRIVATE_KEY}
-	for yaml in ${SCRIPTDIR}/cluster*/*.yaml ${SCRIPTDIR}/deployment/*.yaml; do
-	    sops_decrypt ${yaml} ${SCRIPTDIR}
-	done
-    fi
-
-    # Generate user password and authorized key in site YAML
-    # To login to guest, ssh -i ${SCRIPTDIR}/id_rsa
-    HASHED_PASSWORD=$(mkpasswd --method=SHA-512 --rounds 10000 "mypasswd")
-    ssh-keygen -t rsa -N "" -f ${SCRIPTDIR}/id_rsa <<<y
-    SSH_AUTHORIZED_KEY=$(cat ${SCRIPTDIR}/id_rsa.pub)
-    for yaml in ${SCRIPTDIR}/deployment/cluster-*.yaml; do
-	sed -i -e 's!hashedPassword: .*!hashedPassword: '"${HASHED_PASSWORD}"'!' ${yaml}
-	# Use ! instead of usual / to avoid escaping / in
-	# SSH_AUTHORIZED_KEY
-	sed -i -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${yaml}
-    done
-
-    # Create root and intermediate CA certs for use by Istio in each
-    # cluster
-    clone_istio_repository
-    local -r certs_dir=${SCRIPTDIR}/../secrets/certs
-    rm -rf ${certs_dir}
-    mkdir -p ${certs_dir}
-    certs=${ISTIOPATH}/tools/certs
-    make -C ${certs} -f Makefile.selfsigned.mk ROOT_CN="EMCO Root CA" ROOTCA_ORG=project-emco.io root-ca
-    find ${certs}/root-* -exec cp '{}' ${certs_dir} ';'
-    for yaml in ${SCRIPTDIR}/deployment/cluster-*.yaml; do
-	name=$(awk '/clusterName:/ {print $2}' ${yaml})
-	make -C ${certs} -f Makefile.selfsigned.mk INTERMEDIATE_CN="EMCO Intermediate CA" INTERMEDIATE_ORG=project-emco.io ${name}-cacerts
-	cp -r ${certs}/${name} ${certs_dir}
-	kubectl create secret generic cacerts -n istio-system --dry-run=client -o yaml \
-	    --from-file=${certs}/${name}/ca-cert.pem \
-	    --from-file=${certs}/${name}/ca-key.pem \
-	    --from-file=${certs}/${name}/root-cert.pem \
-	    --from-file=${certs}/${name}/cert-chain.pem >${SCRIPTDIR}/${name}/istio-cacerts.yaml
-    done
-
-    # Encrypt the site YAML
-    create_gpg_key ${FLUX_SOPS_KEY_NAME}
-    for yaml in ${SCRIPTDIR}/cluster*/*.yaml ${SCRIPTDIR}/deployment/*.yaml; do
-	sops_encrypt ${yaml} ${FLUX_SOPS_KEY_NAME} ${SCRIPTDIR}
-    done
-
-    # ONLY FOR TEST ENVIRONMENT: save the private key used
-    export_gpg_private_key ${FLUX_SOPS_KEY_NAME} >${FLUX_SOPS_PRIVATE_KEY}
-}
-
 function deploy {
     gpg --import ${FLUX_SOPS_PRIVATE_KEY}
     flux_create_site ${SITE_REPO} ${SITE_BRANCH} ${SITE_PATH} ${FLUX_SOPS_KEY_NAME}
@@ -165,7 +108,6 @@ function wait_for_all_deleted {
 }
 
 case $1 in
-    "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;
@@ -174,7 +116,6 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 Commands:
-  build-source  - Build the in-tree site values
   clean         - Remove the site
   deploy        - Deploy the site
   wait          - Wait for the site to be ready

@@ -13,10 +13,10 @@ function test_setup {
     clone_istio_repository
 
     # Create a temporary kubeconfig file for the tests
-    cluster_name=${CLUSTER_1_NAME:-cluster-1}
+    cluster_name=${CLUSTER_1_NAME:-management}
     local -r cluster_1_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_1_kubeconfig}
-    cluster_name=${CLUSTER_2_NAME:-cluster-2}
+    cluster_name=${CLUSTER_2_NAME:-compute}
     local -r cluster_2_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     clusterctl -n metal3 get kubeconfig ${cluster_name} >${cluster_2_kubeconfig}
 
@@ -168,16 +168,16 @@ EOF
 }
 
 function httpbin_accessible_from_sleep_service {
-    cluster_name=${CLUSTER_1_NAME:-cluster-1}
+    cluster_name=${CLUSTER_1_NAME:-management}
     local -r cluster_1_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     local -r sleep_pod=$(kubectl --kubeconfig=${cluster_1_kubeconfig} get -n foo pod -l app=sleep -o jsonpath={.items..metadata.name})
     kubectl --kubeconfig=${cluster_1_kubeconfig} exec ${sleep_pod} -n foo -c sleep -- curl -I httpbin.bar.cluster2:8000/headers
 }
 
 function test_teardown {
-    cluster_name=${CLUSTER_1_NAME:-cluster-1}
+    cluster_name=${CLUSTER_1_NAME:-management}
     local -r cluster_1_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
-    cluster_name=${CLUSTER_2_NAME:-cluster-2}
+    cluster_name=${CLUSTER_2_NAME:-compute}
     local -r cluster_2_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
 
     kubectl --kubeconfig=${cluster_2_kubeconfig} -n istio-system delete DestinationRule httpbin-dr --ignore-not-found
@@ -212,7 +212,7 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 The "test" command looks for the CLUSTER_1_NAME and CLUSTER_2_NAME
-variables in the environment (default: "cluster-1" and "cluster-2").
+variables in the environment (default: "management" and "compute").
 This should be the name of the Cluster resources to execute the tests
 in.
 

@@ -12,15 +12,10 @@ mkdir -p ${BUILDDIR}
 
 SITE_REPO=${SITE_REPO:-"https://gerrit.akraino.org/r/icn"}
 SITE_BRANCH=${SITE_BRANCH:-"master"}
-SITE_PATH=${SITE_PATH:-"deploy/site/pod11"}
-
-FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"} # TODO Replace ICN test key with real key
-
-function build_source {
-    sops_encrypt ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
-}
+SITE_PATH=${SITE_PATH:-"deploy/site/pod11/deployment"}
 
 function deploy {
+    # TODO Replace ICN test key with real key
     flux_create_site ${SITE_REPO} ${SITE_BRANCH} ${SITE_PATH} ${FLUX_SOPS_KEY_NAME}
 }
 
@@ -60,7 +55,6 @@ function wait_for_all_deleted {
 }
 
 case $1 in
-    "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;
@@ -69,7 +63,6 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 Commands:
-  build-source  - Rebuild the in-tree site files
   clean         - Remove the site
   deploy        - Deploy the site
   wait          - Wait for the site to be ready

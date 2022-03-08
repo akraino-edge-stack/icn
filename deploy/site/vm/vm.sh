@@ -12,38 +12,7 @@ mkdir -p ${BUILDDIR}
 
 SITE_REPO=${SITE_REPO:-"https://gerrit.akraino.org/r/icn"}
 SITE_BRANCH=${SITE_BRANCH:-"master"}
-SITE_PATH=${SITE_PATH:-"deploy/site/vm"}
-
-FLUX_SOPS_KEY_NAME=${FLUX_SOPS_KEY_NAME:-"icn-site-vm"}
-FLUX_SOPS_PRIVATE_KEY="${SCRIPTDIR}/../secrets/sops.asc"
-
-# !!!NOTE!!! THE KEYS USED BELOW ARE FOR TEST PURPOSES ONLY.  DO NOT
-# USE THESE OUTSIDE OF THIS ICN VIRTUAL TEST ENVIRONMENT.
-function build_source {
-    # First decrypt the existing site YAML, otherwise we'll be
-    # attempting to encrypt it twice below
-    if [[ -f ${FLUX_SOPS_PRIVATE_KEY} ]]; then
-	gpg --import ${FLUX_SOPS_PRIVATE_KEY}
-	sops_decrypt ${SCRIPTDIR}/site.yaml
-    fi
-
-    # Generate user password and authorized key in site YAML
-    # To login to guest, ssh -i ${SCRIPTDIR}/id_rsa
-    HASHED_PASSWORD=$(mkpasswd --method=SHA-512 --rounds 10000 "mypasswd")
-    sed -i -e 's!hashedPassword: .*!hashedPassword: '"${HASHED_PASSWORD}"'!' ${SCRIPTDIR}/site.yaml
-    ssh-keygen -t rsa -N "" -f ${SCRIPTDIR}/id_rsa <<<y
-    SSH_AUTHORIZED_KEY=$(cat ${SCRIPTDIR}/id_rsa.pub)
-    # Use ! instead of usual / to avoid escaping / in
-    # SSH_AUTHORIZED_KEY
-    sed -i -e 's!sshAuthorizedKey: .*!sshAuthorizedKey: '"${SSH_AUTHORIZED_KEY}"'!' ${SCRIPTDIR}/site.yaml
-
-    # Encrypt the site YAML
-    create_gpg_key ${FLUX_SOPS_KEY_NAME}
-    sops_encrypt ${SCRIPTDIR}/site.yaml ${FLUX_SOPS_KEY_NAME}
-
-    # ONLY FOR TEST ENVIRONMENT: save the private key used
-    export_gpg_private_key ${FLUX_SOPS_KEY_NAME} >${FLUX_SOPS_PRIVATE_KEY}
-}
+SITE_PATH=${SITE_PATH:-"deploy/site/vm/deployment"}
 
 function deploy {
     gpg --import ${FLUX_SOPS_PRIVATE_KEY}
@@ -120,7 +89,6 @@ function wait_for_all_deleted {
 }
 
 case $1 in
-    "build-source") build_source ;;
     "clean") clean ;;
     "deploy") deploy ;;
     "wait") wait_for_all_ready ;;
@@ -129,7 +97,6 @@ case $1 in
 Usage: $(basename $0) COMMAND
 
 Commands:
-  build-source  - Build the in-tree site values
   clean         - Remove the site
   deploy        - Deploy the site
   wait          - Wait for the site to be ready

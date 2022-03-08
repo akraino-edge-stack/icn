@@ -18,7 +18,7 @@ with_jenkins = ENV['WITH_JENKINS'] || false
 # virtual environment is emulated by virtualbmc listening on the host.
 baremetal_cidr = nil
 registry_mirrors = nil
-Dir.glob("deploy/site/#{site}/*.yaml") do |file|
+Dir.glob("deploy/site/#{site}/deployment/*.yaml") do |file|
   YAML.load_stream(File.read(file)) do |document|
     values = document.fetch('spec', {}).fetch('values', {})
     unless values['bmcAddress'].nil?
@@ -133,7 +133,7 @@ Vagrant.configure("2") do |config|
   # the values dictionary.  This will provide the values needed to
   # create the machine pool.
   legacy_machine_args = ""
-  Dir.glob("deploy/site/#{site}/*.yaml") do |file|
+  Dir.glob("deploy/site/#{site}/deployment/*.yaml") do |file|
     YAML.load_stream(File.read(file)) do |document|
       values = document.fetch('spec', {}).fetch('values', {})
       next if values['machineName'].nil? || values['bootMACAddress'].nil?
