@@ -10,7 +10,7 @@ spec:
   ref:
     branch: master
   timeout: 20s
-  url: https://gerrit.akraino.org/r/icn
+  url: https://github.com/malsbat/icn
 ---
 apiVersion: kustomize.toolkit.fluxcd.io/v1beta2
 kind: Kustomization
