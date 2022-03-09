@@ -71,6 +71,25 @@ function build_site_source {
     done
 }
 
+function create_gpg_key {
+    local -r key_name=$1
+
+    # Create an rsa4096 key that does not expire
+    gpg --batch --full-generate-key <<EOF
+%no-protection
+Key-Type: 1
+Key-Length: 4096
+Subkey-Type: 1
+Subkey-Length: 4096
+Expire-Date: 0
+Name-Real: ${key_name}
+EOF
+}
+
+function export_gpg_private_key {
+    gpg --export-secret-keys --armor "$(_gpg_key_fp $1)"
+}
+
 function build_source {
     create_gpg_key ${FLUX_SOPS_KEY_NAME}
     # ONLY FOR TEST ENVIRONMENT: save the private key used
