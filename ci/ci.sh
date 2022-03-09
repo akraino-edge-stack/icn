@@ -46,6 +46,15 @@ function install_jenkins {
     mkdir -p ${HOME}/.config/jenkins_jobs
     cp ${SCRIPT_DIR}/jenkins_jobs.ini ${HOME}/.config/jenkins_jobs/jenkins_jobs.ini
     git clone --recursive https://gerrit.akraino.org/r/ci-management "${CI_MANAGEMENT_DIR}"
+
+    # TODO Figure out how to automate this, it doesn't appear to be exposed with jenkins-cli.jar
+    cat <<EOF
+Git plugin 4.4 removes the second fetch operation in most cases. This
+prevents the CI jobs from checking out the correct version.
+
+To enable the second fetch, check the following in the Jenkins web UI:
+  Manage Jenkins -> Configure System -> [X] Preserve second fetch during checkout
+EOF
 }
 
 function install_credentials {
