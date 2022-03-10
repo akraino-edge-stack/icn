@@ -3,8 +3,10 @@ set -eu -o pipefail
 
 listen_ip=$1
 
-if [[ -f ${HOME}/.sushy/emulator.pid && $(ps -p $(cat ${HOME}/.sushy/emulator.pid) 2>/dev/null) ]]; then
-    kill $(cat ${HOME}/.sushy/emulator.pid)
+if [[ -f ${HOME}/.sushy/emulator.pid ]]; then
+    if ps -p $(cat ${HOME}/.sushy/emulator.pid); then
+       kill $(cat ${HOME}/.sushy/emulator.pid)
+    fi
     rm ${HOME}/.sushy/emulator.pid
     echo Stopped sushy-emulator
     dev=$(ip -o addr show to ${listen_ip} | awk '{print $2}')
