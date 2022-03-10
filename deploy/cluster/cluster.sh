@@ -20,7 +20,12 @@ EOF
 }
 
 function build_source_flux {
-    flux install --export >${SCRIPTDIR}/addons/flux-system.yaml
+    # NOTE: This reaches outside this directory to
+    # deploy/site/cluster-addons/flux-system.  This is to ensure that
+    # the day-0 config of a cluster using deploy/site/cluster-addons
+    # is in sync with the chart.
+    flux install --export >${SCRIPTDIR}/../site/cluster-addons/flux-system/gotk-components.yaml
+    kustomize build ${SCRIPTDIR}/../site/cluster-addons/flux-system >${SCRIPTDIR}/addons/flux-system.yaml
     cat <<EOF >>${SCRIPTDIR}/addons/flux-system.yaml
 ---
 apiVersion: rbac.authorization.k8s.io/v1
