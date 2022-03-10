@@ -4,7 +4,8 @@ require 'yaml'
 site = ENV['ICN_SITE'] || 'vm'
 
 Dir.chdir(File.join(__dir__, '../../'))
-system('vagrant destroy -f jump')
+system("virsh -c qemu:///system destroy #{site}-jump")
+system("virsh -c qemu:///system undefine --nvram --remove-all-storage #{site}-jump")
 
 Dir.glob("deploy/site/#{site}/deployment/*.yaml") do |file|
   YAML.load_stream(File.read(file)) do |document|
