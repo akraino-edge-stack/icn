@@ -117,13 +117,32 @@ replace_or_append '^\s*AllowGroups\s+' 'AllowGroups root sudo' /etc/ssh/sshd_con
 # Restart SSH
 systemctl restart ssh
 
+# Disabling Apport is necessary to prevent it from overriding
+# fs.suid_dumpable in sysctl conf below
+replace_or_append '^enabled=' 'enabled=0' /etc/default/apport
+
+# The fs.protected_fifos setting below in 99-zzz-icn.conf does not
+# stick on reboot.  The setting in /usr/lib takes precendence, but per
+# the sysctl.d manpage, a file with the same name in /etc will
+# override /usr/lib.
+#
+# Reference:
+# https://groups.google.com/g/linux.debian.bugs.dist/c/cYMr7EXCcWY?pli=1
+sed -e 's/fs.protected_fifos = .*/fs.protected_fifos = 2/' /usr/lib/sysctl.d/protect-links.conf > /etc/sysctl.d/protect-links.conf
+
 # Check sysctl key pairs in scan profile
 cat <<EOF >/etc/sysctl.d/99-zzz-icn.conf
+dev.tty.ldisc_autoload = 0
+fs.protected_fifos = 2
 fs.suid_dumpable = 0
 kernel.core_uses_pid = 1
 kernel.dmesg_restrict = 1
 kernel.kptr_restrict = 2
+# TODO module loading required by accelerator drivers
+# kernel.modules_disabled = 1
 kernel.sysrq = 0
+kernel.unprivileged_bpf_disabled = 1
+net.core.bpf_jit_harden = 2
 net.ipv4.conf.all.accept_redirects = 0
 # TODO forwarding required by k8s
 # net.ipv4.conf.all.forwarding = 0
