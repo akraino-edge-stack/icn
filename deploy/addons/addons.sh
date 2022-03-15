@@ -86,6 +86,15 @@ function is_addon_ready {
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
     [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get Kustomization/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+
+    # Additional addon specific checks
+    case ${addon} in
+	"cpu-manager")
+	    for node in $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get pods -l app=cmk-reconcile-ds-all -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort | uniq); do
+		kubectl --kubeconfig=${cluster_kubeconfig} get cmk-nodereport ${node}
+	    done
+	    ;;
+    esac
 }
 
 function test_addons {
