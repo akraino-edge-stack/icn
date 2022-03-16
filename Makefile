@@ -26,10 +26,10 @@ jump_server_clean: controllers_clean \
 
 management_cluster:
 	source user_config.sh && \
-	./deploy/kud/kud_bm_launch.sh minimal
+	./deploy/minikube/minikube.sh deploy
 
 management_cluster_clean:
-	./deploy/kud/kud_bm_launch.sh reset
+	./deploy/minikube/minikube.sh clean
 
 # Tools used during the installation of jump server components
 
