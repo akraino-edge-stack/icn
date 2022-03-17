@@ -85,7 +85,9 @@ function is_addon_ready {
     local -r addon=$1
     local -r cluster_name=${CLUSTER_NAME:-icn}
     local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
-    [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get Kustomization/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') == "True" ]]
+    if [[ $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get Kustomization/${addon} -o jsonpath='{.status.conditions[?(@.type=="Ready")].status}') != "True" ]]; then
+	return 1
+    fi
 
     # Additional addon specific checks
     case ${addon} in
@@ -93,6 +95,11 @@ function is_addon_ready {
 	    for node in $(kubectl --kubeconfig=${cluster_kubeconfig} -n kud get pods -l app=cmk-reconcile-ds-all -o jsonpath='{range .items[*]}{.spec.nodeName}{"\n"}{end}' | sort | uniq); do
 		kubectl --kubeconfig=${cluster_kubeconfig} get cmk-nodereport ${node}
 	    done
+	    ;;
+	"node-feature-discovery")
+	    node_name=$(kubectl --kubeconfig=${cluster_kubeconfig} get nodes -o jsonpath='{range .items[*]}{.metadata.name} {.spec.taints[?(@.effect=="NoSchedule")].effect}{"\n"}{end}' | awk 'NF==1 {print $0;exit}')
+	    kernel_version=$(kubectl --kubeconfig=${cluster_kubeconfig} get node ${node_name} -o jsonpath='{.metadata.labels.feature\.node\.kubernetes\.io/kernel-version\.major}')
+	    [[ -n ${kernel_version} ]]
 	    ;;
     esac
 }
