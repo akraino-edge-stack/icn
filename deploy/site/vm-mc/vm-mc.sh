@@ -10,7 +10,7 @@ source $SCRIPTDIR/../common.sh
 BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
-SITE_REPO=${SITE_REPO:-" https://gerrit.akraino.org/r/icn"}
+SITE_REPO=${SITE_REPO:-" https://github.com/malsbat/icn"}
 SITE_BRANCH=${SITE_BRANCH:-"master"}
 SITE_PATH=${SITE_PATH:-"deploy/site/vm-mc/deployment"}
 
