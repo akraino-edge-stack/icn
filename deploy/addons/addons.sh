@@ -94,6 +94,11 @@ function is_addon_ready {
 		kubectl --kubeconfig=${cluster_kubeconfig} get cmk-nodereport ${node}
 	    done
 	    ;;
+	"node-feature-discovery")
+	    node_name=$(kubectl --kubeconfig=${cluster_kubeconfig} get nodes -o jsonpath='{range .items[*]}{.metadata.name} {.spec.taints[?(@.effect=="NoSchedule")].effect}{"\n"}{end}' | awk 'NF==1 {print $0;exit}')
+	    kernel_version=$(kubectl --kubeconfig=${cluster_kubeconfig} get node ${node_name} -o jsonpath='{.metadata.labels.feature\.node\.kubernetes\.io/kernel-version\.major}')
+	    [[ -n ${kernel_version} ]]
+	    ;;
     esac
 }
 
