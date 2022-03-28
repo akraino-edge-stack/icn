@@ -246,12 +246,15 @@ EOF
 }
 
 function build_source_calico {
-    mkdir -p ${SCRIPTDIR}/addons/calico
-    curl -sL https://docs.projectcalico.org/archive/${CALICO_VERSION%.*}/manifests/calico.yaml -o ${SCRIPTDIR}/addons/calico/calico.yaml
+    mkdir -p ${SCRIPTDIR}/addons/calico/{base,ipv4,dualstack,ipv6}
+    curl -sL https://docs.projectcalico.org/archive/${CALICO_VERSION%.*}/manifests/calico.yaml -o ${SCRIPTDIR}/addons/calico/base/calico.yaml
     # Remove trailing whitespace so that kubectl create configmap
     # doesn't insert explicit newlines
-    sed -i -r 's/\s+$//g' ${SCRIPTDIR}/addons/calico/calico.yaml
-    cat <<EOF >${SCRIPTDIR}/addons/calico/ip-autodetection-method-patch.yaml
+    sed -i -r 's/\s+$//g' ${SCRIPTDIR}/addons/calico/base/calico.yaml
+    pushd ${SCRIPTDIR}/addons/calico/base && rm -f kustomization.yaml && kustomize create --autodetect && popd
+
+    # IPv4 only (the default)
+    cat <<EOF >${SCRIPTDIR}/addons/calico/ipv4/ip-autodetection-method-patch.yaml
 kind: DaemonSet
 apiVersion: apps/v1
 metadata:
@@ -266,17 +269,176 @@ spec:
             - name: IP_AUTODETECTION_METHOD
               value: can-reach=www.google.com
 EOF
-    cat <<EOF >${SCRIPTDIR}/addons/calico/kustomization.yaml
+    cat <<EOF >${SCRIPTDIR}/addons/calico/ipv4/kustomization.yaml
 resources:
-- calico.yaml
+- ../base
 patches:
 - path: ip-autodetection-method-patch.yaml
 EOF
-    kustomize build ${SCRIPTDIR}/addons/calico >${SCRIPTDIR}/addons/calico.yaml
+    kustomize build ${SCRIPTDIR}/addons/calico/ipv4 >${SCRIPTDIR}/addons/calico/ipv4.yaml
+    # Dual stack
+    cat <<'EOF' >${SCRIPTDIR}/addons/calico/dualstack/configmap-patch.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  cni_network_config: |-
+    {
+      "name": "k8s-pod-network",
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "calico",
+          "log_level": "info",
+          "log_file_path": "/var/log/calico/cni/cni.log",
+          "datastore_type": "kubernetes",
+          "nodename": "__KUBERNETES_NODE_NAME__",
+          "mtu": __CNI_MTU__,
+          "ipam": {
+              "type": "calico-ipam",
+              "assign_ipv4": "true",
+              "assign_ipv6": "true"
+          },
+          "policy": {
+              "type": "k8s"
+          },
+          "kubernetes": {
+              "kubeconfig": "__KUBECONFIG_FILEPATH__"
+          }
+        },
+        {
+          "type": "portmap",
+          "snat": true,
+          "capabilities": {"portMappings": true}
+        },
+        {
+          "type": "bandwidth",
+          "capabilities": {"bandwidth": true}
+        }
+      ]
+    }
+EOF
+    cat <<EOF >${SCRIPTDIR}/addons/calico/dualstack/ip-autodetection-method-patch.yaml
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: calico-node
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: calico-node
+          env:
+            - name: IP_AUTODETECTION_METHOD
+              value: can-reach=www.google.com
+            - name: IP6_AUTODETECTION_METHOD
+              value: can-reach=www.google.com
+            - name: IP6
+              value: autodetect
+            - name: FELIX_IPV6SUPPORT
+              value: true
+EOF
+    cat <<EOF >${SCRIPTDIR}/addons/calico/dualstack/kustomization.yaml
+resources:
+- ../base
+patches:
+- path: configmap-patch.yaml
+- path: ip-autodetection-method-patch.yaml
+EOF
+    kustomize build ${SCRIPTDIR}/addons/calico/dualstack >${SCRIPTDIR}/addons/calico/dualstack.yaml
+    # IPv6 only
+    cat <<'EOF' >${SCRIPTDIR}/addons/calico/ipv6/configmap-patch.yaml
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: calico-config
+  namespace: kube-system
+data:
+  cni_network_config: |-
+    {
+      "name": "k8s-pod-network",
+      "cniVersion": "0.3.1",
+      "plugins": [
+        {
+          "type": "calico",
+          "log_level": "info",
+          "log_file_path": "/var/log/calico/cni/cni.log",
+          "datastore_type": "kubernetes",
+          "nodename": "__KUBERNETES_NODE_NAME__",
+          "mtu": __CNI_MTU__,
+          "ipam": {
+              "type": "calico-ipam",
+              "assign_ipv4": "false",
+              "assign_ipv6": "true"
+          },
+          "policy": {
+              "type": "k8s"
+          },
+          "kubernetes": {
+              "kubeconfig": "__KUBECONFIG_FILEPATH__"
+          }
+        },
+        {
+          "type": "portmap",
+          "snat": true,
+          "capabilities": {"portMappings": true}
+        },
+        {
+          "type": "bandwidth",
+          "capabilities": {"bandwidth": true}
+        }
+      ]
+    }
+EOF
+    cat <<EOF >${SCRIPTDIR}/addons/calico/ipv6/ip-autodetection-method-patch.yaml
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: calico-node
+  namespace: kube-system
+spec:
+  template:
+    spec:
+      containers:
+        - name: calico-node
+          env:
+            - name: IP6_AUTODETECTION_METHOD
+              value: can-reach=www.google.com
+            - name: IP6
+              value: autodetect
+            - name: FELIX_IPV6SUPPORT
+              value: true
+            - name: IP
+              value: none
+            - name: CALICO_ROUTER_ID
+              value: hash
+EOF
+    cat <<EOF >${SCRIPTDIR}/addons/calico/ipv6/kustomization.yaml
+resources:
+- ../base
+patches:
+- path: configmap-patch.yaml
+- path: ip-autodetection-method-patch.yaml
+EOF
+    kustomize build ${SCRIPTDIR}/addons/calico/ipv6 >${SCRIPTDIR}/addons/calico/ipv6.yaml
+
     cat <<EOF >${SCRIPTDIR}/templates/calico-addon.yaml
 {{- if eq .Values.cni "calico" }}
+{{- if eq .Values.ipam "ipv4" }}
 ---
-$(kubectl create configmap calico-addon --from-file=${SCRIPTDIR}/addons/calico.yaml -o yaml --dry-run=client)
+$(kubectl create configmap calico-addon --from-file=calico.yaml=${SCRIPTDIR}/addons/calico/ipv4.yaml -o yaml --dry-run=client)
+{{- end }}
+{{- if eq .Values.ipam "dualstack" }}
+---
+$(kubectl create configmap calico-addon --from-file=calico.yaml=${SCRIPTDIR}/addons/calico/dualstack.yaml -o yaml --dry-run=client)
+{{- end }}
+{{- if eq .Values.ipam "ipv6" }}
+---
+$(kubectl create configmap calico-addon --from-file=calico.yaml=${SCRIPTDIR}/addons/calico/ipv6.yaml -o yaml --dry-run=client)
+{{- end }}
 {{- end }}
 EOF
     sed -i -e 's/  name: calico-addon/  name: {{ .Values.clusterName }}-calico-addon/' ${SCRIPTDIR}/templates/calico-addon.yaml

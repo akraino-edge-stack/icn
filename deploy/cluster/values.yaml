@@ -112,6 +112,11 @@ flux:
 # containerRuntime may be containerd or docker.
 containerRuntime: containerd
 
+# ipam may be ipv4, dualstack, or ipv6.  This configures IP address
+# allocation in the cluster to use IPv4 only, dual stack, or IPv6
+# only.
+ipam: ipv4
+
 # podCidr is the Pod CIDR.
 podCidrBlocks:
 - 10.244.64.0/18
