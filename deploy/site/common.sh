@@ -6,7 +6,7 @@ FLUX_SOPS_PRIVATE_KEY="$(readlink -f $(dirname ${BASH_SOURCE[0]}))/secrets/sops.
 SITE_NAMESPACE="${SITE_NAMESPACE:-metal3}"
 
 function _gpg_key_fp {
-    gpg --with-colons --list-secret-keys $1 | awk -F: '/fpr/ {print $10;exit}'
+    gpg --with-colons --fingerprint $1 | awk -F: '/fpr/ {print $10;exit}'
 }
 
 function sops_encrypt {
