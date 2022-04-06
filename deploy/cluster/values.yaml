@@ -42,14 +42,43 @@ controlPlanePrefix: 24
 #  matchLabels:
 #    machine: machine-2
 
-# networks can be used when DHCP is present and the network
-# configuration of each machine may be provided with a template
-# containing the names of the baremetal and provisioning interfaces.
-#networks:
+# ipPools are used to provide addresses to the networks value.
+#ipPools:
 #  baremetal:
-#    interface: ens6
-#  provisioning:
-#    interface: ens5
+#    # start is the beginning of the address range in the pool.
+#    start: 192.168.151.10
+#    # end is the end of the address range in the pool.
+#    end: 192.168.151.20
+#    # prefix is the network prefix of addresses in the range.
+#    prefix: 24
+#    # gateway is optional.
+#    #gateway: 192.168.151.1
+#    # preAllocations are optional.  Note that if the pool overlaps
+#    # with the gateway, then a pre-allocation is required.
+#    #preAllocations:
+#    #  controlPlane: 192.168.151.254
+
+# networks is used when the network configuration of each machine may
+# be provided with a template containing the names of the baremetal
+# and provisioning interfaces.
+#networkData:
+#  links:
+#    ethernets:
+#      baremetal:
+#        interface: ens6
+#      provisioning:
+#        interface: ens5
+#  networks:
+#    ipv4DHCP:
+#      provisioning: {}
+#    ipv4:
+#      baremetal:
+#        # link is optional and defaults to the network name.
+#        #link: baremetal
+#        fromIPPool: baremetal
+#  services:
+#    dns:
+#    - 8.8.8.8
 
 # userData is used to provide cloud-init data for machines in the
 # cluster.  See
@@ -83,8 +112,13 @@ flux:
 # containerRuntime may be containerd or docker.
 containerRuntime: containerd
 
-# podCidr is the POD CIDR.
-podCidr: 10.244.64.0/18
+# podCidr is the Pod CIDR.
+podCidrBlocks:
+- 10.244.64.0/18
+
+# serviceCidr is the Service CIDR.
+serviceCidrBlocks:
+- 10.244.0.0/18
 
 # cni is the cluster CNI.  Supported CNIs include calico and flannel.
 cni: calico

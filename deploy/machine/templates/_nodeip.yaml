@@ -1,0 +1,27 @@
+{{- define "machine.nodeIP" -}}
+{{- $nodeIPs := "" -}}
+{{- $local := dict "first" true -}}
+{{- range $name, $network := .networks.ipv4 -}}
+{{- $link := $network.link | default $name -}}
+{{- if eq $link "baremetal" -}}
+{{- if not $local.first -}}
+{{- $nodeIPs = printf "%s,%s" $nodeIPs (regexReplaceAll "/.*$" $network.ipAddress "") -}}
+{{- else -}}
+{{- $nodeIPs = regexReplaceAll "/.*$" $network.ipAddress "" -}}
+{{- end -}}
+{{- $_ := set $local "first" false -}}
+{{- end -}}
+{{- end -}}
+{{- range $name, $network := .networks.ipv6 -}}
+{{- $link := $network.link | default $name -}}
+{{- if eq $link "baremetal" -}}
+{{- if not $local.first -}}
+{{- $nodeIPs = printf "%s,%s" $nodeIPs (regexReplaceAll "/.*$" $network.ipAddress "") -}}
+{{- else -}}
+{{- $nodeIPs = regexReplaceAll "/.*$" $network.ipAddress "" -}}
+{{- end -}}
+{{- $_ := set $local "first" false -}}
+{{- end -}}
+{{- end -}}
+icn.akraino.org/node-ip: {{ $nodeIPs }}
+{{- end -}}

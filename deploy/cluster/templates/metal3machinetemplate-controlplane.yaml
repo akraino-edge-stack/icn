@@ -12,10 +12,8 @@ spec:
       hostSelector:
         {{- toYaml .Values.controlPlaneHostSelector | nindent 8 }}
 {{- end }}
-{{- if .Values.networks }}
       dataTemplate:
         name: {{ .Values.clusterName }}-nodepool
-{{- end }}
       image:
         checksum: http://172.22.0.1:6180/images/{{ .Values.imageName }}.md5sum
         url: http://172.22.0.1:6180/images/{{ .Values.imageName }}

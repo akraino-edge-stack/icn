@@ -9,7 +9,7 @@ else
     cat <<EOF >${site}-provisioning-network.xml
 <network>
   <name>${site}-provisioning</name>
-  <bridge name="${site}0"/>
+  <bridge name="${site}1"/>
 </network>
 EOF
     virsh -c qemu:///system net-define ${site}-provisioning-network.xml

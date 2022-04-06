@@ -16,25 +16,52 @@ with_jenkins = ENV['WITH_JENKINS'] || false
 # Calculate the baremetal network address from the bmcAddress (aka
 # IPMI address) specified in the machine pool values.  IPMI in the
 # virtual environment is emulated by virtualbmc listening on the host.
-baremetal_cidr = nil
+baremetal4_gw = '192.168.151.1'
+baremetal4_netmask = '255.255.255.0'
+baremetal6_gw = nil
+baremetal6_prefix = nil
+bmc_host = '192.168.121.1' # From the default vagrant-libvirt network
 registry_mirrors = nil
 Dir.glob("deploy/site/#{site}/deployment/*.yaml") do |file|
   YAML.load_stream(File.read(file)) do |document|
     values = document.fetch('spec', {}).fetch('values', {})
+    unless values['networkData'].nil? or values['networkData']['networks'].nil?
+      networks = values['networkData']['networks']
+      unless networks['ipv4'].nil?
+        networks['ipv4'].select {|name,network| network.fetch('link', name) == 'baremetal'}.each_value do |network|
+          if network.key?('gateway')
+            baremetal4_gw = network['gateway']
+          elsif network.key?('fromIPPool')
+            pool = network['fromIPPool']
+            if values['ipPools']["#{pool}"].key?('gateway')
+              baremetal4_gw = values['ipPools']["#{pool}"]['gateway']
+            end
+          end
+        end
+      end
+      unless networks['ipv6'].nil?
+        networks['ipv6'].select {|name,network| network.fetch('link', name) == 'baremetal'}.each_value do |network|
+          if network.key?('gateway')
+            baremetal6_gw = network['gateway']
+            baremetal6_prefix = 64
+          elsif network.key?('fromIPPool')
+            pool = network['fromIPPool']
+            if values['ipPools']["#{pool}"].key?('gateway')
+              baremetal6_gw = values['ipPools']["#{pool}"]['gateway']
+              baremetal6_prefix = 64
+            end
+          end
+        end
+      end
+    end
     unless values['bmcAddress'].nil?
       bmc_host = URI.parse(values['bmcAddress']).host
-      baremetal_cidr = "#{IPAddr.new(bmc_host).mask(24)}/24"
     end
     unless values['dockerRegistryMirrors'].nil?
       registry_mirrors = values['dockerRegistryMirrors'].join(' ')
     end
   end
 end
-if baremetal_cidr.nil?
-  puts "Missing bmcAddress value in site definition, can't determine baremetal network address"
-  exit 1
-end
-baremetal_gw = IPAddr.new(baremetal_cidr).succ
 
 $post_up_message = <<MSG
 ------------------------------------------------------
@@ -81,13 +108,21 @@ Vagrant.configure("2") do |config|
         libvirt.memory = 24576
       end
       libvirt.nested = true
-
-      # The ICN baremetal network is the vagrant management network,
-      # and is created by vagrant for us
-      libvirt.management_network_name = "#{site}-baremetal"
-      libvirt.management_network_address = baremetal_cidr
-      libvirt.management_network_autostart = true
     end
+
+    # The ICN baremetal network will be a vagrant private network
+    # created upon bringing up the jump machine
+    m.trigger.before [:up] do |trigger|
+      trigger.name = 'Creating baremetal network'
+      trigger.run = {inline: "./tools/vagrant/create_baremetal_network.sh #{site} #{baremetal4_gw} #{baremetal4_netmask} #{baremetal6_gw} #{baremetal6_prefix}"}
+    end
+    m.trigger.after [:destroy] do |trigger|
+      trigger.name = 'Destroying baremetal network'
+      trigger.run = {inline: "./tools/vagrant/destroy_baremetal_network.sh #{site}"}
+    end
+    m.vm.network :private_network,
+                 :libvirt__network_name => "#{site}-baremetal",
+                 :type => 'dhcp'
 
     # The ICN provisioning network will be a vagrant private network
     # created upon bringing up the jump machine
@@ -106,11 +141,11 @@ Vagrant.configure("2") do |config|
     # BMC control of machines is provided by sushy-emulator on the host
     m.trigger.after [:up] do |trigger|
       trigger.name = 'Starting sushy for BMC network'
-      trigger.run = {inline: "./tools/vagrant/start_sushy.sh #{baremetal_gw}"}
+      trigger.run = {inline: "./tools/vagrant/start_sushy.sh #{bmc_host}"}
     end
     m.trigger.after [:destroy] do |trigger|
       trigger.name = 'Stopping sushy for BMC network'
-      trigger.run = {inline: "./tools/vagrant/stop_sushy.sh #{baremetal_gw}"}
+      trigger.run = {inline: "./tools/vagrant/stop_sushy.sh #{bmc_host}"}
     end
 
     m.trigger.after [:up] do |trigger|
@@ -139,6 +174,13 @@ Vagrant.configure("2") do |config|
       next if values['machineName'].nil? || values['bootMACAddress'].nil?
       machine_name = values['machineName']
       boot_mac_address = values['bootMACAddress']
+      baremetal_mac_address = nil
+      if values['networkData'] and
+          values['networkData']['links'] and
+          values['networkData']['links']['ethernets'] and
+          values['networkData']['links']['ethernets']['baremetal'] and
+          baremetal_mac_address = values['networkData']['links']['ethernets']['baremetal']['macAddress']
+      end
       bmc_port = URI.parse(values['bmcAddress']).port
       uuid = URI.parse(values['bmcAddress']).path.split('/').last
       config.vm.define machine_name do |m|
@@ -165,9 +207,16 @@ Vagrant.configure("2") do |config|
                      :libvirt__network_name => "#{site}-provisioning",
                      :mac => boot_mac_address,
                      :type => 'dhcp'
-        m.vm.network :private_network,
-                     :libvirt__network_name => "#{site}-baremetal",
-                     :type => 'dhcp'
+        if baremetal_mac_address.nil?
+          m.vm.network :private_network,
+                       :libvirt__network_name => "#{site}-baremetal",
+                       :type => 'dhcp'
+        else
+          m.vm.network :private_network,
+                       :libvirt__network_name => "#{site}-baremetal",
+                       :mac => baremetal_mac_address,
+                       :type => 'dhcp'
+        end
       end
     end
   end

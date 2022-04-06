@@ -1,4 +1,6 @@
 #!/bin/bash
+# To validate emulator is up and running:
+#   curl --insecure -u admin:password https://192.168.121.1:8000/redfish/v1/Systems/
 set -eu -o pipefail
 
 listen_ip=$1

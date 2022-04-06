@@ -7,7 +7,7 @@ type: Opaque
 data:
   username: {{ .Values.bmcUsername | b64enc }}
   password: {{ .Values.bmcPassword | b64enc }}
-{{- if .Values.networks }}
+{{- if .Values.networkData }}
 ---
 apiVersion: v1
 kind: Secret
@@ -36,6 +36,10 @@ metadata:
   labels:
     {{- toYaml .Values.machineLabels | nindent 4 }}
 {{- end }}
+{{- if .Values.networkData }}
+  annotations:
+    {{- include "machine.nodeIP" .Values.networkData | nindent 4 }}
+{{- end }}
 spec:
   online: true
 {{- if .Values.bootMACAddress }}
@@ -45,7 +49,7 @@ spec:
     address: {{ .Values.bmcAddress }}
     credentialsName: {{ .Values.machineName }}-bmc-secret
     disableCertificateVerification: {{ .Values.bmcDisableCertificateVerification }}
-{{- if .Values.networks }}
+{{- if .Values.networkData }}
   networkData:
     name: {{ .Values.machineName }}-network-data
     namespace: {{ .Release.Namespace }}

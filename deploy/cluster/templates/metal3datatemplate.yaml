@@ -1,4 +1,3 @@
-{{- if .Values.networks }}
 ---
 apiVersion: infrastructure.cluster.x-k8s.io/v1alpha5
 kind: Metal3DataTemplate
@@ -6,19 +5,97 @@ metadata:
   name: {{ .Values.clusterName }}-nodepool
 spec:
   clusterName: {{ .Values.clusterName }}
+  metaData:
+{{- if .Values.networkData }}
+    ipAddressesFromIPPool:
+{{- range $name, $network := .Values.networkData.networks.ipv4 }}
+{{- $link := $network.link | default $name }}
+{{- if eq $link "baremetal" }}
+    - key: node_ip_{{ $name }}
+      name: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- end }}
+{{- end }}
+{{- range $name, $network := .Values.networkData.networks.ipv6 }}
+{{- $link := $network.link | default $name }}
+{{- if eq $link "baremetal" }}
+    - key: node_ip_{{ $name }}
+      name: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- end }}
+{{- end }}
+{{- else }}
+    fromAnnotations:
+    - key: node_ip
+      object: baremetalhost
+      annotation: icn.akraino.org/node-ip
+{{- end }}
+{{- if .Values.networkData }}
   networkData:
     links:
       ethernets:
-{{- range $name, $network := .Values.networks }}
+{{- range $name, $link := .Values.networkData.links.ethernets }}
       - id: {{ $name }}_nic
         macAddress:
-          fromHostInterface: {{ $network.interface }}
+          fromHostInterface: {{ $link.interface }}
         type: phy
 {{- end }}
     networks:
+{{- if .Values.networkData.networks.ipv4DHCP }}
       ipv4DHCP:
-{{- range $name, $network := .Values.networks }}
+{{- range $name, $network := .Values.networkData.networks.ipv4DHCP }}
       - id: {{ $name }}
-        link: {{ $name }}_nic
+        link: {{ $network.link | default $name }}_nic
+{{- end }}
+{{- end }}
+{{- if .Values.networkData.networks.ipv4 }}
+      ipv4:
+{{- range $name, $network := .Values.networkData.networks.ipv4 }}
+      - id: {{ $name }}
+        link: {{ $network.link | default $name }}_nic
+        ipAddressFromIPPool: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- $pool := (get $.Values.ipPools $network.fromIPPool) }}
+{{- if hasKey $pool "gateway" }}
+        routes:
+        - network: "0.0.0.0"
+          prefix: 0
+          gateway:
+            fromIPPool: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- if .Values.networkData.networks.ipv6DHCP }}
+      ipv6DHCP:
+{{- range $name, $network := .Values.networkData.networks.ipv6DHCP }}
+      - id: {{ $name }}
+        link: {{ $network.link | default $name }}_nic
+{{- end }}
+{{- end }}
+{{- if .Values.networkData.networks.ipv6 }}
+      ipv6:
+{{- range $name, $network := .Values.networkData.networks.ipv6 }}
+      - id: {{ $name }}
+        link: {{ $network.link | default $name }}_nic
+        ipAddressFromIPPool: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- $pool := (get $.Values.ipPools $network.fromIPPool) }}
+{{- if hasKey $pool "gateway" }}
+        routes:
+        - network: "::"
+          prefix: 0
+          gateway:
+            fromIPPool: {{ $.Values.clusterName }}-{{ $network.fromIPPool }}
+{{- end }}
+{{- end }}
+{{- end }}
+{{- /*
+Using routes[0].servers.dnsFromIPPool above doesn't have the desired
+effect.  So use separate services field here
+*/}}
+{{- if .Values.networkData.services }}
+{{- if .Values.networkData.services.dns }}
+    services:
+      dns:
+{{- range $address := .Values.networkData.services.dns }}
+      - {{ $address }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- end }}

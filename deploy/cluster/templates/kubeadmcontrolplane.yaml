@@ -12,6 +12,7 @@ spec:
     initConfiguration:
       nodeRegistration:
         kubeletExtraArgs:
+          {{- include "cluster.nodeIP" .Values.networkData | nindent 10 }}
           node-labels: metal3.io/uuid={{ "{{" }} ds.meta_data.uuid {{ "}}" }}
           cpu-manager-policy: static
           topology-manager-policy: best-effort
@@ -29,11 +30,6 @@ spec:
     preKubeadmCommands:
 {{- if .Values.preKubeadmCommands }}
 {{ toYaml .Values.preKubeadmCommands | indent 4 }}
-{{- end }}
-{{- if .Values.networks }}
-    # Without touching up /etc/hosts, kubeadm may pick the wrong
-    # (i.e. provisioning network) address for the node IP
-    - sed -i "1i $(ip -4 addr show dev {{ .Values.networks.baremetal.interface }} | grep -oP '(?<=inet\s)\d+(\.\d+){3}' | head -1) $(hostname)" /etc/hosts
 {{- end }}
     - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
     - add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"

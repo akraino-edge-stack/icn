@@ -44,7 +44,7 @@ Now let's take a closer look at what was created.
      vm-baremetal         active     yes           yes
      vm-provisioning      active     no            yes
 
-    $ curl --insecure -u admin:password https://192.168.151.1:8000/redfish/v1/Managers
+    $ curl --insecure -u admin:password https://192.168.121.1:8000/redfish/v1/Managers
     {
         "@odata.type": "#ManagerCollection.ManagerCollection",
         "Name": "Manager Collection",
@@ -121,7 +121,7 @@ be managing DHCP requests.
 The virtual baseband management controller provided by the Virtual
 Redfish BMC is listening at the address and port listed in the curl
 command above. To issue a Redfish request to `vm-machine-1` for
-example, the request will be issued to `192.168.151.1:8000`, and the
+example, the request will be issued to `192.168.121.1:8000`, and the
 Virtual Redfish BMC will translate the the request into libvirt calls.
 
 Now let's look at the networks from inside the virtual machines.

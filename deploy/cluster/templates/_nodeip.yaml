@@ -1,0 +1,31 @@
+{{- define "cluster.nodeIP" -}}
+{{- if .networks }}
+{{- $nodeIPs := "" }}
+{{- $local := dict "first" true -}}
+{{- range $name, $network := .networks.ipv4 }}
+{{- $link := $network.link | default $name }}
+{{- if eq $link "baremetal" }}
+{{- if not $local.first }}
+{{- $nodeIPs = printf "%s,{{ ds.meta_data.node_ip_%s }}" $nodeIPs $name }}
+{{- else }}
+{{- $nodeIPs = printf "{{ ds.meta_data.node_ip_%s }}" $name }}
+{{- end }}
+{{- $_ := set $local "first" false }}
+{{- end }}
+{{- end }}
+{{- range $name, $network := .networks.ipv6 }}
+{{- $link := $network.link | default $name }}
+{{- if eq $link "baremetal" }}
+{{- if not $local.first }}
+{{- $nodeIPs = printf "%s,{{ ds.meta_data.node_ip_%s }}" $nodeIPs $name }}
+{{- else }}
+{{- $nodeIPs = printf "{{ ds.meta_data.node_ip_%s }}" $name }}
+{{- end }}
+{{- $_ := set $local "first" false }}
+{{- end }}
+{{- end -}}
+node-ip: '{{ $nodeIPs }}'
+{{- else -}}
+node-ip: '{{ printf "{{ ds.meta_data.node_ip }}" }}'
+{{- end }}
+{{- end -}}

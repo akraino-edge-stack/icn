@@ -23,31 +23,34 @@ bmcDisableCertificateVerification: false
 #bootMACAddress: 00:1e:67:fe:f4:1a
 
 # networks is used to provide per-machine network configuration.
-# Where feasible (such as when DHCP is available or static IP pools
-# can be used), the use of templates at the cluster level is
-# encouraged instead.
-#networks:
-#  baremetal:
-#    macAddress: 00:1e:67:fe:f4:19
-#    # type is either ipv4 or ipv4_dhcp
-#    type: ipv4
-#    # ipAddress is only valid for type ipv4
-#    ipAddress: 10.10.110.21/24
-#    # gateway is only valid for type ipv4
-#    gateway: 10.10.110.1
-#    # nameservers is an array of DNS servers; only valid for type ipv4
-#    nameservers: ["8.8.8.8"]
-#  provisioning:
-#    macAddress: 00:1e:67:fe:f4:1a
-#    type: ipv4_dhcp
-#  private:
-#    macAddress: 00:1e:67:f8:6a:40
-#    type: ipv4
-#    ipAddress: 10.10.112.2/24
-#  storage:
-#    macAddress: 00:1e:67:f8:6a:41
-#    type: ipv4
-#    ipAddress: 10.10.113.2/24
+# Where feasible (such as when static IP pools can be used), the use
+# of templates at the cluster level is encouraged instead.
+#networkData:
+#  links:
+#    ethernets:
+#      baremetal:
+#        macAddress: 00:1e:67:fe:f4:19
+#      provisioning:
+#        macAddress: 00:1e:67:fe:f4:1a
+#      private:
+#        macAddress: 00:1e:67:f8:6a:40
+#      storage:
+#        macAddress: 00:1e:67:f8:6a:41
+#  networks:
+#    ipv4DHCP:
+#      provisioning: {}
+#    ipv4:
+#      baremetal:
+#        # link is optional and defaults to the network name.
+#        #link: baremetal
+#        ipAddress: 10.10.110.21/24
+#        gateway: 10.10.110.1
+#      private:
+#        ipAddress: 10.10.112.2/24
+#      storage:
+#        ipAddress: 10.10.113.2/24
+#  services:
+#    dns: ["8.8.8.8"]
 
 # userData is used to provide per-machine cloud-init data.  Again,
 # where feasible, the use of templates at the cluster level is

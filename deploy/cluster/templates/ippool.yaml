@@ -1,0 +1,25 @@
+{{- if .Values.ipPools }}
+{{- range $name, $pool := .Values.ipPools }}
+---
+apiVersion: ipam.metal3.io/v1alpha1
+kind: IPPool
+metadata:
+  name: {{ $.Values.clusterName }}-{{ $name }}
+spec:
+  clusterName: {{ $.Values.clusterName }}
+  namePrefix: {{ $.Values.clusterName }}
+  pools:
+{{- if (and $pool.start $pool.end) }}
+  - start: {{ $pool.start }}
+    end: {{ $pool.end }}
+{{- end }}
+  prefix: {{ $pool.prefix }}
+{{- if $pool.gateway }}
+  gateway: {{ $pool.gateway }}
+{{- end }}
+{{- if $pool.preAllocations }}
+  preAllocations:
+{{ toYaml $pool.preAllocations | indent 4 }}
+{{- end }}
+{{- end }}
+{{- end }}

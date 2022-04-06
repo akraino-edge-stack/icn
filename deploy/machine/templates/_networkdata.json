@@ -1,9 +1,9 @@
 {{- define "machine.networkData" -}}
-{{- if .networks -}}
+{{- if .networkData -}}
 {
   "links": [
 {{- $local := dict "first" true -}}
-{{- range $name, $network := .networks }}
+{{- range $name, $link := .networkData.links.ethernets }}
 {{- if not $local.first }}
     },{
 {{- else }}
@@ -11,14 +11,14 @@
 {{- end }}
 {{- $_ := set $local "first" false }}
       "id": "{{ $name }}_nic",
-      "ethernet_mac_address": "{{ $network.macAddress }}",
+      "ethernet_mac_address": "{{ $link.macAddress }}",
       "type": "phy"
 {{- end }}
     }
   ],
   "networks": [
 {{- $local := dict "first" true -}}
-{{- range $name, $network := .networks }}
+{{- range $name, $network := .networkData.networks.ipv4DHCP }}
 {{- if not $local.first }}
     },{
 {{- else }}
@@ -26,15 +26,47 @@
 {{- end }}
 {{- $_ := set $local "first" false }}
       "id": "{{ $name }}",
-      "link": "{{ $name }}_nic",
-      "type": "{{ $network.type }}"{{- if $network.ipAddress }},
+      "link": "{{ $network.link | default $name }}_nic",
+      "type": "ipv4_dhcp"
+{{- end }}
+{{- range $name, $network := .networkData.networks.ipv4 }}
+    },{
+      "id": "{{ $name }}",
+      "link": "{{ $network.link | default $name }}_nic",
+      "type": "ipv4"{{- if $network.ipAddress }},
       "ip_address": "{{ $network.ipAddress }}"{{- end }}{{- if $network.gateway }},
-      "gateway": "{{ $network.gateway }}"{{- end }}{{- if $network.nameservers }},
-      "dns_nameservers": {{ $network.nameservers }}{{- end }}
+      "gateway": "{{ $network.gateway }}"{{- end }}
+{{- end }}
+{{- range $name, $network := .networkData.networks.ipv6DHCP }}
+    },{
+      "id": "{{ $name }}",
+      "link": "{{ $network.link | default $name }}_nic",
+      "type": "ipv4_dhcp"
+{{- end }}
+{{- range $name, $network := .networkData.networks.ipv6 }}
+    },{
+      "id": "{{ $name }}",
+      "link": "{{ $network.link | default $name }}_nic",
+      "type": "ipv6"{{- if $network.ipAddress }},
+      "ip_address": "{{ $network.ipAddress }}"{{- end }}{{- if $network.gateway }},
+      "gateway": "{{ $network.gateway }}"{{- end }}
 {{- end }}
     }
   ],
-  "services": []
+  "services": [
+{{- $local := dict "first" true -}}
+{{- range $address := .networkData.services.dns }}
+{{- if not $local.first }}
+    },{
+{{- else }}
+    {
+{{- end }}
+{{- $_ := set $local "first" false }}
+      "type": "dns",
+      "address": "{{ $address }}"
+{{- end }}
+    }
+  ]
 }
 {{ end }}
 {{- end }}

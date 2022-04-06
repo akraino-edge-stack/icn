@@ -10,10 +10,10 @@ spec:
   clusterNetwork:
     pods:
       cidrBlocks:
-      - {{ .Values.podCidr }}
+      {{- toYaml .Values.podCidrBlocks | nindent 6 }}
     services:
       cidrBlocks:
-      - 10.244.0.0/18
+      {{- toYaml .Values.serviceCidrBlocks | nindent 6 }}
   controlPlaneRef:
     apiVersion: controlplane.cluster.x-k8s.io/v1alpha4
     kind: KubeadmControlPlane
