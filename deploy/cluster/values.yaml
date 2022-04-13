@@ -109,7 +109,7 @@ flux:
   #  -----BEGIN PGP PRIVATE KEY BLOCK-----
   #  ...
 
-# containerRuntime may be containerd or docker.
+# containerRuntime may be containerd.
 containerRuntime: containerd
 
 # ipam may be ipv4, dualstack, or ipv6.  This configures IP address
@@ -128,9 +128,9 @@ serviceCidrBlocks:
 # cni is the cluster CNI.  Supported CNIs include calico and flannel.
 cni: calico
 
-# All the version info is captured in one block here.  Care must
-# be taken to ensure that the OS, Kubernetes, and CRI (containerd
-# or docker) versions are all compatible.
+# All the version info is captured in one block here.  Care must be
+# taken to ensure that the OS, Kubernetes, and CRI versions are all
+# compatible.
 #
 # Refer to the below for further information:
 # - https://github.com/kubernetes/kubernetes/blob/master/build/dependencies.yaml
@@ -145,8 +145,6 @@ k8sVersion: v1.21.6
 kubeVersion: 1.21.6-00
 # containerd is the version of containerd installed.
 containerdVersion: 1.4.11-1
-# dockerVersion is the version of docker installed.
-dockerVersion: 5:20.10.10~3-0~ubuntu-focal
 # dockerRegistryMirrors are optional mirrors for docker.io, in priority order
 #dockerRegistryMirrors: ["https://myregistry.com:5000"]
 # preKubeadmCommands execute on the provisioned machine before the
