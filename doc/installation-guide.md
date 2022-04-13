@@ -1,8 +1,6 @@
 # Installation guide
 
-
 ## Hardware
-
 
 ### Overview
 
@@ -19,22 +17,16 @@ The configuration contains the following three machines.
 
 <table id="orgf44d94a" border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
-
 <colgroup>
 <col  class="org-left" />
-
 <col  class="org-right" />
-
 <col  class="org-left" />
-
 <col  class="org-left" />
-
 <col  class="org-left" />
-
 <col  class="org-left" />
-
 <col  class="org-left" />
 </colgroup>
+
 <thead>
 <tr>
 <th scope="col" class="org-left">Hostname</th>
@@ -58,7 +50,6 @@ The configuration contains the following three machines.
 <td class="org-left">&#xa0;</td>
 </tr>
 
-
 <tr>
 <td class="org-left">pod11-node3</td>
 <td class="org-right">2xE5-2699</td>
@@ -68,7 +59,6 @@ The configuration contains the following three machines.
 <td class="org-left">IF0: 10.10.110.23 00:1e:67:f1:5b:90 VLAN 110&lt;br/&gt;IF1: 172.22.0.0/24 00:1e:67:f1:5b:91 VLAN 111</td>
 <td class="org-left">IF3: 10.10.113.4 00:1e:67:f8:69:81 VLAN 113</td>
 </tr>
-
 
 <tr>
 <td class="org-left">pod11-node2</td>
@@ -108,7 +98,6 @@ addresses do not conflict between the two interfaces.
 There is an additional network connected to a high-speed switch:
 
 -   The `sriov` network, available for the application data plane.
-
 
 ### Configuration
 
@@ -174,7 +163,6 @@ A](#additional-bios-configuration-1).
 
 ## Jump server
 
-
 ### Configure the jump server
 
 The jump server is required to be pre-installed with an OS. ICN
@@ -197,14 +185,11 @@ network.
 
     make jump_server
 
-
 ### Uninstallation
 
     make clean_jump_server
 
-
 ## Compute clusters
-
 
 ### Overview
 
@@ -247,7 +232,6 @@ Operator uses [Ironic](https://ironicbaremetal.org/) to execute the low-level pr
     
 Similar to the CAPI resources that ICN uses, ICN captures the Bare
 Metal Operator resources it uses into a Helm chart.
-
 
 ### Configuration
 
@@ -310,41 +294,100 @@ can be used as the control plane endpoint address.
 The cluster and machine charts support either static or dynamic IPAM
 in the baremetal network.
             
-Dynamic IPAM is configured by specifying the `networks` dictionary in
-the cluster chart. At least two entries must be included, the
-`baremetal` and `provisioning` networks. Under each entry, provide the
-predictable network interface name as the value of `interface` key.
-            
+Dynamic IPAM is configured by specifying IP pools containing the
+address ranges to assign and the interface and network mapping to the
+pools.  The IP pools are specified with the `ipPools` dictionary in
+the cluster chart.  From the chart example values:
+
+    ipPools:
+      baremetal:
+        # start is the beginning of the address range in the pool.
+        start: 192.168.151.10
+        # end is the end of the address range in the pool.
+        end: 192.168.151.20
+        # prefix is the network prefix of addresses in the range.
+        prefix: 24
+        # gateway is optional.
+        #gateway: 192.168.151.1
+        # preAllocations are optional.  Note that if the pool overlaps
+        # with the gateway, then a pre-allocation is required.
+        #preAllocations:
+        #  controlPlane: 192.168.151.254
+
+The interface and network mapping is specified with the `networkData`
+dictionary in the cluster chart.  From the chart example values:
+
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            interface: ens6
+          provisioning:
+            interface: ens5
+      networks:
+        ipv4DHCP:
+          provisioning: {}
+        ipv4:
+          baremetal:
+            # link is optional and defaults to the network name.
+            #link: baremetal
+            fromIPPool: baremetal
+      services:
+        dns:
+        - 8.8.8.8
+
+At least two entries must be included, the `baremetal` and
+`provisioning` networks and the provisioning network must always be
+type `ipv4DHCP`. Under each entry, provide the predictable network
+interface name as the value of `interface` key.
+
 Note that this is in the cluster chart and therefore is in the form of
 a template for each machine used in the cluster. If the machines are
 sufficiently different such that the same interface name is not used
 on each machine, then the static approach below must be used instead.
-            
-Static IPAM is configured by specifying the `networks` dictionary in the
-machine chart. At least two entries must be included, the `baremetal`
-and `provisioning` networks. From the chart example values:
-            
-    networks:
-      baremetal:
-        macAddress: 00:1e:67:fe:f4:19
-        # type is either ipv4 or ipv4_dhcp
-        type: ipv4
-        # ipAddress is only valid for type ipv4
-        ipAddress: 10.10.110.21/24
-        # gateway is only valid for type ipv4
-        gateway: 10.10.110.1
-        # nameservers is an array of DNS servers; only valid for type ipv4
-        nameservers: ["8.8.8.8"]
-      provisioning:
-        macAddress: 00:1e:67:fe:f4:1a
-        type: ipv4_dhcp
-            
-The provisioning network must always be type `ipv4_dhcp`.
+
+Static IPAM is configured similar to the dynamic IPAM. Instead of
+providing a template with the cluster chart, specific values are
+provided with the machine chart. From the chart example values:
+
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            macAddress: 00:1e:67:fe:f4:19
+          provisioning:
+            macAddress: 00:1e:67:fe:f4:1a
+          private:
+            macAddress: 00:1e:67:f8:6a:40
+          storage:
+            macAddress: 00:1e:67:f8:6a:41
+      networks:
+        ipv4DHCP:
+          provisioning: {}
+        ipv4:
+          baremetal:
+            # link is optional and defaults to the network name.
+            #link: baremetal
+            ipAddress: 10.10.110.21/24
+            gateway: 10.10.110.1
+          private:
+            ipAddress: 10.10.112.2/24
+          storage:
+            ipAddress: 10.10.113.2/24
+      services:
+        dns: ["8.8.8.8"]
+
+Again, at least two entries must be included, the `baremetal` and
+`provisioning` networks and the provisioning network must always be
+type `ipv4DHCP`.
             
 In either the static or dynamic case additional networks may be
 included, however the static assignment option for an individual
 network exists only when the machine chart approach is used.
-    
+
+For additional information on configuring IPv4/IPV6 dual-stack
+operation, refer to [Appendix B](#appendix-b-ipv4ipv6-dual-stack).
+
 ##### Prerequisites
     
 The first thing done is to create a `site.yaml` file containing a
@@ -407,26 +450,32 @@ Capture each machine's values into a HelmRelease in the site YAML:
         bmcAddress: ipmi://10.10.110.12
         bmcUsername: root
         bmcPassword: root
-        networks:
-          baremetal:
-            macAddress: 00:1e:67:fe:f4:19
-            type: ipv4
-            ipAddress: 10.10.110.22/24
-            gateway: 10.10.110.1
-            nameservers:
+        networkData:
+          links:
+            ethernets:
+              baremetal:
+                macAddress: 00:1e:67:fe:f4:19
+              provisioning:
+                macAddress: 00:1e:67:fe:f4:1a
+              private:
+                macAddress: 00:1e:67:f8:6a:40
+              storage:
+                macAddress: 00:1e:67:f8:6a:41
+          networks:
+            ipv4DHCP:
+              provisioning: {}
+            ipv4:
+              baremetal:
+                ipAddress: 10.10.110.22/24
+                gateway: 10.10.110.1
+              private:
+                ipAddress: 10.10.112.3/24
+              storage:
+                ipAddress: 10.10.113.3/24
+          services:
+            dns:
               - 8.8.8.8
-          provisioning:
-            macAddress: 00:1e:67:fe:f4:1a
-            type: ipv4_dhcp
-          private:
-            macAddress: 00:1e:67:f8:6a:40
-            type: ipv4
-            ipAddress: 10.10.112.3/24
-          storage:
-            macAddress: 00:1e:67:f8:6a:41
-            type: ipv4
-            ipAddress: 10.10.113.3/24
-    
+
 ##### Define a cluster
     
 Important values in cluster definition include:
@@ -512,7 +561,6 @@ definition be creating three resources:
 This may be done with the help of the `site.sh` script:
     
     # ./deploy/site/site.sh flux-create-site URL BRANCH PATH KEY_NAME
-
 
 <a id="org6324e82"></a>
 
@@ -607,7 +655,7 @@ jump server.
       provider: icn
       site: pod11
     clusterName: icn
-    cni: flannel
+    cni: calico
     containerRuntime: containerd
     containerdVersion: 1.4.11-1
     controlPlaneEndpoint: 10.10.110.23
@@ -615,73 +663,91 @@ jump server.
       matchLabels:
         machine: pod11-node3
     controlPlanePrefix: 24
-    dockerVersion: 5:20.10.10~3-0~ubuntu-focal
     flux:
       branch: master
-      path: ./deploy/site/cluster-icn
+      decryptionSecret: # ...
+      path: ./deploy/site/pod11/cluster/icn
       repositoryName: icn
-      url: https://gerrit.akraino.org/r/icn
+      url: https://github.com/malsbat/icn
     imageName: focal-server-cloudimg-amd64.img
+    ipam: ipv4
     k8sVersion: v1.21.6
     kubeVersion: 1.21.6-00
     numControlPlaneMachines: 1
     numWorkerMachines: 1
-    podCidr: 10.244.64.0/18
+    podCidrBlocks:
+    - 10.244.64.0/18
+    serviceCidrBlocks:
+    - 10.244.0.0/18
     userData:
-      hashedPassword: $6$rounds=10000$bhRsNADLl$BzCcBaQ7Tle9AizUHcMKN2fygyPMqBebOuvhApI8B.pELWyFUaAWRasPOz.5Gf9bvCihakRnBTwsi217n2qQs1
+      hashedPassword: $6$rounds=10000$PJLOBdyTv23pNp$9RpaAOcibbXUMvgJScKK2JRQioXW4XAVFMRKqgCB5jC4QmtAdbA70DU2jTcpAd6pRdEZIaWFjLCNQMBmiiL40.
       name: ubuntu
       sshAuthorizedKey: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCwLj/ekRDjp354W8kcGLagjudjTBZO8qBffJ4mNb01EJueUbLvM8EwCv2zu9lFKHD+nGkc1fkB3RyCn5OqzQDTAIpp82nOHXtrbKAZPg2ob8BlfVAz34h5r1bG78lnMH1xk7HKNbf73h9yzUEKiyrd8DlhJcJrsOZTPuTdRrIm7jxScDJpHFjy8tGISNMcnBGrNS9ukaRLK+PiEfDpuRtw/gOEf58NXgu38BcNm4tYfacHYuZFUbNCqj9gKi3btZawgybICcqrNqF36E/XXMfCS1qxZ7j9xfKjxWFgD9gW/HkRtV6K11NZFEvaYBFBA9S/GhLtk9aY+EsztABthE0J root@pod11-node5
     workersHostSelector:
       matchLabels:
         machine: pod11-node2
-        
+
     # helm -n metal3 get values --all pod11-node2
     COMPUTED VALUES:
     bmcAddress: ipmi://10.10.110.12
+    bmcDisableCertificateVerification: false
     bmcPassword: root
     bmcUsername: root
     machineLabels:
       machine: pod11-node2
     machineName: pod11-node2
-    networks:
-      baremetal:
-        gateway: 10.10.110.1
-        ipAddress: 10.10.110.22/24
-        macAddress: 00:1e:67:fe:f4:19
-        nameservers:
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            macAddress: 00:1e:67:fe:f4:19
+          provisioning:
+             macAddress: 00:1e:67:fe:f4:1a
+          sriov:
+            macAddress: 00:1e:67:f8:6a:41
+      networks:
+        ipv4:
+          baremetal:
+            gateway: 10.10.110.1
+            ipAddress: 10.10.110.22/24
+          sriov:
+            ipAddress: 10.10.113.3/24
+        ipv4DHCP:
+          provisioning: {}
+      services:
+        dns:
         - 8.8.8.8
-        type: ipv4
-      provisioning:
-        macAddress: 00:1e:67:fe:f4:1a
-        type: ipv4_dhcp
-      sriov:
-        ipAddress: 10.10.113.3/24
-        macAddress: 00:1e:67:f8:6a:41
-        type: ipv4
     
     # helm -n metal3 get values --all pod11-node3
     COMPUTED VALUES:
     bmcAddress: ipmi://10.10.110.13
+    bmcDisableCertificateVerification: false
     bmcPassword: root
     bmcUsername: root
     machineLabels:
       machine: pod11-node3
     machineName: pod11-node3
-    networks:
-      baremetal:
-        gateway: 10.10.110.1
-        ipAddress: 10.10.110.23/24
-        macAddress: 00:1e:67:f1:5b:90
-        nameservers:
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            macAddress: 00:1e:67:f1:5b:90
+          provisioning:
+            macAddress: 00:1e:67:f1:5b:91
+          sriov:
+            macAddress: 00:1e:67:f8:69:81
+      networks:
+        ipv4:
+          baremetal:
+            gateway: 10.10.110.1
+            ipAddress: 10.10.110.23/24
+          sriov:
+            ipAddress: 10.10.113.4/24
+        ipv4DHCP:
+          provisioning: {}
+      services:
+        dns:
         - 8.8.8.8
-        type: ipv4
-      provisioning:
-        macAddress: 00:1e:67:f1:5b:91
-        type: ipv4_dhcp
-      sriov:
-        ipAddress: 10.10.113.4/24
-        macAddress: 00:1e:67:f8:69:81
-        type: ipv4
 
 Once the workload cluster is ready, the deployment resources may be
 examined similarly.
@@ -768,7 +834,6 @@ examined similarly.
     emco          services-clm-7ff876dfc-vgncs                         1/1     Running   3          16h   10.244.65.58   pod11-node2   <none>           <none>
     ...
 
-
 ### Verification
 
 Basic self-tests of Kata, EMCO, and the other addons may be performed
@@ -777,7 +842,6 @@ is ready.
 
     root@pod11-node5:# CLUSTER_NAME=icn ./deploy/kata/kata.sh test
     root@pod11-node5:# CLUSTER_NAME=icn ./deploy/addons/addons.sh test
-
 
 ### Uninstallation
 
@@ -824,3 +888,76 @@ The screens below show enabling virtualization options in the BIOS.
 ![img](./pod11-node3-bios-vt-x.png "Enable Intel VT-x")
 
 ![img](./pod11-node3-bios-vt-d.png "Enable Intel VT-d")
+
+## Appendix B: IPv4/IPv6 dual-stack
+
+To enable dual-stack with dynamic IPAM, create an additional IP pool
+of IPv6 addresses and reference it in the `networkData` dictionary.
+Note the use of the `link` value to assign the IPv6 address to the
+correct interface.
+
+    ipPools:
+      baremetal:
+        ...
+      baremetal6:
+        start: 2001:db8:0::10
+        end: 2001:db8:0::20
+        prefix: 64
+        gateway: 2001:db8:0::1
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            interface: ens6
+          provisioning:
+            interface: ens5
+      networks:
+        ipv4DHCP:
+          provisioning: {}
+        ipv4:
+          baremetal:
+            fromIPPool: baremetal
+        ipv6:
+          baremetal6:
+            link: baremetal
+            fromIPPool: baremetal6
+      services:
+        ...
+
+To enable dual-stack with static IPAM, assign the addresses in the
+`networkData` dictionary. Note the use of the `link` value to assign
+the IPv6 address to the correct interface.
+
+    networkData:
+      links:
+        ethernets:
+          baremetal:
+            macAddress: 00:1e:67:fe:f4:19
+          provisioning:
+            macAddress: 00:1e:67:fe:f4:1a
+      networks:
+        ipv4DHCP:
+          provisioning: {}
+        ipv4:
+          baremetal:
+            ipAddress: 10.10.110.21/24
+            gateway: 10.10.110.1
+        ipv6:
+          baremetal6:
+            link: baremetal
+            ipAddress: 2001:db8:0::21/64
+            gateway: 2001:db8:0::1
+      services:
+        ..
+
+The last change needed is in the cluster chart values to configure
+dual-stack support and define the IPv6 CIDR blocks for pods and
+services.
+
+    ipam: dualstack
+    podCidrBlocks:
+    - 10.244.64.0/18
+    - 2001:db8:1::/64
+    serviceCidrBlocks:
+    - 10.244.0.0/18
+    - 2001:db8:2::/64

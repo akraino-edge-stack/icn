@@ -41,7 +41,8 @@ Now let's take a closer look at what was created.
     $ virsh -c qemu:///system net-list
      Name                 State      Autostart     Persistent
     ----------------------------------------------------------
-     vm-baremetal         active     yes           yes
+     vagrant-libvirt      active     no            yes
+     vm-baremetal         active     no            yes
      vm-provisioning      active     no            yes
 
     $ curl --insecure -u admin:password https://192.168.121.1:8000/redfish/v1/Managers
@@ -74,16 +75,17 @@ We've created a jump server and the two machines that will form the
 cluster. The jump server will be responsible for creating the
 cluster.
 
-We also created two networks, baremetal and provisioning, and a third
-network overlaid upon the baremetal network using [Virtual Redfish
+We also created two networks, baremetal and provisioning. The [Virtual
+Redfish
 BMC](https://docs.openstack.org/sushy-tools/latest/user/dynamic-emulator.html)
-for issuing Redfish requests to the virtual machines.
+used for issuing Redfish requests to the virtual machines is overlaid
+on the vagrant-libvirt network.
 
 It's worth looking at these networks in more detail as they will be
 important during configuration of the jump server and cluster.
 
     $ virsh -c qemu:///system net-dumpxml vm-baremetal
-    <network connections='3' ipv6='yes'>
+    <network connections='3'>
       <name>vm-baremetal</name>
       <uuid>216db810-de49-4122-a284-13fd2e44da4b</uuid>
       <forward mode='nat'>
@@ -91,25 +93,23 @@ important during configuration of the jump server and cluster.
           <port start='1024' end='65535'/>
         </nat>
       </forward>
-      <bridge name='virbr3' stp='on' delay='0'/>
+      <bridge name='vm0' stp='on' delay='0'/>
       <mac address='52:54:00:a3:e7:09'/>
       <ip address='192.168.151.1' netmask='255.255.255.0'>
-        <dhcp>
-          <range start='192.168.151.1' end='192.168.151.254'/>
-        </dhcp>
       </ip>
     </network>
 
 The baremetal network provides outbound network access through the
-host and also assigns DHCP addresses in the range `192.168.151.2` to
-`192.168.151.254` to the virtual machines (the host itself is
-`192.168.151.1`).
+host. No DHCP server is present on this network. Address assignment to
+the virtual machines is done using the (Metal3
+IPAM)[https://metal3.io/blog/2020/07/06/IP_address_manager.html] while
+the host itself is `192.168.151.1`.
 
     $ virsh -c qemu:///system net-dumpxml vm-provisioning
     <network connections='3'>
       <name>vm-provisioning</name>
       <uuid>d06de3cc-b7ca-4b09-a49d-a1458c45e072</uuid>
-      <bridge name='vm0' stp='on' delay='0'/>
+      <bridge name='vm1' stp='on' delay='0'/>
       <mac address='52:54:00:3e:38:a5'/>
     </network>
 
@@ -129,41 +129,49 @@ Now let's look at the networks from inside the virtual machines.
     $ virsh -c qemu:///system dumpxml vm-jump
     ...
         <interface type='network'>
-          <mac address='52:54:00:a8:97:6d'/>
-          <source network='vm-baremetal' bridge='virbr3'/>
+          <mac address='52:54:00:fc:a8:01'/>
+          <source network='vagrant-libvirt' bridge='virbr1'/>
           <target dev='vnet0'/>
           <model type='virtio'/>
           <alias name='ua-net-0'/>
           <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
         </interface>
         <interface type='network'>
-          <mac address='52:54:00:80:3d:4c'/>
-          <source network='vm-provisioning' bridge='vm0'/>
+          <mac address='52:54:00:a8:97:6d'/>
+          <source network='vm-baremetal' bridge='vm0'/>
           <target dev='vnet1'/>
           <model type='virtio'/>
           <alias name='ua-net-1'/>
           <address type='pci' domain='0x0000' bus='0x00' slot='0x06' function='0x0'/>
         </interface>
+        <interface type='network'>
+          <mac address='52:54:00:80:3d:4c'/>
+          <source network='vm-provisioning' bridge='vm1'/>
+          <target dev='vnet2'/>
+          <model type='virtio'/>
+          <alias name='ua-net-2'/>
+          <address type='pci' domain='0x0000' bus='0x00' slot='0x07' function='0x0'/>
+        </interface>
     ...
 
-The baremetal network NIC in the jump server is the first NIC present
+The baremetal network NIC in the jump server is the second NIC present
 in the machine and depending on the device naming scheme in place will
-be called `ens5` or `eth0`. Similarly, the provisioning network NIC will
-be `ens6` or `eth1`.
+be called `ens6` or `eth1`. Similarly, the provisioning network NIC will
+be `ens7` or `eth2`.
 
     $ virsh -c qemu:///system dumpxml vm-machine-1
     ...
         <interface type='network'>
           <mac address='52:54:00:c6:75:40'/>
-          <source network='vm-provisioning' bridge='vm0'/>
-          <target dev='vnet2'/>
+          <source network='vm-provisioning' bridge='vm1'/>
+          <target dev='vnet3'/>
           <model type='virtio'/>
           <alias name='ua-net-0'/>
           <address type='pci' domain='0x0000' bus='0x00' slot='0x05' function='0x0'/>
         </interface>
         <interface type='network'>
           <mac address='52:54:00:20:a3:0a'/>
-          <source network='vm-baremetal' bridge='virbr3'/>
+          <source network='vm-baremetal' bridge='vm0'/>
           <target dev='vnet4'/>
           <model type='virtio'/>
           <alias name='ua-net-1'/>
@@ -181,7 +189,6 @@ virtual machine is configured to use the first NIC in the machine. A
 physical machine will typically provide this as a configuration option
 in the BIOS settings.
 
-
 ## Install the jump server components
 
     $ vagrant ssh jump
@@ -190,12 +197,12 @@ in the BIOS settings.
 
 Before telling ICN to start installing the components, it must first
 know which is the provisioning network NIC. Recall that in the jump
-server the provisioning network NIC is `eth1`.
+server the provisioning network NIC is `eth2`.
 
 Edit `user_config.sh` to the below.
 
     #!/usr/bin/env bash
-    export IRONIC_INTERFACE="eth1"
+    export IRONIC_INTERFACE="eth2"
 
 Now install the jump server components.
 
@@ -206,11 +213,13 @@ first, and most fundamental, is that the jump server is now a
 single-node Kubernetes cluster.
 
     root@jump:/icn# kubectl cluster-info
-    Kubernetes control plane is running at https://192.168.151.45:6443
-    
+    Kubernetes control plane is running at https://192.168.121.126:6443
+
     To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
-The next is that [Cluster API](https://cluster-api.sigs.k8s.io/) is installed, with the [Metal3](https://github.com/metal3-io/cluster-api-provider-metal3)
+The next is that [Cluster API](https://cluster-api.sigs.k8s.io/) is
+installed, with the
+[Metal3](https://github.com/metal3-io/cluster-api-provider-metal3)
 infrastructure provider and Kubeadm bootstrap provider. These
 components provide the base for creating clusters with ICN.
 
@@ -233,8 +242,8 @@ Metal3 infrastructure provider.
 Before moving on to the next step, let's take one last look at the
 provisioning NIC we set in `user_config.sh`.
 
-    root@jump:/icn# ip link show dev eth1
-    3: eth1: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master provisioning state UP mode DEFAULT group default qlen 1000
+    root@jump:/icn# ip link show dev eth2
+    4: eth2: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc fq_codel master provisioning state UP mode DEFAULT group default qlen 1000
         link/ether 52:54:00:80:3d:4c brd ff:ff:ff:ff:ff:ff
 
 The `master provisioning` portion indicates that this interface is now
@@ -242,7 +251,6 @@ attached to the `provisioning` bridge. The `provisioning` bridge was
 created during installation and is how the `capm3-ironic` deployment
 will communicate with the machines to be provisioned when it is time
 to install an operating system.
-
 
 ## Create a cluster
 
@@ -270,7 +278,6 @@ created earlier with all of the ICN addons configured and validated.
     
     To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 
-
 ## Next steps
 
 At this point you may proceed with the [Installation
@@ -278,7 +285,6 @@ guide](installation-guide.md) to learn more about the hardware and
 software configuration in a physical environment or jump directly to
 the [Deployment](installation-guide.md#Deployment) sub-section to
 examine the cluster creation process in more detail.
-
 
 <a id="org48e2dc9"></a>
 
