@@ -128,8 +128,10 @@ function site_wait_for_all_ready {
     wait_for _is_cluster_ready
     for yaml in ${SCRIPTDIR}/deployment/*.yaml; do
 	name=$(awk '/clusterName:/ {print $2}' ${yaml})
-	clusterctl -n ${SITE_NAMESPACE} get kubeconfig ${name} >${BUILDDIR}/${name}-admin.conf
-	chmod 600 ${BUILDDIR}/${name}-admin.conf
+	if [[ ! -z ${name} ]]; then
+	    clusterctl -n ${SITE_NAMESPACE} get kubeconfig ${name} >${BUILDDIR}/${name}-admin.conf
+	    chmod 600 ${BUILDDIR}/${name}-admin.conf
+	fi
     done
     wait_for _is_control_plane_ready
 }
@@ -175,7 +177,11 @@ EOF
 function _is_cluster_deleted {
     for yaml in ${SCRIPTDIR}/deployment/*.yaml; do
 	name=$(awk '/clusterName:/ {print $2}' ${yaml})
-	! kubectl -n ${SITE_NAMESPACE} get cluster ${name}
+	if [[ ! -z ${name} ]]; then
+	    if kubectl -n ${SITE_NAMESPACE} get cluster ${name}; then
+		return 1
+	    fi
+	fi
     done
 }
 
