@@ -31,7 +31,7 @@ EMCOREPO="${EMCOREPO:-https://gitlab.com/project-emco/core/emco-base.git}"
 #Path to clone the EMCO repo
 EMCOPATH="/opt/src/emco-base"
 #EMCO version to use
-EMCO_VERSION="v21.12"
+EMCO_VERSION="v22.03"
 
 #Discard existing repo directory
 FORCE_REPO_UPDATE="${FORCE_REPO_UPDATE:-false}"

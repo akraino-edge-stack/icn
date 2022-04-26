@@ -27,34 +27,36 @@ spec:
       pullPolicy: IfNotPresent
       loglevel: warn
     orchestrator:
-      imageTag: v21.12
+      imageTag: "22.03"
     ncm:
-      imageTag: v21.12
+      imageTag: "22.03"
     rsync:
-      imageTag: v21.12
+      imageTag: "22.03"
     clm:
-      imageTag: v21.12
+      imageTag: "22.03"
     ovnaction:
-      imageTag: v21.12
+      imageTag: "22.03"
     dcm:
-      imageTag: v21.12
+      imageTag: "22.03"
     dtc:
-      imageTag: v21.12
+      imageTag: "22.03"
     nps:
-      imageTag: v21.12
+      imageTag: "22.03"
     sds:
-      imageTag: v21.12
+      imageTag: "22.03"
     its:
-      imageTag: v21.12
+      imageTag: "22.03"
     gac:
-      imageTag: v21.12
+      imageTag: "22.03"
     sfc:
-      imageTag: v21.12
+      imageTag: "22.03"
     sfcclient:
-      imageTag: v21.12
+      imageTag: "22.03"
     hpa-ac:
       common:
         repository: registry.gitlab.com/project-emco/core/emco-base/
-        imageTag: v21.12
+        imageTag: "22.03"
     hpa-plc:
-      imageTag: v21.12
+      imageTag: "22.03"
+    workflowmgr:
+      imageTag: "22.03"

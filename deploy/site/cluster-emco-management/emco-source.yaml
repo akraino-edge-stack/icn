@@ -8,7 +8,7 @@ spec:
   interval: 1m
   url: https://gitlab.com/project-emco/core/emco-base.git
   ref:
-    tag: v21.12
+    tag: "v22.03"
   ignore: |
     # exclude all
     /*

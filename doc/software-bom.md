@@ -28,7 +28,7 @@
 |Containerized Data Importer|https://github.com/kubevirt/containerized-data-importer|v1.44.1|Apache-2.0|
 |cert-manager|https://cert-manager.io/|v1.7.1|Apache-2.0|
 |CPU Manager for Kubernetes|https://github.com/intel/CPU-Manager-for-Kubernetes|v1.4.1|Apache-2.0|
-|EMCO|https://gitlab.com/project-emco|v21.12|Apache-2.0|
+|EMCO|https://gitlab.com/project-emco|v22.03|Apache-2.0|
 |Flux|https://fluxcd.io/|0.27.0|Apache-2.0|
 |Intel Network Adapter Linux Virtual Function Driver for Intel Ethernet Controller 700 and E810 Series|https://www.intel.com/content/www/us/en/download/18159/intel-network-adapter-linux-virtual-function-driver-for-intel-ethernet-controller-700-and-e810-series.html|4.0.2|GPL-2.0|
 |Intel Network Adapter Virtual Function Driver Installer|https://gerrit.onap.org/r/#/admin/projects/multicloud/k8s|latest|Apache-2.0|
