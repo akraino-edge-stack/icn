@@ -61,7 +61,7 @@ kubectl:
 	./deploy/kubectl/kubectl.sh deploy
 
 yq:
-	./deploy/yq.sh deploy
+	./deploy/yq/yq.sh deploy
 
 # Provisioning network configuration in the jump server
 
