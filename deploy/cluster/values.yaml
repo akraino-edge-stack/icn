@@ -70,7 +70,7 @@ userData:
 flux:
   repositoryName: icn
   url: https://gerrit.akraino.org/r/icn
-  branch: master
+  branch: release-v0.6.0
   # path is the repository to the resources to be applied to the
   # cluster.
   path: ./deploy/site/cluster-icn

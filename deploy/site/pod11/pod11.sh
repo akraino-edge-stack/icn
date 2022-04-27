@@ -11,7 +11,7 @@ BUILDDIR=${SCRIPTDIR/deploy/build}
 mkdir -p ${BUILDDIR}
 
 SITE_REPO=${SITE_REPO:-"https://gerrit.akraino.org/r/icn"}
-SITE_BRANCH=${SITE_BRANCH:-"master"}
+SITE_BRANCH=${SITE_BRANCH:-"release-v0.6.0"}
 SITE_PATH=${SITE_PATH:-"deploy/site/pod11/deployment"}
 
 case $1 in

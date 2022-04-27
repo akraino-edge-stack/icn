@@ -8,7 +8,7 @@ spec:
   gitImplementation: go-git
   interval: 1m0s
   ref:
-    branch: master
+    branch: release-v0.6.0
   timeout: 20s
   url: https://gerrit.akraino.org/r/icn
 ---
