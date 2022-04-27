@@ -58,14 +58,16 @@ function sops_decrypt {
 function _site_source_name {
     local -r url=$1
     local -r branch=$2
-    echo $(basename ${url})-${branch}
+    # Only alphanumeric and '-' are allowed in resource names
+    echo $(basename ${url})-${branch} | tr -d -c 'A-Za-z0-9-'
 }
 
 function _site_kustomization_name {
     local -r url=$1
     local -r branch=$2
     local -r path=$3
-    echo $(_site_source_name ${url} ${branch})-site-$(basename ${path})
+    # Only alphanumeric and '-' are allowed in resource names
+    echo $(_site_source_name ${url} ${branch})-site-$(basename ${path})  | tr -d -c 'A-Za-z0-9-'
 }
 
 function flux_create_site {
