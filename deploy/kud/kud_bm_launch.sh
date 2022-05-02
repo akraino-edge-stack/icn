@@ -64,6 +64,8 @@ function kud_install {
 }
 
 function kud_reset {
+    # Pick up the kubespray ANSIBLE_CONFIG from /etc/environment
+    source /etc/environment
     pushd ${KUDPATH}/kud/hosting_providers/vagrant/
     ansible-playbook -i inventory/hosts.ini /opt/kubespray-${KUBESPRAY_VERSION}/reset.yml \
         --become --become-user=root -e reset_confirmation=yes
