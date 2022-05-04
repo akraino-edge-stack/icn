@@ -23,43 +23,47 @@ spec:
         - name: podsecurity
     values:
         global:
-            repository: integratedcloudnative/
             pullPolicy: IfNotPresent
             db:
-                rootPassword: ENC[AES256_GCM,data:lVFVEBepSTbjVaIM10Qi6w==,iv:f1Ud8E1I6y47IVQZ6HyQBm2GdmYfpRGOJDI+VHzkDVk=,tag:utWhcxk4KxkgtMIuJ7JfJg==,type:str]
-                emcoPassword: ENC[AES256_GCM,data:qPj/L7dp6ChqQROipHBHBw==,iv:OEcr5AZq3oS6573UIZcizKJ0HNWZoe/DdlhxUxtpMvc=,tag:Wc8eKl+JgJmUdlAiU0D/pQ==,type:str]
+                rootPassword: ENC[AES256_GCM,data:cJlygh0lRSW35FfB90NP5w==,iv:KHvVw3U466bei8p5QuCZ7vQL4HmVRPX8fqKqnsjfYqY=,tag:PQaxEerT50TDext+17cw1w==,type:str]
+                emcoPassword: ENC[AES256_GCM,data:Ze01GVul673hC3bQyFlWMg==,iv:izokFvy5cE8QGSOYOtloveWW/pvgcrU8z6FBF2EnTZA=,tag:jdqwGBt/HIGeCk3rop9WAQ==,type:str]
             contextdb:
-                rootPassword: ENC[AES256_GCM,data:9/cBu0p/voFS5y/2QVfZVg==,iv:ljzTeDW1pbkRdrD9MnrewejQ/bamj6DK82zb668GILY=,tag:ogqvHV2zxQZwUDhdIS7gzA==,type:str]
+                rootPassword: ENC[AES256_GCM,data:CmkuHNCVI3pTpSD2UfGqKg==,iv:0mAYVPcrzGHuqDtTRnB/aMmUAJUALzDvacdb/Csm/+U=,tag:vFH4ZieeHoI+4vPRvFEyNw==,type:str]
         etcd:
             clusterDomain: cluster.local
+            persistence:
+                mountPath: /mnt
+        mongo:
+            persistence:
+                mountPath: /mnt
 sops:
     kms: []
     gcp_kms: []
     azure_kv: []
     hc_vault: []
     age: []
-    lastmodified: "2022-01-18T16:50:53Z"
-    mac: ENC[AES256_GCM,data:Umh9SeSRqFBfJHeXAiD02T+8gil2jPft0Dr8itSjX36ah/sOW0sQWiG4ktNDVLA9d9XBNH1g9MJFbasHM1h6E7L0hLhgS06DOc8fK1QZNAtmzqR3ygtnzuYQCSFwj2TLwwQhz2AuH8RKHGquJlgFO1Ja7v8VajAEIGOC7YyaljE=,iv:Q6L44pqfDxc0cXHlwm2vDOTWRDfQPU6Z3OJFZXYD4ZU=,tag:VwAm8JORXdUdOi/tFMGpnA==,type:str]
+    lastmodified: "2022-05-04T16:06:13Z"
+    mac: ENC[AES256_GCM,data:RdleJnUnwjaLGh5Lji4QNzIWosZM/MZjBUCTXyNEn9rLKg1V32qEGXEnAkbZLkEpDVHePxvybfKNUUpCMLwfZmoBvdJvFJaaj0r7C0Ir929kjBR2w5h8VKax8qwoM1XjvcKWtjXt0VAyTVDb+GfCTh55ds1Btu8H5A1CaUEzre0=,iv:QTKDRzphXuRz2vEQ+rNncUdsx4YKO4Um3EbbPoOvDxI=,tag:oDEsB0IdL8Q2mMsiyd6fRA==,type:str]
     pgp:
-        - created_at: "2022-01-18T16:50:51Z"
-          enc: |
+        - created_at: "2022-05-04T16:06:13Z"
+          enc: |-
             -----BEGIN PGP MESSAGE-----
 
-            hQIMA4SX7nk+q+zPAQ//WDlequVQ5bIaWl+QjrPjt236Px/oyxyhZfUBNxryOspQ
-            hwrGmHXLxL5+/EEyMexmDxKzQWmQQQsX81Gy5ME26dPIWcM5Nkgtm4vndLBJ0fbK
-            NtOTtBk6WZMoyaIPqN9zzdKNUQcjJt3Nwt7UN6V/f4ce6nXsvrMNU51sApu2USyw
-            TrSIfl28pNceelERPhQqvyT90iX9yd64nSeQC3osomiYHGhvuHMVTrEpleO023OD
-            AA9ZoUoqAWQNnoSfiYPmrjnYf0T71RTrPCQd1B6yriJvp+rEwS7Y98wNhBP+DAwm
-            n/ascvrhdbMieILygC6rByOI51NWL9n/iC4U3mIZItN7WPWSHLfn49oJ0TUBZ1P1
-            cS1+L5cb7lzJ08BGEy583ZOVQPrtvVIGkcWueD1LV6l8yfSz0SxsBkmoGAybh1PC
-            SpcCXHmF3hYhc1Klq+IiGDRlZe5T0q9L0P5nwIwqwoeXuIpBMcIreUhgUWwserMw
-            hqf53ye4bZt/FY5pCRTqZ5Oe+3tjS/RPGPSu6bY4UUThMu3Blo+U+6NQJRNPGmht
-            NP4ecu/EJDk+JfafzZtuoF/H97JlOqR9Zxf9JZgVPB7xrbV3romhtXIEUU97i/rS
-            mFEg5Th3mV9TqSuBMROeErBWsnnCikRtQl4CrpphBGgx+XhmRVIyibLqWSTBytvS
-            XgEj6F3GJfakhzxEc5Bv7zH2DSrjS4cwqdjkcVHgqDjJVk+wvHXFKdaDqm9FOH87
-            nk5JsJHcTEV1m9Sga3nPI5WuBPd3J5yABh4uEoGy8d4uW3unYisWOHyDRLHE6bU=
-            =YZiN
+            wcFMA4SX7nk+q+zPARAAWN/dhxmibhCAyVOUeyNtLMp2uuJkiiB6d5ymE0GAdWEk
+            cIAZEUj0uxQBtKrjNDvrxVSeHi9ICIfclVbDrWvd3eGVSXccu+SthhDIstrVQu7D
+            /jkYg6MCGvLHDXofCgu3/9KDLqi44xVVPUS7GTY7pee46MnSFskXY7XE1iBqDHdq
+            ivc1sE7dIr60WADsuMGX2pLB4w2DQG+6bJ5Out3gJDgIH5ZTC2JcQGeuGLbh6BGY
+            xoImV7GxUbGlHivxykaRojgMow0CpXdtz2YCg8RvrlhimspLFjw+XnLCLN5DZ5P+
+            lYBwPxokz49nL157i0cVAcC0nQ1TrAtbPeoADz18Lbl5I5Fb8A33qBS/cIwWuJeO
+            nP0VnJeJbEShmS2Ep+t/8Gv/TzeEnDnkpvO7dfWC+NSPVzbdnoZwFAtrBKOuCKeG
+            xW993y80XLOzfWsFgzozTdrhIMG6Rl4UrGlzGoiSDCNeAZY6+SGsuQ+pn9spSsZB
+            bYxG2Vdahzdak54IPmrqgRTohPiUHUU4rF7VM5H0uondSou9AT0YZf1DBgZ4H8x4
+            mKTUMeNmD0SG3K8ut9rKwZvhUPmBkprtIAbKmebZLZ+tO5uopcy+qa4/HRO8Om/L
+            5/ryDANFbyEwJ+D/jo/i2Rqu6nxZrfGrm5lkSnQiXjCTB1eYQ9XOF8cZqKvqFiHS
+            5gFknP6G3S4oiFg64bu5K3Ww5Yuz4dOcG0mDcscGVsqd+U5oqqAxNu6nwfeSfVan
+            W7ZC2Usj4os/U1DBbwEEXsDkA/AXnQmw+pbfxMsvkiZ3X+LzPXN9AA==
+            =zzVM
             -----END PGP MESSAGE-----
           fp: A4B4A47A1DB07DE00E8158BE411E23534CA8FAE0
-    encrypted_regex: ^(bmcPassword|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
+    encrypted_regex: ^(bmcPassword|ca-key.pem|decryptionSecret|hashedPassword|emcoPassword|rootPassword)$
     version: 3.7.1
