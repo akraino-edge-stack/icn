@@ -16,6 +16,7 @@ cluster is entirely configured.
 2. [Installation guide](doc/installation-guide.md)
 3. [Troubleshooting](doc/troubleshooting.md)
 4. [Software BOM](doc/software-bom.md)
+5. [Upgrading](doc/upgrading.md)
 
 # Reporting a bug
 
