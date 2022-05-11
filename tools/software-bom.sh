@@ -70,6 +70,60 @@ function jump_server {
     jump_server_addons
 }
 
+function jump_server_os_installed {
+    (
+	source /etc/os-release
+	case ${NAME} in
+	    "Ubuntu") echo "|OS|https://ubuntu.com/|${NAME} ${VERSION_ID}|GPL-2.0|" ;;
+	    *) echo "|OS|UNKNOWN|UNKNOWN|UNKNOWN" ;;
+	esac
+    )
+}
+
+function kubespray_version_installed {
+    awk -F= '/KUBESPRAY_VERSION=/ {print $2}' ${ICNDIR}/deploy/kud/kud_bm_launch.sh
+}
+
+function jump_server_k8s_installed {
+    local -r version=$(kubectl version -o json | jq -r '.serverVersion.gitVersion')
+    echo "|Kubespray|https://github.com/kubernetes-sigs/kubespray|$(kubespray_version)|Apache-2.0|" # TODO
+    echo "|K8s|https://kubernetes.io/|${version}|Apache-2.0|"
+}
+
+function jump_server_cri_installed {
+    local -r version=$(docker version --format '{{.Server.Version}}')
+    echo "|Docker|https://www.docker.com/|${version}|Apache-2.0|"
+}
+
+function jump_server_cni_installed {
+    local -r version=$(kubectl -n kube-system get daemonset kube-flannel -o jsonpath='{.spec.template.spec.containers[0].image}' | sed -e 's/[^:]\+:\(.*\)-.*/\1/')
+    echo "|Flannel|https://github.com/flannel-io/flannel|${version}|Apache-2.0|"
+}
+
+function jump_server_addons_installed {
+    local -r ironic_version=$(kubectl -n capm3-system get deployment capm3-ironic -o jsonpath='{.spec.template.spec.containers[0].image}' | sed -e 's/[^:]\+:\(.*\)/\1/')
+    local -r cert_manager_version=$(kubectl -n cert-manager get deployment cert-manager -o jsonpath='{.spec.template.spec.containers[0].image}' | sed -e 's/[^:]\+:\(.*\)/\1/')
+    local -r bmo_version=$(kubectl -n baremetal-operator-system get deployment baremetal-operator-controller-manager -o jsonpath='{.spec.template.spec.containers[0].image}' | sed -e 's/[^:]\+:\(.*\)/\1/')
+    local -r capi_version=$(clusterctl version -o json | jq -r '.clusterctl.gitVersion')
+    local -r flux_version=$(flux version | awk '/flux:/ {print $2}')
+    cat <<EOF
+|Ironic|https://github.com/metal3-io/baremetal-operator|${ironic_version}|Apache-2.0|
+|cert-manager|https://cert-manager.io/|${cert_manager_version}|Apache-2.0|
+|Bare Metal Operator|https://github.com/metal3-io/baremetal-operator|${bmo_version}|Apache-2.0|
+|Cluster API|https://cluster-api.sigs.k8s.io/|${capi_version}|Apache-2.0|
+|Flux|https://fluxcd.io/|${FLUX_VERSION}|Apache-2.0|
+EOF
+}
+
+function jump_server_installed {
+    table_header
+    jump_server_os_installed
+    jump_server_k8s_installed
+    jump_server_cri_installed
+    jump_server_cni_installed
+    jump_server_addons_installed
+}
+
 function compute_cluster_os {
     case $(awk '/imageName:/ {print $2}' ${ICNDIR}/deploy/cluster/values.yaml) in
 	"focal-server-cloudimg-amd64.img")
@@ -131,7 +185,7 @@ function compute_cluster_addons {
 |Containerized Data Importer|https://github.com/kubevirt/containerized-data-importer|${CDI_VERSION}|Apache-2.0|
 |cert-manager|https://cert-manager.io/|${CERT_MANAGER_VERSION}|Apache-2.0|
 |CPU Manager for Kubernetes|https://github.com/intel/CPU-Manager-for-Kubernetes|${CPU_MANAGER_VERSION}|Apache-2.0|
-|EMCO|https://gitlab.com/project-emco|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-emco-management/emco-source.yaml)|Apache-2.0|
+|EMCO|https://gitlab.com/project-emco|$(git_repository_tag ${ICNDIR}/deploy/site/cluster-emco-management/emco-source.yaml | tr -d '"')|Apache-2.0|
 |Flux|https://fluxcd.io/|${FLUX_VERSION}|Apache-2.0|
 |Intel Network Adapter Linux Virtual Function Driver for Intel Ethernet Controller 700 and E810 Series|https://www.intel.com/content/www/us/en/download/18159/intel-network-adapter-linux-virtual-function-driver-for-intel-ethernet-controller-700-and-e810-series.html|$(iavf_driver_version)|GPL-2.0|
 |Intel Network Adapter Virtual Function Driver Installer|https://gerrit.onap.org/r/#/admin/projects/multicloud/k8s|$(image_tag ${ICNDIR}/deploy/iavf-driver-installer/icn/daemonset.yaml iavf-driver-installer)|Apache-2.0|
@@ -157,7 +211,8 @@ function compute_cluster {
     compute_cluster_addons
 }
 
-cat <<EOF >${ICNDIR}/doc/software-bom.md
+function from_source {
+    cat <<EOF >${ICNDIR}/doc/software-bom.md
 <!-- Markdown generated from tools/software-bom.sh. DO NOT EDIT. -->
 
 # Software BOM
@@ -171,3 +226,30 @@ $(jump_server)
 $(compute_cluster)
 
 EOF
+}
+
+function from_installed {
+    cat <<EOF
+<!-- Markdown generated from tools/software-bom.sh. DO NOT EDIT. -->
+
+# Software BOM
+
+## Jump server
+
+$(jump_server_installed)
+
+EOF
+}
+
+case $1 in
+    "from-source") from_source ;;
+    "from-installed") from_installed ;;
+    *) cat <<EOF
+Usage: $(basename $0) COMMAND
+
+Commands:
+  from-source        - Software BOM of ICN source repository
+  from-installed     - Software BOM of installed components
+EOF
+       ;;
+esac
