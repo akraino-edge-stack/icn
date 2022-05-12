@@ -1,0 +1,26 @@
+---
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: openebs
+  namespace: openebs
+spec:
+  interval: 5m
+  chart:
+    spec:
+      chart: openebs
+      sourceRef:
+        kind: HelmRepository
+        name: openebs
+      interval: 1m
+  install:
+    remediation:
+      retries: -1
+  upgrade:
+    remediation:
+      retries: -1
+  dependsOn:
+  - name: podsecurity
+  values:
+    cstor:
+      enabled: true
