@@ -124,6 +124,20 @@ A description of the BareMetalHost states can be found in the [Bare
 Metal Operator
 documentation](https://github.com/metal3-io/baremetal-operator/blob/main/docs/baremetalhost-states.md).
 
+## BareMetalHost never transitions from Available to Provisioned
+
+If the BareMetalHost has an owner but is not transitioning from
+Available to Provisioned, it is possible that the chart values are
+misconfigured. Examine the capm3-controller-manager logs for error
+messages:
+
+    # kubectl -n capm3-system logs capm3-controller-manager-7db896996c-7dls7 | grep ^E
+    ...
+    E0512 18:00:24.781426       1 controller.go:304] controller/metal3data "msg"="Reconciler error" "error"="Failed to create secrets: Nic name not found ens5" "name"="icn-nodepool-0" "namespace"="metal3" "reconciler group"="infrastructure.cluster.x-k8s.io" "reconciler kind"="Metal3Data"
+
+In the above instance, the NIC name in the chart values (`ens5`) was
+incorrect and setting the correct name resolved the issue.
+
 ## Vagrant destroy fails with `cannot undefine domain with nvram`
 
 The fix is to destroy each machine individually.  For the default ICN
