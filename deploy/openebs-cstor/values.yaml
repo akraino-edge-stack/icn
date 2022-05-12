@@ -1,0 +1,5 @@
+# storageClassName is the name of the created StorageClass.
+storageClassName: cstor-csi-disk
+
+# dataRaidGroupType may be either stripe or mirror.
+dataRaidGroupType: stripe

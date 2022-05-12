@@ -1,0 +1,10 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.storageClassName }}
+provisioner: cstor.csi.openebs.io
+allowVolumeExpansion: true
+parameters:
+  cas-type: cstor
+  cstorPoolCluster: {{ .Release.Name }}-disk-pool
+  replicaCount: {{ len (lookup "openebs.io/v1alpha1" "BlockDevice" .Release.Namespace "").items | quote }}

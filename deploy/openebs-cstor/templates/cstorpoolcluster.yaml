@@ -1,0 +1,16 @@
+apiVersion: cstor.openebs.io/v1
+kind: CStorPoolCluster
+metadata:
+ name: {{ .Release.Name }}-disk-pool
+spec:
+ pools:
+{{ range $index, $bd := (lookup "openebs.io/v1alpha1" "BlockDevice" .Release.Namespace "").items }}
+   - nodeSelector:
+       kubernetes.io/hostname: {{ $bd.spec.nodeAttributes.nodeName }}
+     dataRaidGroups:
+       - blockDevices:
+           - blockDeviceName: {{ $bd.metadata.name }}
+     poolConfig:
+       dataRaidGroupType: {{ $.Values.dataRaidGroupType }}
+{{ end }}
+

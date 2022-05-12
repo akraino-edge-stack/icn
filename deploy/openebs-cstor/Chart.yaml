@@ -1,0 +1,7 @@
+# A simple chart to create a StorageClass from a single cStor pool of
+# all available block devices in the cluster. This is far from
+# optimal, but it is sufficient for getting up and running initially.
+apiVersion: v2
+name: openebs-cstor
+type: application
+version: 0.1.0
