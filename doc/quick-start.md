@@ -180,8 +180,8 @@ be `ens7` or `eth2`.
     ...
 
 In contrast to the jump server, the provisioning network NIC is the
-first NIC present in the machine and will be named `ens5` or `eth0` and
-the baremetal network NIC will be `ens6` or `eth1`.
+first NIC present in the machine and will be named `ens6` or `eth0` and
+the baremetal network NIC will be `ens7` or `eth1`.
 
 The order of NICs is crucial here: the provisioning network NIC must
 be the NIC that the machine PXE boots from, and the BIOS used in this

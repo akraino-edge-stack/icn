@@ -196,6 +196,8 @@ Vagrant.configure("2") do |config|
           # The image will be provisioned by ICN so just create an empty
           # disk for the machine
           libvirt.storage :file, :size => 50, :type => 'raw', :cache => 'none'
+          # Create an additional disk for cStor
+          libvirt.storage :file, :size => 10, :type => 'raw', :cache => 'none'
           # Management attach is false so that vagrant will not interfere
           # with these machines: the jump server will manage them
           # completely
