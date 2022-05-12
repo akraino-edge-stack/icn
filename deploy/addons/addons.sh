@@ -104,6 +104,15 @@ function is_addon_ready {
     esac
 }
 
+function test_openebs {
+    local -r cluster_name=${CLUSTER_NAME:-icn}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    kubectl --kubeconfig=${cluster_kubeconfig} apply -f ${SCRIPTDIR}/openebs-cstor.yaml
+    kubectl --kubeconfig=${cluster_kubeconfig} wait pod hello-cstor-csi-disk-pod --for=condition=Ready --timeout=5m
+    kubectl --kubeconfig=${cluster_kubeconfig} exec -it hello-cstor-csi-disk-pod -- cat /mnt/store/greet.txt
+    kubectl --kubeconfig=${cluster_kubeconfig} delete -f ${SCRIPTDIR}/openebs-cstor.yaml
+}
+
 function test_addons {
     install_deps
 
@@ -120,7 +129,7 @@ function test_addons {
     popd
 
     pushd ${KUDPATH}/kud/tests
-    failed_kud_tests=""
+    failed_tests=""
     container_runtime=$(KUBECONFIG=${cluster_kubeconfig} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
     # TODO Temporarily remove kubevirt from kud_tests below.  The
     # kubevirt self-test needs AllowTcpForwarding yes in
@@ -138,15 +147,18 @@ function test_addons {
         if [[ ! -z ${addon} ]]; then
             wait_for is_addon_ready ${addon}
         fi
-        KUBECONFIG=${cluster_kubeconfig} bash ${test}.sh || failed_kud_tests="${failed_kud_tests} ${test}"
+        KUBECONFIG=${cluster_kubeconfig} bash ${test}.sh || failed_tests="${failed_tests} ${test}"
     done
     # The plugin_fw_v2 test needs the EMCO controllers in place
     register_emco_controllers
-    DEMO_FOLDER=${KUDPATH}/kud/demo KUBECONFIG=${cluster_kubeconfig} bash plugin_fw_v2.sh --external || failed_kud_tests="${failed_kud_tests} plugin_fw_v2"
+    DEMO_FOLDER=${KUDPATH}/kud/demo KUBECONFIG=${cluster_kubeconfig} bash plugin_fw_v2.sh --external || failed_tests="${failed_tests} plugin_fw_v2"
     unregister_emco_controllers
     popd
-    if [[ ! -z "$failed_kud_tests" ]]; then
-        echo "Test cases failed:${failed_kud_tests}"
+
+    test_openebs || failed_tests="${failed_tests} openebs"
+
+    if [[ ! -z "$failed_tests" ]]; then
+        echo "Test cases failed:${failed_tests}"
         exit 1
     fi
     echo "All test cases passed"

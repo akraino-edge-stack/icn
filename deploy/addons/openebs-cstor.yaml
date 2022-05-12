@@ -1,0 +1,32 @@
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: cstor-csi-disk-pvc
+spec:
+  storageClassName: cstor-csi-disk
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5G
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: hello-cstor-csi-disk-pod
+spec:
+  volumes:
+  - name: pod-volume
+    persistentVolumeClaim:
+      claimName: cstor-csi-disk-pvc
+  containers:
+  - name: hello-container
+    image: busybox
+    command:
+       - sh
+       - -c
+       - 'while true; do echo "`date` [`hostname`] Hello from OpenEBS Local PV." >> /mnt/store/greet.txt; sleep $(($RANDOM % 5 + 300)); done'
+    volumeMounts:
+    - mountPath: /mnt/store
+      name: pod-volume
