@@ -63,6 +63,8 @@ spec:
     # This must be done after kubeadm as the cabpk provider relies on
     # files in /var/run, which won't persist after a reboot
     - /usr/local/bin/set_kernel_cmdline.sh
+    # Required for OpenEBS support
+    - /usr/local/bin/enable_iscsi.sh
     files:
 {{ include "cluster.keepalived" .Values | indent 4 }}
 {{ include "cluster.containerRuntime" .Values | indent 4 }}
@@ -81,6 +83,10 @@ spec:
       permissions: '0777'
       content: |
 {{ $.Files.Get "resources/set_kernel_cmdline.sh" | indent 8 }}
+    - path: /usr/local/bin/enable_iscsi.sh
+      permissions: '0777'
+      content: |
+{{ $.Files.Get "resources/enable_iscsi.sh" | indent 8 }}
 {{- if eq .Values.cni "calico" }}
     - path: /etc/NetworkManager/conf.d/calico.conf
       content: |
