@@ -1,3 +1,39 @@
+diff --git a/kud/tests/plugin_fw_v2.sh b/kud/tests/plugin_fw_v2.sh
+index 6c8d842..b4f01cb 100755
+--- a/kud/tests/plugin_fw_v2.sh
++++ b/kud/tests/plugin_fw_v2.sh
+@@ -96,24 +96,27 @@ function setup {
+ orchestrator:
+   host: ${service_host}
+   port: 30415
++  statusPort: 30416
+ clm:
+   host: ${service_host}
+   port: 30461
+ ncm:
+   host: ${service_host}
+-  port: 30431
++  port: 30481
++  statusPort: 30482
+ ovnaction:
+   host: ${service_host}
+-  port: 30471
++  port: 30451
+ dcm:
+   host: ${service_host}
+   port: 30477
++  statusPort: 30478
+ gac:
+   host: ${service_host}
+-  port: 30491
++  port: 30420
+ dtc:
+  host: ${service_host}
+- port: 30481
++ port: 30418
+ EOF
+     cat <<EOF >plugin_fw_v2_values.yaml
+ ClusterProvider: vfw-cluster-provider
 diff --git a/kud/tests/plugin_fw_v2.yaml b/kud/tests/plugin_fw_v2.yaml
 index b4dbf77..940ed6d 100644
 --- a/kud/tests/plugin_fw_v2.yaml

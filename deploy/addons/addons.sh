@@ -38,7 +38,7 @@ metadata:
   name: rsync
 spec:
   host: ${host}
-  port: 30441
+  port: 30431
 ---
 version: emco/v2
 resourceContext:
@@ -47,7 +47,7 @@ metadata:
   name: gac
 spec:
   host: ${host}
-  port: 30493
+  port: 30433
   type: "action"
   priority: 1
 ---
@@ -58,7 +58,7 @@ metadata:
   name: ovnaction
 spec:
   host: ${host}
-  port: 30473
+  port: 30432
   type: "action"
   priority: 1
 ---
@@ -69,7 +69,7 @@ metadata:
   name: dtc
 spec:
   host: ${host}
-  port: 30483
+  port: 30448
   type: "action"
   priority: 1
 EOF
