@@ -1,0 +1,81 @@
+---
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: test-vm
+  namespace: kubevirt-test
+spec:
+  running: true
+  template:
+    metadata:
+      labels:
+        app: test-vm
+    spec:
+      domain:
+        cpu:
+          model: host-passthrough
+        devices:
+          disks:
+          - disk:
+              bus: virtio
+            name: rootfs
+          - disk:
+              bus: virtio
+            name: cloudinit
+          interfaces:
+          - name: default
+            masquerade: {}
+        resources:
+          requests:
+            memory: 256M
+      networks:
+      - name: default
+        pod: {}
+      volumes:
+        - name: rootfs
+          dataVolume:
+            name: fedora-dv
+        - name: cloudinit
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              ssh_pwauth: True
+              users:
+              - name: testuser
+                gecos: User
+                primary-group: testuser
+                groups: users
+                lock_passwd: false
+                shell: /bin/bash
+                # the password is "testuser"
+                passwd: "$6$rounds=4096$wPs4Hz4tfs$a8ssMnlvH.3GX88yxXKF2cKMlVULsnydoOKgkuStTErTq2dzKZiIx9R/pPWWh5JLxzoZEx7lsSX5T2jW5WISi1"
+                sudo: ALL=(ALL) NOPASSWD:ALL
+              runcmd:
+                - echo hello world
+  dataVolumeTemplates:
+  - metadata:
+      name: fedora-dv
+    spec:
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 5Gi
+        storageClassName: cstor-csi-disk
+      source:
+        http:
+          url: https://sjc.edge.kernel.org/fedora-buffet/fedora/linux/releases/33/Cloud/x86_64/images/Fedora-Cloud-Base-33-1.2.x86_64.qcow2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-vm-service
+  namespace: kubevirt-test
+spec:
+  type: NodePort
+  selector:
+    app: test-vm
+  ports:
+  - name: ssh
+    port: 22

@@ -113,6 +113,27 @@ function test_openebs {
     kubectl --kubeconfig=${cluster_kubeconfig} delete -f ${SCRIPTDIR}/openebs-cstor.yaml
 }
 
+function is_vm_reachable {
+    local -r cluster_name=${CLUSTER_NAME:-icn}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    local -r node_port=$(kubectl --kubeconfig=${cluster_kubeconfig} -n kubevirt-test get service/test-vm-service -o jsonpath='{.spec.ports[].nodePort}')
+    local -r node=$(kubectl -n metal3 get cluster/${cluster_name} -o jsonpath='{.spec.controlPlaneEndpoint.host}')
+    sshpass -p testuser ssh testuser@${node} -p ${node_port} -- uptime
+}
+
+function test_kubevirt {
+    local -r cluster_name=${CLUSTER_NAME:-icn}
+    local -r cluster_kubeconfig="${BUILDDIR}/${cluster_name}.conf"
+    kubectl --kubeconfig=${cluster_kubeconfig} create ns kubevirt-test
+    kubectl --kubeconfig=${cluster_kubeconfig} -n kubevirt-test create rolebinding psp:privileged-kubevirt-test --clusterrole=psp:privileged --group=system:serviceaccounts:kubevirt-test
+    kubectl --kubeconfig=${cluster_kubeconfig} apply -f ${SCRIPTDIR}/kubevirt-test.yaml
+    WAIT_FOR_TRIES=30
+    wait_for is_vm_reachable
+    kubectl --kubeconfig=${cluster_kubeconfig} delete -f ${SCRIPTDIR}/kubevirt-test.yaml
+    kubectl --kubeconfig=${cluster_kubeconfig} -n kubevirt-test delete rolebinding psp:privileged-kubevirt-test
+    kubectl --kubeconfig=${cluster_kubeconfig} delete ns kubevirt-test
+}
+
 function test_addons {
     install_deps
 
@@ -131,10 +152,6 @@ function test_addons {
     pushd ${KUDPATH}/kud/tests
     failed_tests=""
     container_runtime=$(KUBECONFIG=${cluster_kubeconfig} kubectl get nodes -o jsonpath='{.items[].status.nodeInfo.containerRuntimeVersion}')
-    # TODO Temporarily remove kubevirt from kud_tests below.  The
-    # kubevirt self-test needs AllowTcpForwarding yes in
-    # /etc/ssh/sshd_config which is currently disabled by the OS
-    # security hardening.
     if [[ "${container_runtime}" == "containerd://1.2.13" ]]; then
         # With containerd 1.2.13, the qat test container image fails to unpack.
         kud_tests="topology-manager-sriov:sriov-network multus:multus-cni ovn4nfv:nodus-network nfd:node-feature-discovery sriov-network:sriov-network cmk:cpu-manager"
@@ -156,6 +173,7 @@ function test_addons {
     popd
 
     test_openebs || failed_tests="${failed_tests} openebs"
+    test_kubevirt || failed_tests="${failed_tests} kubevirt"
 
     if [[ ! -z "$failed_tests" ]]; then
         echo "Test cases failed:${failed_tests}"
