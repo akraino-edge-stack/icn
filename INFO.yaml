@@ -3,6 +3,7 @@ project: 'Integrated Cloud Native NFV/App stack family'
 project_creation_date: '6/24/2019'
 project_category: ''
 lifecycle_state: 'Incubation'
+tsc: ''
 project_lead: &akraino_icn_ptl
     name: 'Kuralamdhan Ramakrishnan'
     email: 'kuralamudhan.ramakrishnan@intel.com'
