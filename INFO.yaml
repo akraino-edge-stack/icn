@@ -83,3 +83,7 @@ committers:
       email: 'vivek.kashyap@intel.com'
       company: 'Intel'
       id: 'v1vk'
+    - name: 'Todd Malsbary'
+      email: 'todd.malsbary@intel.com'
+      company: 'Intel'
+      id: 'todd.malsbary'
